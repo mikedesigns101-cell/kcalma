@@ -15,6 +15,9 @@ object Emparejado {
         "cocid" to listOf("herv"), "herv" to listOf("cocid"),
         "asad" to listOf("horne"), "horne" to listOf("asad"),
     )
+    /** Palabras que matizan (cocción, color…): pueden faltar en el nombre de la base. El resto son ingredientes y deben estar. */
+    private val BLANDAS = setOf("cocid", "herv", "asad", "horne", "frit", "planc", "guisa", "estof", "salte",
+        "cocin", "crudo", "cruda", "vapor", "blanc", "integ", "natur", "fresc", "enter", "casei", "media", "grand", "peque")
     private val VACIAS = setOf("de", "del", "la", "el", "los", "las", "con", "y", "en", "a", "al")
 
     /** Raíces de las palabras con sentido: «patatas cocidas» → [patat, cocid]. */
@@ -39,7 +42,11 @@ object Emparejado {
             return r.count { raiz -> (listOf(raiz) + SINONIMOS[raiz].orEmpty()).any { nombre.contains(" $it") } }
         }
         fun distancia(a: Alimento) = if (kcalIa > 0 && a.kcal > 0) abs(ln(a.kcal / kcalIa)) else 1.0
-        return candidatos.filter { razonable(it, kcalIa) && coincidencias(it) > 0 }
+        fun tieneIngredientes(a: Alimento): Boolean {
+            val nombre = " " + normalizar(a.nombre) + " "
+            return r.filter { it !in BLANDAS }.all { nombre.contains(" $it") }
+        }
+        return candidatos.filter { razonable(it, kcalIa) && coincidencias(it) > 0 && tieneIngredientes(it) }
             .sortedWith(compareByDescending<Alimento> { coincidencias(it) }.thenBy { distancia(it) })
             .firstOrNull()
     }

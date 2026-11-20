@@ -33,26 +33,32 @@ sealed interface Respuesta<out T> {
 object Gemini {
     private const val BASE = "https://generativelanguage.googleapis.com/v1beta"
     /**
-     * Se prueban en orden (medido el 20/11/2026 con una clave gratuita):
-     * - Flash Lite: responde en 1-2 s.
-     * - 3.5 Flash con razonamiento mínimo: de reserva.
-     * - El alias del Flash más reciente: suele estar saturado en el plan gratuito (503 tras 25-40 s).
-     * gemini-2.5-flash ya no se ofrece a claves nuevas. Cada modelo tiene su propia cuota.
+     * Modelos en orden (medido el 20/11/2026 con 5 fotos reales y clave gratuita): Flash Lite reconoce igual
+     * que 3.5 Flash en 2-3 s; 3.5 Flash tarda 6-30 s y a veces se agota; el alias Flash suele dar 503.
+     * Los dos últimos quedan solo de reserva. gemini-2.5-flash ya no se ofrece a claves nuevas.
      */
-    private val MODELOS = listOf(
+    private val MODELOS = listOf<Pair<String, JSONObject?>>(
         "gemini-flash-lite-latest" to null,
-        "gemini-3.5-flash" to JSONObject().put("thinkingLevel", "minimal"),
+        "gemini-3.5-flash" to JSONObject().put("thinkingLevel", "low"),
         "gemini-flash-latest" to JSONObject().put("thinkingLevel", "low"),
     )
 
     private val INSTRUCCIONES = """
-        Eres un nutricionista español. Identifica cada alimento visible en la foto del plato y estima su peso en gramos
-        tal como se va a comer (cocinado si está cocinado). Ten en cuenta la nota del usuario: si menciona algo que no
-        se ve (aceite, salsa, azúcar…), añádelo como alimento aparte con de_la_nota = true; si corrige algo, hazle caso.
-        - nombre: nombre corto en español de España, como en una tabla de alimentos ("Arroz blanco cocido", "Pechuga de pollo a la plancha").
-        - busqueda: 1-3 palabras clave para buscarlo en una base de datos española, sin marcas ("arroz cocido", "pollo pechuga").
-        - gramos: tu mejor estimación; usa referencias del plato y los cubiertos.
-        - confianza: "alta", "media" o "baja".
+        Eres un nutricionista español experto en estimar raciones a partir de fotos. Identifica cada alimento visible
+        en el plato y estima su peso en gramos tal como se va a comer (cocinado si está cocinado).
+        Cómo estimar los gramos:
+        - Usa referencias: un plato llano mide unos 26 cm, uno de postre 20 cm, un tenedor 19 cm, una cuchara sopera 15 ml.
+        - Cuenta las piezas cuando se pueda (3 patatas medianas cocidas ≈ 450 g; 1 huevo ≈ 55 g; 1 filete de pollo ≈ 150 g).
+        - Fíjate en la altura del montón, no solo en la superficie que ocupa.
+        - Separa los ingredientes que se distinguen (arroz, pollo, verdura) y agrupa lo que es un plato único (lentejas
+          estofadas, paella, tortilla de patatas).
+        Nota del usuario: si menciona algo que no se ve (aceite, salsa, azúcar…), añádelo aparte con de_la_nota = true;
+        si corrige algo (qué es o cuánto hay), hazle caso por encima de lo que veas. No inventes aceite ni salsas que
+        no se vean ni se mencionen.
+        Campos:
+        - nombre: nombre corto en español de España, como en una tabla de alimentos ("Patata cocida", "Arroz blanco cocido").
+        - busqueda: el alimento base en 1-2 palabras en singular, sin marcas ni acompañamientos ("patata cocida", "pollo pechuga", "paella", "merluza", "verdura").
+        - confianza: "alta" si lo ves claro, "media" si dudas del alimento o la cantidad, "baja" si casi adivinas.
         - kcal_100g, proteinas_100g, hidratos_100g, grasas_100g: valores típicos por 100 g de ese alimento así preparado.
         Si no hay comida en la foto, devuelve la lista vacía.
     """.trimIndent()
@@ -73,33 +79,41 @@ object Gemini {
         llamar("$BASE/models?pageSize=1", clave, null).let { if (it is Respuesta.Ok) Respuesta.Ok(Unit) else it as Respuesta<Unit> }
     }
 
-    suspend fun analizar(clave: String, jpeg: ByteArray, nota: String): Respuesta<List<Reconocido>> = withContext(Dispatchers.IO) {
-        val cuerpo = JSONObject()
-            .put("systemInstruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", INSTRUCCIONES))))
-            .put("contents", JSONArray().put(JSONObject().put("parts", JSONArray()
-                .put(JSONObject().put("text", if (nota.isBlank()) "Sin nota." else "Nota del usuario: $nota"))
-                .put(JSONObject().put("inline_data", JSONObject()
-                    .put("mime_type", "image/jpeg").put("data", Base64.encodeToString(jpeg, Base64.NO_WRAP)))))))
-        var ultimo: Respuesta<JSONObject> = Respuesta.Fallo("sin modelo")
-        for ((modelo, razonamiento) in MODELOS) {
-            cuerpo.put("generationConfig", JSONObject()
-                .put("temperature", 0.2)
-                .put("responseMimeType", "application/json")
-                .put("responseSchema", ESQUEMA)
-                .apply { if (razonamiento != null) put("thinkingConfig", razonamiento) })
+    suspend fun analizar(clave: String, jpeg: ByteArray, nota: String): Respuesta<List<Reconocido>> {
+        val contenido = JSONArray().put(JSONObject().put("parts", JSONArray()
+            .put(JSONObject().put("text", if (nota.isBlank()) "Sin nota." else "Nota del usuario: $nota"))
+            .put(JSONObject().put("inline_data", JSONObject()
+                .put("mime_type", "image/jpeg").put("data", Base64.encodeToString(jpeg, Base64.NO_WRAP))))))
+        return withContext(Dispatchers.IO) { cadena(MODELOS, clave, contenido) }
+    }
+
+    /** Prueba los modelos en orden hasta que uno responda algo legible. */
+    private fun cadena(modelos: List<Pair<String, JSONObject?>>, clave: String, contenido: JSONArray): Respuesta<List<Reconocido>> {
+        var ultimo: Respuesta<List<Reconocido>> = Respuesta.Fallo("sin modelo")
+        for ((modelo, razonamiento) in modelos) {
+            val cuerpo = JSONObject()
+                .put("systemInstruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", INSTRUCCIONES))))
+                .put("contents", contenido)
+                .put("generationConfig", JSONObject()
+                    .put("temperature", 0.2)
+                    .put("responseMimeType", "application/json")
+                    .put("responseSchema", ESQUEMA)
+                    .apply { if (razonamiento != null) put("thinkingConfig", razonamiento) })
             val inicio = System.currentTimeMillis()
-            ultimo = llamar("$BASE/models/$modelo:generateContent", clave, cuerpo.toString())
-            Registro.anotar("Gemini $modelo: ${resumen(ultimo)} en ${System.currentTimeMillis() - inicio} ms")
+            val r = llamar("$BASE/models/$modelo:generateContent", clave, cuerpo.toString())
+            ultimo = when (r) {
+                is Respuesta.Ok -> runCatching { Respuesta.Ok(interpretar(r.valor)) }.getOrElse {
+                    Registro.anotar("Gemini $modelo: respuesta ilegible: ${it.message} · ${r.valor.toString().take(600)}")
+                    Respuesta.Fallo("respuesta ilegible")
+                }
+                else -> r as Respuesta<List<Reconocido>>
+            }
+            val detalle = (ultimo as? Respuesta.Ok)?.valor?.joinToString { "${it.nombre} ${it.gramos.toInt()} g (${it.confianza})" } ?: resumen(ultimo)
+            Registro.anotar("Gemini $modelo en ${System.currentTimeMillis() - inicio} ms: $detalle")
             // Saturado, sin cuota, retirado, tiempo agotado…: se prueba el siguiente. Clave mala o sin red: no
             if (ultimo !is Respuesta.Fallo && ultimo !is Respuesta.Limite) break
         }
-        when (val r = ultimo) {
-            is Respuesta.Ok -> runCatching { Respuesta.Ok(interpretar(r.valor)) }.getOrElse {
-                Registro.anotar("Gemini: respuesta ilegible: ${it.message} · ${r.valor.toString().take(600)}")
-                Respuesta.Fallo("respuesta ilegible")
-            }
-            else -> r as Respuesta<List<Reconocido>>
-        }
+        return ultimo
     }
 
     internal fun interpretar(respuesta: JSONObject): List<Reconocido> {

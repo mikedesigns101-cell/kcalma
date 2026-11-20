@@ -49,6 +49,8 @@
 4 pantallas: clave de Gemini la primera vez (guía de 3 pasos y aviso de que el plan gratuito de Google puede usar las fotos), foto con nota opcional y galería, análisis, y revisión con deslizadores de gramos, "Cambiar" y "Añadir algo que falte".
 - **Proveedores:** solo Gemini en la primera versión. OpenAI y Claude, más adelante en "Elegir proveedor".
 - **Alimento que no está en la base:** se usa la estimación de kcal y macros de la IA, marcada como "Estimado" y editable.
+- **Modelo (medido el 20/11/2026 con 5 fotos reales):** Gemini Flash Lite primero (2-3 s, reconoce igual que 3.5 Flash); 3.5 Flash y el alias Flash solo de reserva si Lite falla (tardan 6-30 s o dan 503). Mikel pidió prioridad a rapidez y acierto.
+- **Emparejado con la base:** los ingredientes de la búsqueda tienen que estar en el nombre del alimento (la tortilla de patatas nunca es «tortilla a la francesa»); si nada encaja, se usa la estimación de la IA.
 
 ### GitHub y actualizaciones (20/11/2026)
 - **Repositorio público** en la cuenta de GitHub de Mikel. Las versiones se publican como *Releases* con la APK firmada.
@@ -60,6 +62,14 @@
 - **«Mandar informe» abre una incidencia en GitHub** con el informe ya escrito (es público y pide cuenta de GitHub; el usuario lo revisa antes de enviarlo).
 - **El botón está en cada pantalla de error** (cámara y análisis de foto), con el error incluido.
 - Las pestañas y botones que aún no existen (Progreso, Ideas, Perfil, «Ver más») muestran «llega en una próxima versión».
+
+### Perfil (20/11/2026, maqueta en `maquetas/kcalma-perfil.html`; Mikel pidió hacer todas las pantallas y sacarlas juntas, se aplican las opciones recomendadas)
+- Pestaña con cabecera, tarjeta del plan y grupos: Mis datos, Comida, Foto con IA, Datos y ayuda.
+- **Editar un bloque reutiliza las pantallas del onboarding** y enseña el plan nuevo antes de guardar.
+- **Peso con historial y fecha** (hoja rápida con − / +); alimenta Progreso.
+- **Plan a mano:** se pueden fijar kcal a mano, con «Volver al calculado».
+- **Copia de seguridad** (exportar e importar un archivo) en esta versión.
+- También: cambiar o borrar la clave de Gemini, Mandar informe y Buscar actualizaciones.
 
 **Arquitectura sin servidor (confirmada el 20/11/2026):** no hay Supabase ni ningún backend. La app funciona entera en el móvil: base de datos local, la clave de cada usuario guardada cifrada (Android Keystore) y la llamada a la IA directamente desde la app. Cada amigo saca su propia clave gratis de Gemini en Google AI Studio, con una guía dentro de la app. La clave de Mikel nunca va en el APK. Sin sincronización: botón de exportar e importar copia de seguridad. Esto sustituye al "servidor intermedio" y a Supabase de las secciones 3 y 5.
 

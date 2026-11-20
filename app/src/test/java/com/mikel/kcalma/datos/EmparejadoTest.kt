@@ -21,4 +21,14 @@ class EmparejadoTest {
     @Test fun kcalMuyDistintasNoSirven() {
         assertNull(Emparejado.elegir(listOf(a("Caldo de pollo", 8.0)), "pollo pechuga", 165.0))
     }
+
+    @Test fun tortillaDePatatasNoEsFrancesa() {
+        val c = listOf(a("Tortilla, a la francesa", 196.0), a("Tortilla de patatas con cebolla", 160.0))
+        assertEquals("Tortilla de patatas con cebolla", Emparejado.elegir(c, "tortilla patatas", 180.0)?.nombre)
+        assertNull(Emparejado.elegir(c.take(1), "tortilla patatas", 180.0))
+    }
+
+    @Test fun arrozBlancoCocidoAceptaArrozHervido() {
+        assertEquals("Arroz, hervido", Emparejado.elegir(listOf(a("Arroz, hervido", 130.0)), "arroz blanco cocido", 130.0)?.nombre)
+    }
 }
