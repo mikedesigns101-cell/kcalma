@@ -5,6 +5,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -90,6 +94,10 @@ fun PantallaHoy(
         Macro("Grasas", comido.grasas.roundToInt(), plan.grasasG, c.grasas),
     )
     val lateral = Modifier.padding(horizontal = MARGEN)
+    val contexto = LocalContext.current
+    val pronto: (String) -> Unit = { que ->
+        Toast.makeText(contexto, "$que llega en una próxima versión", Toast.LENGTH_SHORT).show()
+    }
     Box(Modifier.fillMaxSize().background(c.fondo0)) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().statusBarsPadding(),
@@ -99,13 +107,13 @@ fun PantallaHoy(
             item { Column(lateral) { Cabecera(perfil.pesoKg) } }
             item { Column(lateral) { Anillo(objetivo = plan.kcal, comido = comido.kcalInt, ejercicio = 0) } }
             item { Box(lateral) { FilaMacros(macros) } }
-            item { Box(lateral) { TituloSeccion("Ideas para tu comida", "Ver más") } }
-            item { FilaSugerencias() }
+            item { Box(lateral) { TituloSeccion("Ideas para tu comida", "Ver más") { pronto("El recomendador de comidas") } } }
+            item { FilaSugerencias { pronto("El recomendador de comidas") } }
             items(ComidaDia.entries) { cd ->
                 Box(lateral) { TarjetaComida(cd, entradas.filter { it.comida == cd }, { onAbrirComida(cd) }, { onAnadir(cd) }) }
             }
         }
-        BarraInferior(Modifier.align(Alignment.BottomCenter), onCamara)
+        BarraInferior(Modifier.align(Alignment.BottomCenter), onCamara, pronto)
     }
 }
 
@@ -213,17 +221,17 @@ private fun BarraProgreso(valor: Float, color: Color) {
 }
 
 @Composable
-private fun TituloSeccion(titulo: String, accion: String) {
+private fun TituloSeccion(titulo: String, accion: String, onAccion: () -> Unit) {
     val c = KcalmaTheme.colores
     Row(Modifier.fillMaxWidth().padding(bottom = 8.dp), verticalAlignment = Alignment.Bottom) {
         Text(titulo, style = KcalmaTheme.tipo.titulo, color = c.texto)
         Spacer(Modifier.weight(1f))
-        Text(accion, style = KcalmaTheme.tipo.pequeno, color = c.acento)
+        Text(accion, style = KcalmaTheme.tipo.pequeno, color = c.acento, modifier = Modifier.clickable(onClick = onAccion).padding(4.dp))
     }
 }
 
 @Composable
-private fun FilaSugerencias() {
+private fun FilaSugerencias(onClick: () -> Unit) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     LazyRow(
@@ -236,7 +244,7 @@ private fun FilaSugerencias() {
             Column(
                 Modifier.width(220.dp).clip(forma).background(c.fondo2)
                     .border(BorderStroke(1.dp, Brush.linearGradient(listOf(c.acento.copy(alpha = .5f), c.acento2.copy(alpha = .5f)))), forma)
-                    .padding(12.dp)
+                    .clickable(onClick = onClick).padding(12.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(s.origen.uppercase(), style = t.diminuto, color = c.texto3, modifier = Modifier.weight(1f))
@@ -303,20 +311,21 @@ private fun TarjetaComida(comida: ComidaDia, entradas: List<Entrada>, onAbrir: (
 private enum class Icono { HOY, PROGRESO, IDEAS, PERFIL, CAMARA }
 
 @Composable
-private fun BarraInferior(modifier: Modifier, onCamara: () -> Unit) {
+private fun BarraInferior(modifier: Modifier, onCamara: () -> Unit, pronto: (String) -> Unit) {
     val c = KcalmaTheme.colores
-    Box(modifier.fillMaxWidth()) {
+    // pointerInput vacío: la barra se queda los toques y no pasan a las tarjetas de debajo
+    Box(modifier.fillMaxWidth().pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }) {
         Row(
             Modifier.fillMaxWidth().background(c.fondo1)
                 .windowInsetsPadding(WindowInsets.navigationBars)
                 .height(68.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ElementoBarra(Icono.HOY, "Hoy", activo = true, Modifier.weight(1f))
-            ElementoBarra(Icono.PROGRESO, "Progreso", activo = false, Modifier.weight(1f))
+            ElementoBarra(Icono.HOY, "Hoy", activo = true, Modifier.weight(1f)) {}
+            ElementoBarra(Icono.PROGRESO, "Progreso", activo = false, Modifier.weight(1f)) { pronto("La pantalla de progreso") }
             Spacer(Modifier.weight(1f))
-            ElementoBarra(Icono.IDEAS, "Ideas", activo = false, Modifier.weight(1f))
-            ElementoBarra(Icono.PERFIL, "Perfil", activo = false, Modifier.weight(1f))
+            ElementoBarra(Icono.IDEAS, "Ideas", activo = false, Modifier.weight(1f)) { pronto("El recomendador de comidas") }
+            ElementoBarra(Icono.PERFIL, "Perfil", activo = false, Modifier.weight(1f)) { pronto("La pantalla de perfil") }
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(c.borde))
         Box(
@@ -329,10 +338,10 @@ private fun BarraInferior(modifier: Modifier, onCamara: () -> Unit) {
 }
 
 @Composable
-private fun ElementoBarra(icono: Icono, texto: String, activo: Boolean, modifier: Modifier) {
+private fun ElementoBarra(icono: Icono, texto: String, activo: Boolean, modifier: Modifier, onClick: () -> Unit) {
     val c = KcalmaTheme.colores
     val color = if (activo) c.acento else c.texto3
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier.fillMaxHeight().clickable(onClick = onClick), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         DibujoIcono(icono, color, 22)
         Spacer(Modifier.height(3.dp))
         Text(texto, style = KcalmaTheme.tipo.diminuto, color = color)

@@ -37,6 +37,7 @@ class MainActivity : ComponentActivity() {
             navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         )
         super.onCreate(savedInstanceState)
+        com.mikel.kcalma.datos.Registro.iniciar(applicationContext)
         val almacen = AlmacenPerfil(applicationContext)
         val repo = Repositorio(applicationContext)
         setContent {

@@ -55,6 +55,12 @@
 - **Actualización desde la app:** una vez al día consulta la última Release. Si hay una nueva, muestra una tarjeta arriba en «Hoy» ("✨ Nueva versión X · Actualizar", con ✕ para ocultarla hasta la siguiente). Al pulsar, descarga la APK y Android pide confirmar la instalación.
 - **Firma de release:** la clave está fuera del repositorio (`C:\Users\Mikel\.kcalma\`). Si se pierde, los amigos no podrán actualizar sin desinstalar.
 
+### Informes de errores (20/11/2026)
+- La app guarda en el móvil un registro local (versión, modelo de móvil, fallos de cámara y de Gemini, cierres; sin fotos, claves ni diario).
+- **«Mandar informe» abre una incidencia en GitHub** con el informe ya escrito (es público y pide cuenta de GitHub; el usuario lo revisa antes de enviarlo).
+- **El botón está en cada pantalla de error** (cámara y análisis de foto), con el error incluido.
+- Las pestañas y botones que aún no existen (Progreso, Ideas, Perfil, «Ver más») muestran «llega en una próxima versión».
+
 **Arquitectura sin servidor (confirmada el 20/11/2026):** no hay Supabase ni ningún backend. La app funciona entera en el móvil: base de datos local, la clave de cada usuario guardada cifrada (Android Keystore) y la llamada a la IA directamente desde la app. Cada amigo saca su propia clave gratis de Gemini en Google AI Studio, con una guía dentro de la app. La clave de Mikel nunca va en el APK. Sin sincronización: botón de exportar e importar copia de seguridad. Esto sustituye al "servidor intermedio" y a Supabase de las secciones 3 y 5.
 
 ---

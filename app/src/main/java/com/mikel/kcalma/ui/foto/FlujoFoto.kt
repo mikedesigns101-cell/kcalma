@@ -13,8 +13,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import com.mikel.kcalma.datos.Claves
+import com.mikel.kcalma.datos.Emparejado
 import com.mikel.kcalma.datos.Gemini
 import com.mikel.kcalma.datos.Reconocido
+import com.mikel.kcalma.datos.Registro
 import com.mikel.kcalma.datos.Repositorio
 import com.mikel.kcalma.datos.Respuesta
 import com.mikel.kcalma.dominio.Alimento
@@ -70,12 +72,14 @@ fun FlujoFoto(
                     avance = 2
                     items.clear()
                     r.valor.forEach { rec -> items += emparejar(rec, repo, siguienteId++) }
+                    Registro.anotar("Reconocidos: " + items.joinToString { "${it.alimento.nombre} ${it.gramos.toInt()} g${if (it.estimado) " (estimado)" else ""}" })
                     paso = Paso.RESULTADO
                 }
                 Respuesta.ClaveMala -> { error = "Google no acepta la clave. Revísala o crea otra."; paso = Paso.CLAVE }
                 Respuesta.Limite -> error = "Has llegado al límite gratuito de Gemini por ahora. Espera un minuto y vuelve a intentarlo."
                 Respuesta.SinConexion -> error = "Sin conexión. La foto con IA necesita internet."
-                is Respuesta.Fallo -> error = "Gemini no ha podido analizar la foto (${r.detalle}). Prueba otra vez."
+                is Respuesta.Fallo -> error = if (r.detalle == "tiempo agotado") "Gemini está tardando demasiado. Prueba otra vez en un momento."
+                    else "Gemini no ha podido analizar la foto (${r.detalle}). Prueba otra vez."
             }
         }
     }
@@ -157,11 +161,11 @@ fun FlujoFoto(
  * estimación de la IA marcada como estimada.
  */
 private suspend fun emparejar(r: Reconocido, repo: Repositorio, id: Int): ItemFoto {
-    val candidato = repo.buscar(r.busqueda, "").firstOrNull()
-        ?: repo.buscar(r.nombre, "").firstOrNull()
-        ?: repo.buscar(r.busqueda, null).firstOrNull()
-    val razonable = candidato != null && (r.kcal100 < 30 || candidato.kcal < 30 ||
-        candidato.kcal / r.kcal100 in 0.45..2.2)
+    val consultas = Emparejado.consultas(r.busqueda, r.nombre)
+    // Genéricos primero (de la consulta más estricta a la más amplia); si no, cualquier producto
+    val candidato = consultas.firstNotNullOfOrNull { q -> Emparejado.elegir(repo.buscar(q, "").take(30), r.busqueda + " " + r.nombre, r.kcal100) }
+        ?: consultas.firstNotNullOfOrNull { q -> Emparejado.elegir(repo.buscar(q, null).take(30), r.busqueda + " " + r.nombre, r.kcal100) }
+    val razonable = candidato != null
     return if (candidato != null && razonable) {
         ItemFoto(id, candidato, r.gramos, r.confianza, r.deLaNota)
     } else {

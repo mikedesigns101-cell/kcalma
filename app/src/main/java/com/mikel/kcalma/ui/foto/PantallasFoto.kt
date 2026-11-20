@@ -70,11 +70,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.mikel.kcalma.datos.Registro
 import com.mikel.kcalma.datos.Respuesta
 import com.mikel.kcalma.dominio.ComidaDia
 import com.mikel.kcalma.dominio.Nutrientes
 import com.mikel.kcalma.dominio.decimal
 import com.mikel.kcalma.ui.componentes.BotonPrincipal
+import com.mikel.kcalma.ui.componentes.EnlaceInforme
 import com.mikel.kcalma.ui.diario.BarraSuperior
 import com.mikel.kcalma.ui.diario.BotonIcono
 import com.mikel.kcalma.ui.diario.IconoAlimento
@@ -226,10 +228,12 @@ fun PantallaCamara(
     var hayCamara by remember { mutableStateOf(false) }
     var flash by remember { mutableStateOf(false) }
     var ocupado by remember { mutableStateOf(false) }
+    var fallo by remember { mutableStateOf<String?>(null) } // error visible con «Mandar informe»
 
     fun entregar(bitmap: Bitmap, rotacion: Int) {
         alcance.launch {
             val (lista, jpeg) = withContext(Dispatchers.Default) { prepararFoto(bitmap, rotacion) }
+            Registro.anotar("Foto preparada ${lista.width}x${lista.height}, ${jpeg.size / 1024} KB")
             ocupado = false
             onFoto(lista, jpeg)
         }
@@ -241,30 +245,33 @@ fun PantallaCamara(
         alcance.launch {
             val b = withContext(Dispatchers.IO) { leerDeGaleria(contexto, uri) }
             if (b != null) entregar(b, 0)
-            else { ocupado = false; Toast.makeText(contexto, "No se ha podido abrir la imagen", Toast.LENGTH_SHORT).show() }
+            else { Registro.anotar("ERROR galería: no se pudo leer $uri"); ocupado = false; fallo = "No se ha podido abrir la imagen de la galería." }
         }
     }
 
     fun disparar() {
         if (ocupado || !hayCamara) return
         ocupado = true
+        fallo = null
         captura.flashMode = if (flash) ImageCapture.FLASH_MODE_ON else ImageCapture.FLASH_MODE_OFF
         captura.takePicture(ContextCompat.getMainExecutor(contexto), object : ImageCapture.OnImageCapturedCallback() {
             override fun onCaptureSuccess(imagen: ImageProxy) {
                 val rot = imagen.imageInfo.rotationDegrees
-                val b = runCatching { imagen.toBitmap() }.getOrNull()
+                val b = runCatching { imagen.toBitmap() }.onFailure { Registro.error("convertir foto", it) }.getOrNull()
+                Registro.anotar("Foto hecha ${imagen.width}x${imagen.height} rot $rot")
                 imagen.close()
-                if (b != null) entregar(b, rot) else ocupado = false
+                if (b != null) entregar(b, rot) else { ocupado = false; fallo = "No se ha podido procesar la foto." }
             }
             override fun onError(e: ImageCaptureException) {
+                Registro.error("hacer foto (${e.imageCaptureError})", e)
                 ocupado = false
-                Toast.makeText(contexto, "No se ha podido hacer la foto", Toast.LENGTH_SHORT).show()
+                fallo = "No se ha podido hacer la foto (error ${e.imageCaptureError})."
             }
         })
     }
 
     Box(Modifier.fillMaxSize().background(c.fondo0)) {
-        if (permiso) VistaCaptura(captura) { hayCamara = it }
+        if (permiso) VistaCaptura(captura) { ok -> hayCamara = ok; if (!ok) fallo = "No se ha podido abrir la cámara. Puedes elegir una foto de la galería." }
         else Column(Modifier.align(Alignment.Center).padding(32.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text("📸", style = t.numeroGrande)
             Text(
@@ -287,6 +294,17 @@ fun PantallaCamara(
                 )
             }
             Spacer(Modifier.weight(1f))
+
+            fallo?.let { f ->
+                val formaFallo = RoundedCornerShape(14.dp)
+                Column(
+                    Modifier.fillMaxWidth().padding(bottom = 10.dp).clip(formaFallo).background(c.fondo1)
+                        .border(1.dp, c.rojo.copy(alpha = .5f), formaFallo).padding(start = 12.dp, end = 12.dp, top = 12.dp),
+                ) {
+                    Text(f, style = t.cuerpo, color = c.texto)
+                    EnlaceInforme("Cámara", f)
+                }
+            }
 
             val forma = RoundedCornerShape(14.dp)
             Row(
@@ -343,7 +361,8 @@ private fun VistaCaptura(captura: ImageCapture, onLista: (Boolean) -> Unit) {
                 val proveedor = proveedorFuturo.get()
                 val vistaPrevia = Preview.Builder().build().also { it.surfaceProvider = vista.surfaceProvider }
                 proveedor.unbindAll()
-                onLista(runCatching { proveedor.bindToLifecycle(ciclo, CameraSelector.DEFAULT_BACK_CAMERA, vistaPrevia, captura) }.isSuccess)
+                onLista(runCatching { proveedor.bindToLifecycle(ciclo, CameraSelector.DEFAULT_BACK_CAMERA, vistaPrevia, captura) }
+                    .onFailure { Registro.error("abrir cámara", it) }.isSuccess)
             }, ContextCompat.getMainExecutor(ctx))
             vista
         },
@@ -401,8 +420,9 @@ fun PantallaAnalizando(foto: Bitmap?, avance: Int, error: String?, onCerrar: () 
             BotonPrincipal("Reintentar", onClick = onReintentar)
             Text(
                 "Hacer otra foto", style = t.cuerpo, color = c.texto2, textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp).clickable(onClick = onCerrar).padding(6.dp),
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp).clickable(onClick = onCerrar).padding(6.dp),
             )
+            EnlaceInforme("Análisis de foto", error, Modifier.padding(bottom = 12.dp))
         }
     }
 }

@@ -11,7 +11,7 @@ import java.io.ByteArrayOutputStream
 import kotlin.math.max
 
 /** Lado mayor de la foto que se envía: basta para reconocer y ahorra datos y tiempo. */
-private const val LADO_MAX = 1280
+private const val LADO_MAX = 1024
 
 fun prepararFoto(original: Bitmap, rotacion: Int = 0): Pair<Bitmap, ByteArray> {
     val escala = (LADO_MAX.toFloat() / max(original.width, original.height)).coerceAtMost(1f)

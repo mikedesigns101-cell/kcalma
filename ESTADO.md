@@ -24,7 +24,9 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 ## Foto con IA (v0.2.0)
 - `datos/Claves.kt` (clave cifrada con Android Keystore, fuera de copias), `datos/Gemini.kt` (REST + responseSchema), `ui/foto/` (FlujoFoto, PantallasFoto, Imagen).
 - Emparejado: genéricos → todos; si no hay o las kcal no cuadran (0,45–2,2×), estimación de la IA marcada «Estimado».
-- Probado en el emulador: pantalla de clave, rechazo de clave falsa y guardado de la clave real. **Sin probar aún el análisis con una foto real** (Mikel lo prueba en el móvil con la v0.2.0).
+- Modelos: Flash Lite primero (1-3 s); 3.5 Flash y el alias Flash de reserva (el alias da 503 por saturación en el plan gratuito; 2.5 Flash ya no existe para claves nuevas). Emparejado por raíces y sinónimos (`datos/Emparejado.kt`).
+- Registro local (`datos/Registro.kt`, también a logcat con etiqueta Kcalma) y «Mandar informe» → incidencia en GitHub.
+- Probado en el emulador (v0.2.1): clave, foto con nota «patatas cocidas» → «Patata, hervida» 200 g en 2,5 s.
 
 ## Pendiente
 1. Probar en el móvil: análisis de foto con Gemini, lectura real de un código de barras y actualización 0.1.0 → 0.2.0 desde la app.

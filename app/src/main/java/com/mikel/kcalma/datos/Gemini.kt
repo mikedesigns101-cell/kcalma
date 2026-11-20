@@ -32,8 +32,18 @@ sealed interface Respuesta<out T> {
 /** Cliente mínimo de la API de Gemini. La IA solo reconoce y estima gramos; la base de datos calcula. */
 object Gemini {
     private const val BASE = "https://generativelanguage.googleapis.com/v1beta"
-    // El alias apunta siempre al Flash más reciente; si Google lo retira, se prueba el siguiente
-    private val MODELOS = listOf("gemini-flash-latest", "gemini-2.5-flash")
+    /**
+     * Se prueban en orden (medido el 20/11/2026 con una clave gratuita):
+     * - Flash Lite: responde en 1-2 s.
+     * - 3.5 Flash con razonamiento mínimo: de reserva.
+     * - El alias del Flash más reciente: suele estar saturado en el plan gratuito (503 tras 25-40 s).
+     * gemini-2.5-flash ya no se ofrece a claves nuevas. Cada modelo tiene su propia cuota.
+     */
+    private val MODELOS = listOf(
+        "gemini-flash-lite-latest" to null,
+        "gemini-3.5-flash" to JSONObject().put("thinkingLevel", "minimal"),
+        "gemini-flash-latest" to JSONObject().put("thinkingLevel", "low"),
+    )
 
     private val INSTRUCCIONES = """
         Eres un nutricionista español. Identifica cada alimento visible en la foto del plato y estima su peso en gramos
@@ -70,24 +80,34 @@ object Gemini {
                 .put(JSONObject().put("text", if (nota.isBlank()) "Sin nota." else "Nota del usuario: $nota"))
                 .put(JSONObject().put("inline_data", JSONObject()
                     .put("mime_type", "image/jpeg").put("data", Base64.encodeToString(jpeg, Base64.NO_WRAP)))))))
-            .put("generationConfig", JSONObject()
+        var ultimo: Respuesta<JSONObject> = Respuesta.Fallo("sin modelo")
+        for ((modelo, razonamiento) in MODELOS) {
+            cuerpo.put("generationConfig", JSONObject()
                 .put("temperature", 0.2)
                 .put("responseMimeType", "application/json")
-                .put("responseSchema", ESQUEMA))
-        var ultimo: Respuesta<JSONObject> = Respuesta.Fallo("sin modelo")
-        for (modelo in MODELOS) {
+                .put("responseSchema", ESQUEMA)
+                .apply { if (razonamiento != null) put("thinkingConfig", razonamiento) })
+            val inicio = System.currentTimeMillis()
             ultimo = llamar("$BASE/models/$modelo:generateContent", clave, cuerpo.toString())
-            if (!(ultimo is Respuesta.Fallo && ultimo.detalle == "404")) break
+            Registro.anotar("Gemini $modelo: ${resumen(ultimo)} en ${System.currentTimeMillis() - inicio} ms")
+            // Saturado, sin cuota, retirado, tiempo agotado…: se prueba el siguiente. Clave mala o sin red: no
+            if (ultimo !is Respuesta.Fallo && ultimo !is Respuesta.Limite) break
         }
         when (val r = ultimo) {
-            is Respuesta.Ok -> runCatching { Respuesta.Ok(interpretar(r.valor)) }.getOrElse { Respuesta.Fallo("respuesta ilegible") }
+            is Respuesta.Ok -> runCatching { Respuesta.Ok(interpretar(r.valor)) }.getOrElse {
+                Registro.anotar("Gemini: respuesta ilegible: ${it.message} · ${r.valor.toString().take(600)}")
+                Respuesta.Fallo("respuesta ilegible")
+            }
             else -> r as Respuesta<List<Reconocido>>
         }
     }
 
     internal fun interpretar(respuesta: JSONObject): List<Reconocido> {
-        val texto = respuesta.getJSONArray("candidates").getJSONObject(0)
-            .getJSONObject("content").getJSONArray("parts").getJSONObject(0).getString("text")
+        // Junta el texto de todas las partes que no son razonamiento y quita un posible ```json
+        val partes = respuesta.getJSONArray("candidates").getJSONObject(0).getJSONObject("content").getJSONArray("parts")
+        val texto = (0 until partes.length()).map { partes.getJSONObject(it) }
+            .filter { !it.optBoolean("thought") && it.has("text") }.joinToString("") { it.getString("text") }
+            .trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
         val lista = JSONObject(texto).getJSONArray("alimentos")
         return (0 until lista.length()).map { lista.getJSONObject(it) }.map { o ->
             Reconocido(
@@ -104,11 +124,17 @@ object Gemini {
         }.filter { it.gramos > 0 }
     }
 
+    private fun resumen(r: Respuesta<*>) = when (r) {
+        is Respuesta.Ok -> "OK"
+        is Respuesta.Fallo -> "fallo ${r.detalle}"
+        else -> r.toString()
+    }
+
     private fun llamar(url: String, clave: String, cuerpo: String?): Respuesta<JSONObject> {
         val c = URL(url).openConnection() as HttpURLConnection
         return try {
             c.connectTimeout = 10000
-            c.readTimeout = 60000
+            c.readTimeout = 30000
             c.setRequestProperty("x-goog-api-key", clave) // en cabecera, nunca en la URL
             if (cuerpo != null) {
                 c.requestMethod = "POST"
@@ -121,15 +147,20 @@ object Gemini {
                 400, 401, 403 -> {
                     val error = c.errorStream?.bufferedReader()?.use { it.readText() } ?: ""
                     if (error.contains("API_KEY_INVALID") || error.contains("API key not valid") || codigo != 400) Respuesta.ClaveMala
-                    else Respuesta.Fallo("400")
+                    else Respuesta.Fallo("400 " + mensajeError(error))
                 }
                 429 -> Respuesta.Limite
-                else -> Respuesta.Fallo(codigo.toString())
+                else -> Respuesta.Fallo("$codigo " + mensajeError(c.errorStream?.bufferedReader()?.use { it.readText() } ?: ""))
             }
+        } catch (e: java.net.SocketTimeoutException) {
+            Respuesta.Fallo("tiempo agotado")
         } catch (e: java.io.IOException) {
             Respuesta.SinConexion
         } finally {
             c.disconnect()
         }
     }
+
+    private fun mensajeError(cuerpo: String): String =
+        runCatching { JSONObject(cuerpo).getJSONObject("error").getString("message") }.getOrDefault(cuerpo).take(200)
 }
