@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kcalma · Onboarding</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--f0:#070c10;--f1:#0c141a;--f2:#101a21;--f3:#16232b;--f4:#1d2d36;--borde:#1a2a33;--t:#e9f2f6;--t2:#9db2bd;--t3:#657c88;--a:#3ad6f0;--a2:#e05cc0;--verde:#35d987;--ambar:#f2bf4b;--deg:linear-gradient(135deg,var(--a),var(--a2))}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#03060a;font-family:Inter,system-ui,sans-serif;color:var(--t);padding:28px 16px}
+.lienzo{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;max-width:1600px;margin:0 auto}
+.paso{display:flex;flex-direction:column;align-items:center;gap:10px}
+.etq{font:600 13px Outfit;color:var(--t2)}
+.etq b{color:var(--a)}
+.movil{width:340px;height:720px;background:var(--f0);border-radius:38px;border:9px solid #1b2228;overflow:hidden;position:relative;display:flex;flex-direction:column;padding:18px 18px 18px}
+h1,h2,.num{font-family:Outfit,sans-serif}
+.top{display:flex;align-items:center;gap:10px;margin:8px 0 18px}
+.atras{width:30px;height:30px;border-radius:10px;background:var(--f2);border:1px solid var(--borde);display:grid;place-items:center;color:var(--t2);font-size:14px}
+.prog{flex:1;height:5px;border-radius:5px;background:var(--f3);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--deg);border-radius:5px}
+h2{font-size:23px;font-weight:600;line-height:1.2;margin-bottom:6px}
+.sub{color:var(--t2);font-size:13px;line-height:1.45;margin-bottom:16px}
+.op{background:var(--f2);border:1px solid var(--borde);border-radius:14px;padding:11px 12px;margin-bottom:8px;display:flex;gap:11px;align-items:flex-start}
+.op .e{font-size:20px;width:34px;height:34px;border-radius:10px;background:var(--f4);display:grid;place-items:center;flex:none}
+.op b{font:600 14px Outfit;display:block;margin-bottom:2px}
+.op small{font-size:11.5px;color:var(--t3);line-height:1.35;display:block}
+.op.sel{background:linear-gradient(var(--f2),var(--f2)) padding-box,var(--deg) border-box;border-color:transparent}
+.op.sel .e{background:rgba(58,214,240,.14)}
+.campo{background:var(--f2);border:1px solid var(--borde);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.campo span{font-size:11px;color:var(--t3)}
+.campo .num{font-size:20px;font-weight:600}
+.campo .num small{font-size:13px;color:var(--t3);font-weight:400}
+.dos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seg{display:flex;background:var(--f2);border:1px solid var(--borde);border-radius:12px;padding:3px;margin-bottom:8px}
+.seg div{flex:1;text-align:center;padding:8px 0;border-radius:9px;font-size:13px;color:var(--t2)}
+.seg .on{background:var(--f4);color:var(--t);font-weight:600}
+.btn{margin-top:auto;height:50px;border-radius:15px;background:var(--deg);color:#06141a;font:700 15px Outfit;display:grid;place-items:center;box-shadow:0 8px 24px -8px rgba(58,214,240,.55)}
+.link{text-align:center;font-size:12px;color:var(--t3);margin-top:10px}
+.nota{font-size:11.5px;color:var(--t3);background:var(--f1);border:1px dashed var(--borde);border-radius:12px;padding:9px 11px;line-height:1.4;margin-bottom:10px}
+.nota b{color:var(--a)}
+.contador{display:flex;align-items:center;justify-content:space-between;background:var(--f2);border:1px solid var(--borde);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.contador .bt{width:32px;height:32px;border-radius:10px;background:var(--f4);display:grid;place-items:center;font-size:18px;color:var(--a)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{font-size:12px;padding:6px 10px;border-radius:10px;background:var(--f2);border:1px solid var(--borde);color:var(--t2)}
+.chip.no{background:rgba(240,90,99,.13);border-color:rgba(240,90,99,.4);color:#f05a63}
+.chip.si{background:rgba(53,217,135,.12);border-color:rgba(53,217,135,.4);color:var(--verde)}
+.mini{font:600 12px Outfit;color:var(--t2);margin:2px 0 7px;text-transform:uppercase;letter-spacing:.05em}
+.res{text-align:center;margin:4px 0 12px}
+.res .num{font-size:52px;font-weight:700;background:var(--deg);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.05}
+.res small{color:var(--t2);font-size:13px}
+.mac{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.mac div{background:var(--f2);border:1px solid var(--borde);border-radius:13px;padding:9px;text-align:center}
+.mac .num{font-size:19px;font-weight:600}
+.mac span{font-size:10.5px;color:var(--t3);display:block}
+.mac i{display:block;height:4px;border-radius:4px;margin:6px auto 0;width:60%}
+.cuenta{background:var(--f1);border:1px solid var(--borde);border-radius:13px;padding:10px 12px;font-size:11.5px;color:var(--t2);line-height:1.75}
+.cuenta div{display:flex;justify-content:space-between}
+.cuenta b{color:var(--t);font-weight:600}
+.cuenta .tot{border-top:1px solid var(--borde);margin-top:4px;padding-top:4px;color:var(--t)}
+.bienv{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.logo{width:76px;height:76px;border-radius:24px;background:var(--deg);display:grid;place-items:center;font:800 38px Outfit;color:#06141a;margin-bottom:22px;box-shadow:0 14px 40px -10px rgba(224,92,192,.6)}
+.bienv h1{font-size:30px;margin-bottom:10px}
+.bienv p{color:var(--t2);font-size:14px;line-height:1.5;max-width:250px}
+.puntos{margin-top:24px;text-align:left;font-size:13px;color:var(--t2);line-height:2}
+</style>
+</head>
+<body>
+<div class="lienzo">
+
+<!-- 0 Bienvenida -->
+<div class="paso"><div class="etq"><b>0</b> · Bienvenida</div><div class="movil">
+  <div class="bienv">
+    <div class="logo">K</div>
+    <h1>Kcalma</h1>
+    <p>Come lo que te gusta y pierde peso sin agobios. Te lo cuadramos nosotros.</p>
+    <div class="puntos">📸 Haz una foto y sabrás lo que comes<br>🎯 Calorías y macros hechas a tu medida<br>🛒 Ideas con productos de tu súper</div>
+  </div>
+  <div class="btn">Empezar · 2 minutos</div>
+  <div class="link">Tus datos se quedan en tu móvil</div>
+</div></div>
+
+<!-- 1 Datos -->
+<div class="paso"><div class="etq"><b>1</b> · Sobre ti</div><div class="movil">
+  <div class="top"><div class="atras">‹</div><div class="prog"><i style="width:16%"></i></div></div>
+  <h2>Empecemos por ti</h2>
+  <div class="sub">Con esto calculamos lo que gasta tu cuerpo en reposo.</div>
+  <div class="seg"><div class="on">Hombre</div><div>Mujer</div></div>
+  <div class="dos">
+    <div class="campo"><span>Edad</span><div class="num">30 <small>años</small></div></div>
+    <div class="campo"><span>Altura</span><div class="num">178 <small>cm</small></div></div>
+    <div class="campo"><span>Peso actual</span><div class="num">85 <small>kg</small></div></div>
+    <div class="campo"><span>Peso objetivo</span><div class="num">78 <small>kg</small></div></div>
+  </div>
+  <div class="campo" style="opacity:.75"><span>% de grasa corporal (opcional)</span><div class="num" style="font-size:15px;color:var(--t3)">No lo sé</div></div>
+  <div class="nota">Si conoces tu % de grasa (báscula de bioimpedancia, plicómetro…) el cálculo es <b>más preciso</b>. Si no, no pasa nada.</div>
+  <div class="btn">Siguiente</div>
+</div></div>
+
+<!-- 2 Trabajo -->
+<div class="paso"><div class="etq"><b>2</b> · Tu día a día</div><div class="movil">
+  <div class="top"><div class="atras">‹</div><div class="prog"><i style="width:32%"></i></div></div>
+  <h2>¿Cómo es tu trabajo o tu día?</h2>
+  <div class="sub">Sin contar el ejercicio. Piensa en un día normal.</div>
+  <div class="op sel"><div class="e">💻</div><div><b>Casi todo sentado</b><small>Oficina, teletrabajo, estudiante, conductor</small></div></div>
+  <div class="op"><div class="e">🧍</div><div><b>De pie o moviéndome a ratos</b><small>Dependiente, profesor, peluquero, camarero de barra</small></div></div>
+  <div class="op"><div class="e">🚶</div><div><b>Moviéndome casi todo el día</b><small>Camarero de sala, enfermero, repartidor a pie, reponedor</small></div></div>
+  <div class="op"><div class="e">🏗️</div><div><b>Trabajo físico duro</b><small>Albañil, mudanzas, campo, almacén cargando peso</small></div></div>
+  <div class="btn">Siguiente</div>
+</div></div>
+
+<!-- 3 Pasos -->
+<div class="paso"><div class="etq"><b>3</b> · Pasos</div><div class="movil">
+  <div class="top"><div class="atras">‹</div><div class="prog"><i style="width:48%"></i></div></div>
+  <h2>¿Cuánto andas al día?</h2>
+  <div class="sub">Si no lo sabes, mira la app Salud o Fit de tu móvil, o elige lo que más se parezca.</div>
+  <div class="op"><div class="e">🛋️</div><div><b>Menos de 5.000 pasos</b><small>Casi todo en coche, poco paseo</small></div></div>
+  <div class="op sel"><div class="e">🚶</div><div><b>5.000 – 8.000 pasos</b><small>Algún paseo, recados andando</small></div></div>
+  <div class="op"><div class="e">🏃</div><div><b>8.000 – 12.000 pasos</b><small>Vas andando a casi todo o paseas a diario</small></div></div>
+  <div class="op"><div class="e">⛰️</div><div><b>Más de 12.000 pasos</b><small>Andas muchísimo, paseas al perro largo…</small></div></div>
+  <div class="nota">📱 <b>Leer mis pasos automáticamente</b> (Health Connect). Así la app ajusta tus calorías cada día.</div>
+  <div class="btn">Siguiente</div>
+</div></div>
+
+<!-- 4 Entreno -->
+<div class="paso"><div class="etq"><b>4</b> · Ejercicio</div><div class="movil">
+  <div class="top"><div class="atras">‹</div><div class="prog"><i style="width:64%"></i></div></div>
+  <h2>¿Haces ejercicio?</h2>
+  <div class="sub">Lo que haces de verdad, no lo que te gustaría 😉</div>
+  <div class="contador"><div><div class="mini" style="margin:0">Días por semana</div><div class="num" style="font-size:22px;font-weight:600">3</div></div><div style="display:flex;gap:8px"><div class="bt">−</div><div class="bt">+</div></div></div>
+  <div class="mini">Tipo de ejercicio</div>
+  <div class="op sel"><div class="e">🏋️</div><div><b>Pesas / gimnasio</b><small>Fuerza, máquinas, crossfit</small></div></div>
+  <div class="op"><div class="e">🏃</div><div><b>Cardio</b><small>Correr, bici, natación, spinning</small></div></div>
+  <div class="op"><div class="e">⚽</div><div><b>Deporte</b><small>Fútbol, pádel, baloncesto…</small></div></div>
+  <div class="mini">Cada sesión dura</div>
+  <div class="seg"><div>30 min</div><div class="on">1 hora</div><div>+1,5 h</div></div>
+  <div class="btn">Siguiente</div>
+</div></div>
+
+<!-- 5 Objetivo -->
+<div class="paso"><div class="etq"><b>5</b> · Objetivo</div><div class="movil">
+  <div class="top"><div class="atras">‹</div><div class="prog"><i style="width:80%"></i></div></div>
+  <h2>¿Qué quieres conseguir?</h2>
+  <div class="sub">Puedes cambiarlo cuando quieras.</div>
+  <div class="op sel"><div class="e">📉</div><div><b>Perder grasa</b><small>Bajar de peso manteniendo el músculo</small></div></div>
+  <div class="op"><div class="e">🔄</div><div><b>Recomposición</b><small>Mismo peso, menos grasa y más músculo. Ideal si empiezas en el gimnasio</small></div></div>
+  <div class="op"><div class="e">💪</div><div><b>Ganar músculo</b><small>Subir de peso poco a poco, sin coger mucha grasa</small></div></div>
+  <div class="mini" style="margin-top:6px">¿A qué ritmo?</div>
+  <div class="seg"><div>Suave</div><div class="on">Normal</div><div>Rápido</div></div>
+  <div class="nota">Ritmo normal: <b>−0,5 kg por semana</b>. Llegarías a 78 kg hacia <b>finales de febrero</b>. Es el ritmo más fácil de mantener sin pasar hambre.</div>
+  <div class="btn">Calcular mi plan</div>
+</div></div>
+
+<!-- 6 Resultado -->
+<div class="paso"><div class="etq"><b>6</b> · Tu plan</div><div class="movil">
+  <div class="top"><div class="atras">‹</div><div class="prog"><i style="width:92%"></i></div></div>
+  <h2>Tu plan diario</h2>
+  <div class="res"><div class="num">2.080</div><small>kcal al día</small></div>
+  <div class="mac">
+    <div><div class="num">170 g</div><span>Proteína</span><i style="background:var(--a)"></i></div>
+    <div><div class="num">197 g</div><span>Hidratos</span><i style="background:var(--a2)"></i></div>
+    <div><div class="num">68 g</div><span>Grasas</span><i style="background:var(--ambar)"></i></div>
+  </div>
+  <div class="cuenta">
+    <div><span>Tu cuerpo en reposo</span><b>1.818</b></div>
+    <div><span>Trabajo sentado + 5–8k pasos</span><b>+636</b></div>
+    <div><span>3 días de pesas (media diaria)</span><b>+146</b></div>
+    <div class="tot"><span>Gastas al día</span><b>2.600</b></div>
+    <div><span>Déficit para −0,5 kg/semana</span><b style="color:var(--a)">−520</b></div>
+  </div>
+  <div class="nota" style="margin-top:10px">Es un <b>punto de partida</b>. Si te pesas a menudo, Kcalma aprende tu gasto real y lo ajusta cada semana.</div>
+  <div class="btn">¡Vamos!</div>
+</div></div>
+
+<!-- 7 Gustos -->
+<div class="paso"><div class="etq"><b>7</b> · Alergias y gustos</div><div class="movil">
+  <div class="top"><div class="atras">‹</div><div class="prog"><i style="width:100%"></i></div></div>
+  <h2>¿Qué no puedes o no quieres comer?</h2>
+  <div class="sub">Lo usamos para que las ideas de comida te encajen.</div>
+  <div class="mini">Alergias e intolerancias</div>
+  <div class="chips"><span class="chip">Gluten</span><span class="chip no">✕ Lactosa</span><span class="chip">Huevo</span><span class="chip">Frutos secos</span><span class="chip">Cacahuete</span><span class="chip no">✕ Marisco</span><span class="chip">Pescado</span><span class="chip">Soja</span><span class="chip">+ 6 más</span></div>
+  <div class="mini">No me gusta</div>
+  <div class="chips"><span class="chip no">✕ Brócoli</span><span class="chip no">✕ Champiñones</span><span class="chip">+ Añadir</span></div>
+  <div class="mini">Me encanta</div>
+  <div class="chips"><span class="chip si">♥ Pollo</span><span class="chip si">♥ Arroz</span><span class="chip si">♥ Huevos</span><span class="chip si">♥ Atún</span><span class="chip">+ Añadir</span></div>
+  <div class="mini">Dónde compras</div>
+  <div class="chips"><span class="chip si">Mercadona</span><span class="chip si">Lidl</span><span class="chip">Carrefour</span><span class="chip">Dia</span><span class="chip">Aldi</span><span class="chip">Consum</span><span class="chip">Eroski</span><span class="chip">Alcampo</span></div>
+  <div class="btn">Terminar</div>
+  <div class="link">Saltar por ahora</div>
+</div></div>
+
+</div>
+</body>
+</html>

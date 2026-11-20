@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kcalma · Foto con IA</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--f0:#070c10;--f1:#0c141a;--f2:#101a21;--f3:#16232b;--f4:#1d2d36;--borde:#1a2a33;--t:#e9f2f6;--t2:#9db2bd;--t3:#657c88;--a:#3ad6f0;--a2:#e05cc0;--verde:#35d987;--ambar:#f2bf4b;--rojo:#f05a63;--deg:linear-gradient(135deg,var(--a),var(--a2))}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#03060a;font-family:Inter,system-ui,sans-serif;color:var(--t);padding:28px 16px}
+.lienzo{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;max-width:1600px;margin:0 auto}
+.paso{display:flex;flex-direction:column;align-items:center;gap:10px}
+.etq{font:600 13px Outfit,sans-serif;color:var(--t2)} .etq b{color:var(--a)}
+.movil{width:340px;height:720px;background:var(--f0);border-radius:38px;border:9px solid #1b2228;overflow:hidden;position:relative;display:flex;flex-direction:column;padding:16px}
+.top{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.ib{width:32px;height:32px;border-radius:10px;background:var(--f2);border:1px solid var(--borde);display:grid;place-items:center;color:var(--t2);font-size:14px;flex:none}
+.top h2{font:600 18px Outfit,sans-serif;flex:1}
+.selcom{font-size:12px;color:var(--a);background:rgba(58,214,240,.1);border-radius:10px;padding:6px 10px}
+h1{font:600 22px Outfit,sans-serif;line-height:1.2;margin-bottom:8px}
+p{font-size:12.5px;color:var(--t2);line-height:1.5}
+.pasos{margin:14px 0;display:flex;flex-direction:column;gap:8px}
+.pp{display:flex;gap:10px;align-items:flex-start;background:var(--f2);border:1px solid var(--borde);border-radius:13px;padding:10px}
+.pp .n{width:22px;height:22px;border-radius:7px;background:rgba(58,214,240,.14);color:var(--a);font:600 12px Outfit,sans-serif;display:grid;place-items:center;flex:none}
+.pp div{font-size:12px;color:var(--t2);line-height:1.45} .pp b{color:var(--t);font-weight:600}
+.link{color:var(--a)}
+.campo{background:var(--f2);border:1.5px solid transparent;background:linear-gradient(var(--f2),var(--f2)) padding-box,var(--deg) border-box;border-radius:14px;padding:11px 12px;font-size:13px;color:var(--t3);display:flex;justify-content:space-between}
+.nota{font-size:11px;color:var(--t3);background:var(--f1);border:1px dashed var(--borde);border-radius:12px;padding:9px 11px;line-height:1.45;margin-top:10px}
+.btn{margin-top:auto;height:50px;border-radius:15px;background:var(--deg);color:#06141a;font:700 15px Outfit,sans-serif;display:grid;place-items:center;box-shadow:0 8px 24px -8px rgba(58,214,240,.55)}
+.sec{text-align:center;font-size:12px;color:var(--t2);margin-top:10px}
+/* cámara */
+.foto{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 42%,#f3efe6 0 30%,#d8d2c4 31% 33%,#3b2f27 34%,#1a1411 75%)}
+.plato{position:absolute;left:50%;top:40%;transform:translate(-50%,-50%);width:220px;height:220px;border-radius:50%}
+.plato .i{position:absolute;border-radius:50%}
+.capa{position:relative;z-index:2;display:flex;flex-direction:column;height:100%}
+.pill{align-self:center;font-size:12.5px;background:rgba(7,12,16,.72);padding:7px 14px;border-radius:20px;margin-top:4px}
+.panel{margin-top:auto;background:rgba(12,20,26,.94);border:1px solid var(--borde);border-radius:22px;padding:12px;margin-left:-4px;margin-right:-4px}
+.entrada{display:flex;align-items:center;gap:8px;background:var(--f2);border:1px solid var(--borde);border-radius:12px;padding:9px 10px;font-size:12px;color:var(--t2)}
+.entrada i{flex:1;font-style:normal}
+.disparo{display:flex;align-items:center;justify-content:space-around;margin-top:12px}
+.circ{width:64px;height:64px;border-radius:50%;border:3px solid transparent;background:linear-gradient(var(--f1),var(--f1)) padding-box,var(--deg) border-box;display:grid;place-items:center}
+.circ div{width:50px;height:50px;border-radius:50%;background:var(--deg)}
+.mini{width:42px;height:42px;border-radius:12px;background:var(--f3);display:grid;place-items:center;font-size:18px}
+/* analizando */
+.mfoto{height:190px;border-radius:18px;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 50%,#f3efe6 0 38%,#3b2f27 40%,#1a1411 80%)}
+.scan{position:absolute;left:0;right:0;top:55%;height:2px;background:var(--a);box-shadow:0 0 16px var(--a)}
+.chipf{position:absolute;font-size:10.5px;background:rgba(7,12,16,.8);border:1px solid rgba(58,214,240,.5);color:var(--t);padding:3px 7px;border-radius:8px}
+.lista{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.est{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--t2)}
+.est .ok{width:18px;height:18px;border-radius:50%;background:rgba(53,217,135,.15);color:var(--verde);display:grid;place-items:center;font-size:11px}
+.est .sp{width:18px;height:18px;border-radius:50%;border:2px solid var(--f4);border-top-color:var(--a)}
+/* resultado */
+.tot{display:flex;justify-content:space-between;align-items:flex-end;background:var(--f2);border:1px solid var(--borde);border-radius:16px;padding:11px 12px;margin-bottom:10px}
+.tot .num{font:700 28px Outfit,sans-serif} .tot small{color:var(--t3);font-size:11px}
+.al{background:var(--f2);border:1px solid var(--borde);border-radius:14px;padding:10px;margin-bottom:8px}
+.al .f1{display:flex;align-items:center;gap:8px}
+.al b{font:600 13px Outfit,sans-serif;flex:1}
+.al .k{font:600 13px Outfit,sans-serif}
+.al small{display:block;font-size:10.5px;color:var(--t3);margin:2px 0 7px}
+.al small u{color:var(--a);text-decoration:none}
+.sl{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--t2)}
+.barra{flex:1;height:4px;border-radius:4px;background:var(--f4);position:relative}
+.barra i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--deg)}
+.barra em{position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:#fff;transform:translate(-50%,-50%)}
+.conf{font-size:9.5px;padding:2px 6px;border-radius:6px}
+.alta{background:rgba(53,217,135,.13);color:var(--verde)} .media{background:rgba(242,191,75,.13);color:var(--ambar)}
+.anadir{font-size:12px;color:var(--a);text-align:center;padding:6px 0 2px}
+</style>
+</head>
+<body>
+<div class="lienzo">
+
+<!-- 1 Clave -->
+<div class="paso"><div class="etq"><b>1</b> · Solo la primera vez: tu clave</div><div class="movil">
+  <div class="top"><div class="ib">✕</div><h2></h2></div>
+  <h1>Activa la foto con IA</h1>
+  <p>Kcalma usa Gemini de Google para reconocer lo que hay en el plato. Es gratis: solo necesitas tu propia clave.</p>
+  <div class="pasos">
+    <div class="pp"><span class="n">1</span><div>Abre <b class="link">aistudio.google.com/apikey</b> e inicia sesión con tu cuenta de Google.</div></div>
+    <div class="pp"><span class="n">2</span><div>Pulsa <b>«Create API key»</b> y copia la clave.</div></div>
+    <div class="pp"><span class="n">3</span><div>Pégala aquí abajo. Se guarda <b>cifrada en tu móvil</b>; no se envía a nadie más.</div></div>
+  </div>
+  <div class="campo"><span>AIza…</span><span style="color:var(--a)">Pegar</span></div>
+  <div class="nota">ℹ️ En el plan gratuito, Google puede usar las fotos para mejorar sus modelos. No hagas fotos con caras ni datos personales.</div>
+  <div class="btn">Probar y guardar</div>
+  <div class="sec">¿Usas otra IA? <span class="link">Elegir proveedor</span></div>
+</div></div>
+
+<!-- 2 Cámara -->
+<div class="paso"><div class="etq"><b>2</b> · Hacer la foto</div><div class="movil" style="padding:0">
+  <div class="foto"></div>
+  <div class="plato">
+    <div class="i" style="left:30px;top:40px;width:90px;height:80px;background:#e9dcc0"></div>
+    <div class="i" style="left:105px;top:55px;width:85px;height:60px;background:#c8874a;border-radius:40% 50% 45% 55%"></div>
+    <div class="i" style="left:60px;top:120px;width:100px;height:55px;background:#c9302c;border-radius:45%"></div>
+  </div>
+  <div class="capa" style="padding:16px">
+    <div class="top"><div class="ib">✕</div><h2></h2><div class="selcom">🍽️ Comida ▾</div></div>
+    <div class="pill">Encuadra todo el plato desde arriba</div>
+    <div class="panel">
+      <div class="entrada">✏️ <i>Nota opcional: «lleva una cucharada de aceite»</i></div>
+      <div class="disparo"><div class="mini">🖼️</div><div class="circ"><div></div></div><div class="mini">⚡</div></div>
+    </div>
+  </div>
+</div></div>
+
+<!-- 3 Analizando -->
+<div class="paso"><div class="etq"><b>3</b> · Analizando (3-6 s)</div><div class="movil">
+  <div class="top"><div class="ib">✕</div><h2>Analizando…</h2></div>
+  <div class="mfoto"><div class="scan"></div>
+    <span class="chipf" style="left:30px;top:50px">Arroz</span>
+    <span class="chipf" style="left:170px;top:70px">Pollo</span>
+    <span class="chipf" style="left:110px;top:140px">Pimiento</span>
+  </div>
+  <div class="lista">
+    <div class="est"><span class="ok">✓</span>Reconociendo alimentos con Gemini</div>
+    <div class="est"><span class="ok">✓</span>Estimando cantidades</div>
+    <div class="est"><span class="sp"></span>Buscando cada alimento en la base de datos</div>
+  </div>
+  <div class="nota" style="margin-top:auto">La IA solo reconoce y estima gramos. Las calorías salen de nuestra base de datos española (BEDCA y Open Food Facts).</div>
+</div></div>
+
+<!-- 4 Resultado -->
+<div class="paso"><div class="etq"><b>4</b> · Revisar y añadir</div><div class="movil">
+  <div class="top"><div class="ib">‹</div><h2>Tu plato</h2><div class="selcom">🍽️ Comida ▾</div></div>
+  <div class="tot"><div><div class="num">612</div><small>kcal</small></div><div style="text-align:right;font-size:12px;color:var(--t2)">P <b style="color:var(--t)">48</b> · H <b style="color:var(--t)">70</b> · G <b style="color:var(--t)">14</b></div></div>
+  <div class="al"><div class="f1"><b>Arroz blanco cocido</b><span class="conf alta">Seguro</span><span class="k">260</span></div>
+    <small>Genérico · <u>Cambiar</u></small>
+    <div class="sl"><div class="barra"><i style="width:50%"></i><em style="left:50%"></em></div>200 g</div></div>
+  <div class="al"><div class="f1"><b>Pechuga de pollo a la plancha</b><span class="conf alta">Seguro</span><span class="k">248</span></div>
+    <small>Genérico · <u>Cambiar</u></small>
+    <div class="sl"><div class="barra"><i style="width:40%"></i><em style="left:40%"></em></div>150 g</div></div>
+  <div class="al"><div class="f1"><b>Pimiento rojo asado</b><span class="conf media">Revisa</span><span class="k">29</span></div>
+    <small>Genérico · <u>Cambiar</u></small>
+    <div class="sl"><div class="barra"><i style="width:28%"></i><em style="left:28%"></em></div>90 g</div></div>
+  <div class="al" style="border-style:dashed"><div class="f1"><b>Aceite de oliva (de tu nota)</b><span class="k">75</span></div>
+    <small>Genérico · <u>Cambiar</u></small>
+    <div class="sl"><div class="barra"><i style="width:20%"></i><em style="left:20%"></em></div>1 cda</div></div>
+  <div class="anadir">+ Añadir algo que falte</div>
+  <div class="btn">Añadir 4 alimentos a Comida</div>
+</div></div>
+
+</div>
+</body>
+</html>

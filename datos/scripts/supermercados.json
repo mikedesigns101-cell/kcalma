@@ -1,0 +1,322 @@
+{
+  "_nota": "Marcas propias de cada supermercado y cómo aparece la tienda en el campo 'stores' de Open Food Facts. Todo se compara normalizado (minúsculas, sin tildes, guiones = espacios). Si una marca falta o cambia, se edita aquí y se vuelve a ejecutar 02_filtrar_off.py.",
+  "Mercadona": {
+    "marcas": [
+      "hacendado",
+      "deliplus",
+      "bosque verde",
+      "compy",
+      "mercadona"
+    ],
+    "tiendas": [
+      "mercadona"
+    ]
+  },
+  "Dia": {
+    "marcas": [
+      "dia",
+      "dia delicious",
+      "dia al punto",
+      "al punto dia",
+      "dia nature",
+      "dia bonté",
+      "bonte dia",
+      "dia vegecampo",
+      "dia premium",
+      "dia s a",
+      "dia lactea",
+      "vegedia",
+      "el molino de dia"
+    ],
+    "tiendas": [
+      "dia",
+      "dia market",
+      "dia maxi",
+      "supermercados dia",
+      "dia la plaza",
+      "la plaza de dia",
+      "dia s a"
+    ]
+  },
+  "Lidl": {
+    "marcas": [
+      "milbona",
+      "pikok",
+      "solevita",
+      "combino",
+      "belbake",
+      "crownfield",
+      "freeway",
+      "chef select",
+      "sondey",
+      "alesto",
+      "fin carre",
+      "baresa",
+      "deluxe",
+      "lidl deluxe",
+      "vitasia",
+      "vemondo",
+      "dulano",
+      "nixe",
+      "kania",
+      "mcennedy",
+      "saskia",
+      "snack day",
+      "bellarom",
+      "favorina",
+      "italiamo",
+      "sol mar",
+      "eridanous",
+      "lovilio",
+      "gelatelli",
+      "ocean sea",
+      "lidl",
+      "cien"
+    ],
+    "tiendas": [
+      "lidl"
+    ]
+  },
+  "Aldi": {
+    "marcas": [
+      "milsani",
+      "golden bridge",
+      "choceur",
+      "lyttos",
+      "cucina nobile",
+      "moser roth",
+      "brooklea",
+      "snackrite",
+      "rio d oro",
+      "almare",
+      "almare seafood",
+      "the deli",
+      "gourmet finest cuisine",
+      "aldi",
+      "gutbio",
+      "el mercado de aldi",
+      "special de aldi",
+      "el horno de aldi",
+      "el cultivador",
+      "flete",
+      "asia green garden"
+    ],
+    "tiendas": [
+      "aldi"
+    ]
+  },
+  "Ahorramás": {
+    "marcas": [
+      "alipende",
+      "ahorramas"
+    ],
+    "tiendas": [
+      "ahorramas"
+    ]
+  },
+  "Carrefour": {
+    "marcas": [
+      "carrefour",
+      "carrefour bio",
+      "carrefour classic",
+      "carrefour extra",
+      "carrefour discount",
+      "carrefour sensation",
+      "carrefour veggie",
+      "carrefour no gluten",
+      "carrefour el mercado",
+      "simpl",
+      "de nuestra tierra",
+      "carrefour baby",
+      "carrefour kids"
+    ],
+    "tiendas": [
+      "carrefour",
+      "carrefour market",
+      "carrefour express",
+      "hipermercado carrefour"
+    ]
+  },
+  "Eroski": {
+    "marcas": [
+      "eroski",
+      "eroski basic",
+      "eroski seleqtia",
+      "seleqtia",
+      "eroski natur",
+      "belle"
+    ],
+    "tiendas": [
+      "eroski",
+      "eroski center",
+      "eroski city",
+      "caprabo"
+    ]
+  },
+  "Alcampo": {
+    "marcas": [
+      "alcampo",
+      "auchan",
+      "rik rok",
+      "alcampo gourmet",
+      "auchan bio"
+    ],
+    "tiendas": [
+      "alcampo",
+      "auchan",
+      "simply",
+      "sabeco"
+    ]
+  },
+  "El Corte Inglés": {
+    "marcas": [
+      "el corte ingles",
+      "aliada",
+      "hipercor"
+    ],
+    "tiendas": [
+      "el corte ingles",
+      "hipercor",
+      "supercor",
+      "supermercado el corte ingles"
+    ]
+  },
+  "Consum": {
+    "marcas": [
+      "consum",
+      "consum basic"
+    ],
+    "tiendas": [
+      "consum",
+      "charter"
+    ]
+  },
+  "Covirán": {
+    "marcas": [
+      "coviran"
+    ],
+    "tiendas": [
+      "coviran"
+    ]
+  },
+  "BM": {
+    "marcas": [
+      "bm",
+      "bm supermercados"
+    ],
+    "tiendas": [
+      "bm",
+      "bm supermercados"
+    ]
+  },
+  "Gadis": {
+    "marcas": [
+      "gadis",
+      "ifa eliges",
+      "eliges"
+    ],
+    "tiendas": [
+      "gadis"
+    ]
+  },
+  "Spar": {
+    "marcas": [
+      "spar"
+    ],
+    "tiendas": [
+      "spar"
+    ]
+  },
+  "Condis": {
+    "marcas": [
+      "condis"
+    ],
+    "tiendas": [
+      "condis"
+    ]
+  },
+  "Bonpreu": {
+    "marcas": [
+      "bonpreu",
+      "bonpreu esclat",
+      "bon preu",
+      "bonpreu la collita"
+    ],
+    "tiendas": [
+      "bonpreu",
+      "esclat"
+    ]
+  },
+  "bonÀrea": {
+    "marcas": [
+      "bonarea",
+      "bon area"
+    ],
+    "tiendas": [
+      "bonarea",
+      "bon area"
+    ]
+  },
+  "HiperDino": {
+    "marcas": [
+      "alteza",
+      "hiper dino",
+      "hiperdino"
+    ],
+    "tiendas": [
+      "hiperdino",
+      "hiper dino",
+      "superdino"
+    ]
+  },
+  "Ametller Origen": {
+    "marcas": [
+      "ametller origen",
+      "ametller"
+    ],
+    "tiendas": [
+      "ametller origen",
+      "ametller"
+    ]
+  },
+  "Froiz": {
+    "marcas": [
+      "froiz"
+    ],
+    "tiendas": [
+      "froiz"
+    ]
+  },
+  "Alimerka": {
+    "marcas": [
+      "alimerka"
+    ],
+    "tiendas": [
+      "alimerka"
+    ]
+  },
+  "Supersol": {
+    "marcas": [
+      "supersol"
+    ],
+    "tiendas": [
+      "supersol"
+    ]
+  },
+  "Veritas": {
+    "marcas": [
+      "veritas"
+    ],
+    "tiendas": [
+      "veritas"
+    ]
+  },
+  "Coaliment": {
+    "marcas": [
+      "coaliment"
+    ],
+    "tiendas": [
+      "coaliment"
+    ]
+  }
+}
