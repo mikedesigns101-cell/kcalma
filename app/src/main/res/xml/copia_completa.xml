@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- La clave de IA cifrada no se copia: su llave del Keystore no viaja a otro móvil -->
+<full-backup-content>
+    <exclude domain="sharedpref" path="claves.xml" />
+</full-backup-content>

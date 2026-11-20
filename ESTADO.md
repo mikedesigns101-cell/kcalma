@@ -17,8 +17,17 @@ Buscar «yogur griego», abrir la ficha, poner 1,5 raciones y añadirlo a Comida
 ## Probado después de reiniciar
 Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borrar deslizando, guardar comida habitual, filtro «Mis comidas» y añadir una habitual: todo funciona. Corregido: redondeo de kcal en las habituales y legibilidad de los textos sobre la imagen de la cámara.
 
+## GitHub y actualizaciones
+- Repo público `mikedesigns101-cell/kcalma`. Cada versión es una release con `kcalma-X.Y.Z.apk` firmada (clave en `C:\Users\Mikel\.kcalma\`, fuera del repo).
+- La app mira una vez al día la última release y muestra la tarjeta «Nueva versión» en Hoy (`datos/Actualizador.kt`).
+
+## Foto con IA (v0.2.0)
+- `datos/Claves.kt` (clave cifrada con Android Keystore, fuera de copias), `datos/Gemini.kt` (REST + responseSchema), `ui/foto/` (FlujoFoto, PantallasFoto, Imagen).
+- Emparejado: genéricos → todos; si no hay o las kcal no cuadran (0,45–2,2×), estimación de la IA marcada «Estimado».
+- Probado en el emulador: pantalla de clave, rechazo de clave falsa y guardado de la clave real. **Sin probar aún el análisis con una foto real** (Mikel lo prueba en el móvil con la v0.2.0).
+
 ## Pendiente
-1. Probar la lectura real de un código de barras con la cámara de un móvil (el emulador no tiene códigos que enfocar).
-2. La APK de depuración pesa 43 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura (arm64) en la release.
-3. Commit en git cuando Mikel lo pida.
-4. Siguiente función, a elegir con Mikel: foto con IA (Gemini + clave propia), recomendador de comidas, Health Connect, clave de firma de release, copia de seguridad.
+1. Probar en el móvil: análisis de foto con Gemini, lectura real de un código de barras y actualización 0.1.0 → 0.2.0 desde la app.
+2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.
+3. Pantalla Perfil para cambiar o borrar la clave de Gemini.
+4. Siguiente función, a elegir con Mikel: recomendador de comidas, Health Connect, copia de seguridad, otros proveedores de IA.

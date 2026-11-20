@@ -27,6 +27,7 @@ data class Colores(
     val proteina: Color,
     val hidratos: Color,
     val grasas: Color,
+    val aviso: Color,
 ) {
     val degradado: Brush get() = Brush.linearGradient(listOf(acento, acento2))
 }
@@ -50,4 +51,5 @@ val TemaRaideo = Colores(
     proteina = Color(0xFF3AD6F0),
     hidratos = Color(0xFFE05CC0),
     grasas = Color(0xFFF2BF4B),
+    aviso = Color(0xFFF2BF4B),
 )

@@ -66,7 +66,9 @@ fun PantallaAnadir(
     onAbrir: (Alimento) -> Unit,
     onAnadirRapido: (Alimento) -> Unit,
     onHabitual: (Habitual) -> Unit,
-    onEscanear: () -> Unit,
+    onEscanear: (() -> Unit)?,
+    titulo: String = "Añadir",
+    selectorComida: Boolean = true,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -91,7 +93,7 @@ fun PantallaAnadir(
     }
 
     Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 16.dp)) {
-        BarraSuperior("✕", onCerrar, "Añadir") { SelectorComida(comida, onCambiarComida) }
+        BarraSuperior("✕", onCerrar, titulo) { if (selectorComida) SelectorComida(comida, onCambiarComida) }
 
         // Buscador con borde degradado y botón de escáner
         val forma = RoundedCornerShape(14.dp)
@@ -113,7 +115,7 @@ fun PantallaAnadir(
             if (consulta.isNotEmpty()) {
                 Text("✕", style = t.cuerpo, color = c.texto3, modifier = Modifier.clickable { consulta = "" }.padding(8.dp))
             }
-            Box(
+            if (onEscanear != null) Box(
                 Modifier.size(34.dp).clip(RoundedCornerShape(9.dp)).background(c.fondo4).clickable(onClick = onEscanear),
                 contentAlignment = Alignment.Center,
             ) { Text("▥", style = t.titulo, color = c.texto) }
@@ -160,7 +162,7 @@ fun PantallaAnadir(
 }
 
 @Composable
-private fun SelectorComida(comida: ComidaDia, onCambiar: (ComidaDia) -> Unit) {
+fun SelectorComida(comida: ComidaDia, onCambiar: (ComidaDia) -> Unit) {
     val c = KcalmaTheme.colores
     var abierto by remember { mutableStateOf(false) }
     Box {

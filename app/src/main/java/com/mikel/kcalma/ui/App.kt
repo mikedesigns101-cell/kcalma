@@ -20,6 +20,7 @@ import com.mikel.kcalma.dominio.Nutrientes
 import com.mikel.kcalma.dominio.Perfil
 import com.mikel.kcalma.dominio.SUPERMERCADOS
 import com.mikel.kcalma.dominio.Unidad
+import com.mikel.kcalma.ui.foto.FlujoFoto
 import com.mikel.kcalma.ui.diario.Escaner
 import com.mikel.kcalma.ui.diario.FichaAlimento
 import com.mikel.kcalma.ui.diario.PantallaAnadir
@@ -33,6 +34,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.LocalTime
 
 /** Pantallas que se apilan encima de «Hoy». */
 private sealed interface Destino {
@@ -40,6 +42,7 @@ private sealed interface Destino {
     data class Anadir(val comida: ComidaDia) : Destino
     data class Ficha(val alimento: Alimento, val comida: ComidaDia, val entrada: Entrada? = null) : Destino
     data class Escaner(val comida: ComidaDia) : Destino
+    data class Foto(val comida: ComidaDia) : Destino
 }
 
 @Composable
@@ -86,7 +89,7 @@ fun App(perfil: Perfil, repo: Repositorio) {
             entradas = entradas,
             onAbrirComida = { c -> pila.add(if (entradas.any { it.comida == c }) Destino.Comida(c) else Destino.Anadir(c)) },
             onAnadir = { c -> pila.add(Destino.Anadir(c)) },
-            onCamara = { Toast.makeText(contexto, "La foto con IA llega en la próxima versión", Toast.LENGTH_SHORT).show() },
+            onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
             aviso = nueva?.let { v ->
                 {
                     TarjetaActualizacion(
@@ -117,6 +120,7 @@ fun App(perfil: Perfil, repo: Repositorio) {
                 val lista = entradas.filter { it.comida == d.comida }
                 alcance.launch(Dispatchers.IO) { repo.diario.guardarHabitual(nombre, lista) }
             },
+            onFoto = { pila.add(Destino.Foto(d.comida)) },
         )
         is Destino.Anadir -> PantallaAnadir(
             comida = d.comida,
@@ -154,6 +158,19 @@ fun App(perfil: Perfil, repo: Repositorio) {
             onBuscarAMano = {
                 pila.removeAt(pila.lastIndex)
                 if (pila.lastOrNull() != Destino.Anadir(d.comida)) pila.add(Destino.Anadir(d.comida))
+            },
+        )
+        is Destino.Foto -> FlujoFoto(
+            comidaInicial = d.comida,
+            repo = repo,
+            supermercados = supermercados,
+            onCerrar = { pila.removeAt(pila.lastIndex) },
+            onAnadir = { comida, items ->
+                alcance.launch(Dispatchers.IO) {
+                    items.filter { it.gramos > 0 }.forEach { i -> repo.diario.anadir(fecha, comida, i.alimento, i.gramos, Unidad.GRAMOS, i.gramos) }
+                }
+                pila.removeAt(pila.lastIndex)
+                if (pila.lastOrNull() != Destino.Comida(comida)) pila.add(Destino.Comida(comida))
             },
         )
     }

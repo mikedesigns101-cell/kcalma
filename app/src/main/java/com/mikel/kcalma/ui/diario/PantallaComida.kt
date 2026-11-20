@@ -53,6 +53,7 @@ fun PantallaComida(
     onEditar: (Entrada) -> Unit,
     onBorrar: (Entrada) -> Unit,
     onGuardarHabitual: (String) -> Unit,
+    onFoto: () -> Unit,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -87,9 +88,7 @@ fun PantallaComida(
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Accion("🔍", "Buscar", Modifier.weight(1f), onBuscar)
                     Accion("▥", "Escanear", Modifier.weight(1f), onEscanear)
-                    Accion("📸", "Foto", Modifier.weight(1f)) {
-                        Toast.makeText(contexto, "La foto con IA llega en la próxima versión", Toast.LENGTH_SHORT).show()
-                    }
+                    Accion("📸", "Foto", Modifier.weight(1f), onFoto)
                 }
             }
             if (entradas.isNotEmpty()) item {

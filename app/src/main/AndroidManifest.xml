@@ -8,6 +8,8 @@
 
     <application
         android:allowBackup="true"
+        android:fullBackupContent="@xml/copia_completa"
+        android:dataExtractionRules="@xml/extraccion_datos"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:label="@string/app_name"
