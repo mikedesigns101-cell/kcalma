@@ -50,7 +50,7 @@ class MainActivity : ComponentActivity() {
                     is Inicio.Listo -> if (i.perfil == null) {
                         Onboarding(onTerminar = { p -> alcance.launch { almacen.guardar(p) } })
                     } else {
-                        App(i.perfil, repo)
+                        App(i.perfil, repo, almacen)
                     }
                 }
             }

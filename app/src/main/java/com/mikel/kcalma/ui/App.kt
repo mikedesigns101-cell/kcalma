@@ -10,6 +10,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import com.mikel.kcalma.datos.Actualizador
+import com.mikel.kcalma.datos.AlmacenPerfil
+import com.mikel.kcalma.datos.Claves
+import com.mikel.kcalma.datos.Copia
+import com.mikel.kcalma.datos.Gemini
+import com.mikel.kcalma.ui.componentes.mandarInforme
+import com.mikel.kcalma.ui.foto.PantallaClave
+import com.mikel.kcalma.ui.hoy.Pestana
+import com.mikel.kcalma.ui.perfil.AccionesPerfil
+import com.mikel.kcalma.ui.perfil.Bloque
+import com.mikel.kcalma.ui.perfil.EditarPerfil
+import com.mikel.kcalma.ui.perfil.PantallaPerfil
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.saveable.rememberSaveable
+import android.content.Intent
+import android.net.Uri
 import com.mikel.kcalma.datos.Repositorio
 import com.mikel.kcalma.datos.VersionNueva
 import com.mikel.kcalma.dominio.Alimento
@@ -43,10 +59,12 @@ private sealed interface Destino {
     data class Ficha(val alimento: Alimento, val comida: ComidaDia, val entrada: Entrada? = null) : Destino
     data class Escaner(val comida: ComidaDia) : Destino
     data class Foto(val comida: ComidaDia) : Destino
+    data class Editar(val bloque: Bloque) : Destino
+    data object Clave : Destino
 }
 
 @Composable
-fun App(perfil: Perfil, repo: Repositorio) {
+fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
     val contexto = LocalContext.current
     val alcance = rememberCoroutineScope()
     val pila = remember { mutableStateListOf<Destino>() }
@@ -64,7 +82,38 @@ fun App(perfil: Perfil, repo: Repositorio) {
     var descarga by remember { mutableStateOf<Float?>(null) }
     LaunchedEffect(Unit) { nueva = actualizador.comprobar() }
 
+    var pestana by rememberSaveable { mutableStateOf(Pestana.HOY) }
+    val pesos by almacen.pesos.collectAsState(initial = emptyList())
+    val claves = remember { Claves(contexto.applicationContext) }
+    var claveGuardada by remember { mutableStateOf(claves.gemini() != null) }
+    // La clave también se guarda desde la foto: se vuelve a mirar al cambiar de pantalla
+    LaunchedEffect(pestana, pila.size) { claveGuardada = claves.gemini() != null }
+    val aviso: (String) -> Unit = { Toast.makeText(contexto, it, Toast.LENGTH_SHORT).show() }
+    val cambiarPestana: (Pestana) -> Unit = { p ->
+        // Progreso e Ideas esperan a que Mikel apruebe sus maquetas
+        when (p) {
+            Pestana.PROGRESO -> aviso("La pantalla de progreso llega en una próxima versión")
+            Pestana.IDEAS -> aviso("El recomendador de comidas llega en una próxima versión")
+            else -> pestana = p
+        }
+    }
+    val exportar = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) alcance.launch {
+            runCatching { Copia.exportar(contexto, uri, almacen, repo.diario) }
+                .onSuccess { aviso("Copia guardada") }
+                .onFailure { com.mikel.kcalma.datos.Registro.error("Exportar copia", it); aviso("No se pudo guardar la copia") }
+        }
+    }
+    val importar = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri != null) alcance.launch {
+            runCatching { Copia.importar(contexto, uri, almacen, repo.diario) }
+                .onSuccess { ok -> aviso(if (ok) "Copia importada" else "Ese archivo no es una copia de Kcalma") }
+                .onFailure { com.mikel.kcalma.datos.Registro.error("Importar copia", it); aviso("No se pudo leer la copia") }
+        }
+    }
+
     BackHandler(enabled = pila.isNotEmpty()) { pila.removeAt(pila.lastIndex) }
+    BackHandler(enabled = pila.isEmpty() && pestana != Pestana.HOY) { pestana = Pestana.HOY }
 
     fun guardar(d: Destino.Ficha, gramos: Double, unidad: Unidad, cantidad: Double) {
         alcance.launch(Dispatchers.IO) {
@@ -84,12 +133,34 @@ fun App(perfil: Perfil, repo: Repositorio) {
     }
 
     when (val d = pila.lastOrNull()) {
-        null -> PantallaHoy(
+        null -> if (pestana == Pestana.PERFIL) PantallaPerfil(
+            perfil = perfil,
+            pesos = pesos,
+            claveGuardada = claveGuardada,
+            acciones = AccionesPerfil(
+                onEditar = { pila.add(Destino.Editar(it)) },
+                onGuardarPeso = { kg -> alcance.launch { almacen.guardar(perfil.copy(pesoKg = kg), forzarPesada = true) }; aviso("Peso guardado") },
+                onClave = { pila.add(Destino.Clave) },
+                onBorrarClave = { claves.borrarGemini(); claveGuardada = false; aviso("Clave borrada") },
+                onExportar = { exportar.launch("kcalma-copia-${LocalDate.now()}.json") },
+                onImportar = { importar.launch(arrayOf("application/json", "application/octet-stream", "text/plain")) },
+                onInforme = { mandarInforme(contexto, "Desde Perfil", "") },
+                onActualizar = {
+                    alcance.launch {
+                        val v = actualizador.comprobar(forzar = true)
+                        if (v == null) aviso("Tienes la última versión") else { nueva = v; pestana = Pestana.HOY }
+                    }
+                },
+            ),
+            onPestana = cambiarPestana,
+            onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
+        ) else PantallaHoy(
             perfil = perfil,
             entradas = entradas,
             onAbrirComida = { c -> pila.add(if (entradas.any { it.comida == c }) Destino.Comida(c) else Destino.Anadir(c)) },
             onAnadir = { c -> pila.add(Destino.Anadir(c)) },
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
+            onPestana = cambiarPestana,
             aviso = nueva?.let { v ->
                 {
                     TarjetaActualizacion(
@@ -171,6 +242,26 @@ fun App(perfil: Perfil, repo: Repositorio) {
                 }
                 pila.removeAt(pila.lastIndex)
                 if (pila.lastOrNull() != Destino.Comida(comida)) pila.add(Destino.Comida(comida))
+            },
+        )
+        is Destino.Editar -> EditarPerfil(
+            bloque = d.bloque,
+            inicial = perfil,
+            onAtras = { pila.removeAt(pila.lastIndex) },
+            onGuardar = { nuevo ->
+                alcance.launch { almacen.guardar(nuevo) }
+                pila.removeAt(pila.lastIndex)
+                aviso("Guardado")
+            },
+        )
+        Destino.Clave -> PantallaClave(
+            errorInicial = null,
+            onCerrar = { pila.removeAt(pila.lastIndex) },
+            onAbrirWeb = { contexto.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://aistudio.google.com/apikey"))) },
+            probar = { clave -> Gemini.probarClave(clave) },
+            onGuardada = { clave ->
+                claves.guardarGemini(clave); claveGuardada = true
+                pila.removeAt(pila.lastIndex); aviso("Clave guardada")
             },
         )
     }

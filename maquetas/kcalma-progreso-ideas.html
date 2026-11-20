@@ -1,0 +1,116 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kcalma · Progreso e Ideas</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><style>
+:root{--f0:#070c10;--f1:#0c141a;--f2:#101a21;--f3:#16232b;--f4:#1d2d36;--borde:#1a2a33;--t:#e9f2f6;--t2:#9db2bd;--t3:#657c88;--a:#3ad6f0;--a2:#e05cc0;--verde:#35d987;--ambar:#f2bf4b;--rojo:#f05a63;--deg:linear-gradient(135deg,var(--a),var(--a2))}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#03060a;font-family:Inter,system-ui,sans-serif;color:var(--t);padding:28px 16px}
+.lienzo{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;max-width:1600px;margin:0 auto}
+.paso{display:flex;flex-direction:column;align-items:center;gap:10px}
+.etq{font:600 13px Outfit,sans-serif;color:var(--t2)} .etq b{color:var(--a)}
+.movil{width:340px;height:720px;background:var(--f0);border-radius:38px;border:9px solid #1b2228;overflow:hidden;position:relative;display:flex;flex-direction:column;padding:16px 16px 0}
+.scroll{flex:1;overflow:hidden}
+.top{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.ib{width:32px;height:32px;border-radius:10px;background:var(--f2);border:1px solid var(--borde);display:grid;place-items:center;color:var(--t2);font-size:14px;flex:none}
+.top h2{font:600 18px Outfit,sans-serif;flex:1}
+/* cabecera perfil */
+.cab{display:flex;align-items:center;gap:12px;margin:4px 0 14px}
+.av{width:46px;height:46px;border-radius:15px;background:var(--deg);display:grid;place-items:center;font:700 20px Outfit,sans-serif;color:#06141a}
+.cab b{font:600 18px Outfit,sans-serif;display:block}
+.cab small{font-size:12px;color:var(--t2)}
+.plan{background:var(--f2);border:1.5px solid transparent;background:linear-gradient(var(--f2),var(--f2)) padding-box,var(--deg) border-box;border-radius:16px;padding:12px;margin-bottom:14px}
+.plan .f{display:flex;align-items:flex-end;justify-content:space-between}
+.plan .num{font:700 26px Outfit,sans-serif} .plan .num small{font:500 12px Inter;color:var(--t3)}
+.plan .m{font-size:12px;color:var(--t2)} .plan .m b{color:var(--t)}
+.plan .pie{font-size:11px;color:var(--t3);margin-top:6px}
+.mt{font:600 10.5px Inter;letter-spacing:.08em;color:var(--t3);margin:12px 2px 6px}
+.grupo{background:var(--f2);border:1px solid var(--borde);border-radius:14px;overflow:hidden}
+.fila{display:flex;align-items:center;gap:10px;padding:10px 12px;border-top:1px solid var(--borde);font-size:13px}
+.fila:first-child{border-top:none}
+.fila .ic{width:28px;height:28px;border-radius:9px;background:var(--f4);display:grid;place-items:center;font-size:14px;flex:none}
+.fila span{flex:1}
+.fila em{font-style:normal;font-size:12px;color:var(--t2);max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fila i{font-style:normal;color:var(--t3)}
+.fila.rojo span{color:var(--rojo)}
+.ok{font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(53,217,135,.13);color:var(--verde)}
+/* barra inferior */
+.nav{margin:0 -16px;height:62px;background:var(--f1);border-top:1px solid var(--borde);display:flex;align-items:center;justify-content:space-around;font-size:10px;color:var(--t3);position:relative}
+.nav div{text-align:center} .nav .act{color:var(--a)}
+.nav .fab{width:54px;height:54px;border-radius:19px;background:var(--deg);position:relative;top:-18px;display:grid;place-items:center;font-size:20px}
+/* edición */
+h1{font:600 22px Outfit,sans-serif;line-height:1.2;margin-bottom:6px}
+p{font-size:12.5px;color:var(--t2);line-height:1.5}
+.op{display:flex;gap:10px;align-items:center;background:var(--f2);border:1px solid var(--borde);border-radius:13px;padding:10px 12px;margin-top:8px;font-size:13px}
+.op small{display:block;font-size:11px;color:var(--t3)}
+.op.sel{border-color:var(--a);background:rgba(58,214,240,.07)}
+.op .e{font-size:18px}
+.seg{display:flex;background:var(--f2);border:1px solid var(--borde);border-radius:12px;padding:3px;margin-top:8px}
+.seg div{flex:1;text-align:center;font-size:12px;color:var(--t2);padding:7px 0;border-radius:9px}
+.seg .s{background:var(--f4);color:var(--t)}
+.cambio{display:flex;justify-content:space-between;align-items:center;background:var(--f1);border:1px dashed var(--borde);border-radius:13px;padding:10px 12px;margin:14px 0 10px;font-size:12px;color:var(--t2)}
+.cambio b{font:600 15px Outfit,sans-serif;color:var(--t)} .cambio s{color:var(--t3)}
+.btn{height:50px;border-radius:15px;background:var(--deg);color:#06141a;font:700 15px Outfit,sans-serif;display:grid;place-items:center;box-shadow:0 8px 24px -8px rgba(58,214,240,.55);margin-bottom:16px}
+/* hoja de peso */
+.velo{position:absolute;inset:0;background:rgba(3,6,10,.62)}
+.hoja{position:absolute;left:0;right:0;bottom:0;background:var(--f1);border-top:1px solid var(--borde);border-radius:24px 24px 0 0;padding:14px 16px 16px}
+.asa{width:38px;height:4px;border-radius:4px;background:var(--f4);margin:0 auto 12px}
+.peso{display:flex;align-items:center;justify-content:center;gap:16px;margin:14px 0 6px}
+.peso .pm{width:42px;height:42px;border-radius:13px;background:var(--f3);display:grid;place-items:center;font:600 20px Outfit;color:var(--a)}
+.peso .v{font:700 40px Outfit,sans-serif} .peso .v small{font:500 15px Inter;color:var(--t3)}
+.dif{text-align:center;font-size:12px;color:var(--verde);margin-bottom:12px}
+.hist{display:flex;align-items:flex-end;gap:5px;height:54px;margin:4px 0 14px;padding:0 4px}
+.hist i{flex:1;border-radius:4px 4px 0 0;background:var(--f4)} .hist i:last-child{background:var(--deg)}
+</style><style>
+.card{background:var(--f2);border:1px solid var(--borde);border-radius:16px;padding:12px;margin-bottom:12px}
+.card h3{font:600 13px Outfit,sans-serif;color:var(--t2);margin-bottom:8px;display:flex;justify-content:space-between}
+.card h3 b{color:var(--t)}
+.big{font:700 28px Outfit,sans-serif}.big small{font:500 12px Inter;color:var(--t3)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px}.chips span{font-size:11.5px;padding:5px 10px;border-radius:20px;background:var(--f2);border:1px solid var(--borde);color:var(--t2)}
+.chips .s{border-color:var(--a);color:var(--a);background:rgba(58,214,240,.08)}
+.barras{display:flex;align-items:flex-end;gap:7px;height:90px;position:relative;margin-top:6px}
+.barras i{flex:1;border-radius:5px 5px 0 0;background:var(--f4)}.barras i.ok{background:var(--a)}.barras i.mas{background:var(--ambar)}
+.linea{position:absolute;left:0;right:0;border-top:1.5px dashed var(--a2)}
+.dias{display:flex;gap:7px;font-size:10px;color:var(--t3);margin-top:4px}.dias span{flex:1;text-align:center}
+.idea{display:flex;gap:10px;background:var(--f2);border:1px solid var(--borde);border-radius:14px;padding:10px;margin-bottom:8px}
+.idea .em{width:48px;height:48px;border-radius:12px;background:var(--f4);display:grid;place-items:center;font-size:24px;flex:none}
+.idea b{font:600 13.5px Outfit,sans-serif;display:block}.idea small{font-size:11px;color:var(--t3);display:block;margin-top:2px}
+.idea .k{font-size:11.5px;color:var(--t2);margin-top:4px}.idea .k b{display:inline;font:600 12px Inter;color:var(--a)}
+.tag{font-size:10px;padding:2px 6px;border-radius:6px;background:rgba(53,217,135,.13);color:var(--verde);margin-left:4px}
+.resta{background:linear-gradient(var(--f2),var(--f2)) padding-box,var(--deg) border-box;border:1.5px solid transparent;border-radius:16px;padding:12px;margin-bottom:4px}
+.btn2{height:42px;border-radius:13px;border:1px solid var(--a);color:var(--a);display:grid;place-items:center;font:600 13px Outfit,sans-serif;margin-top:4px}
+</style></head><body><div class="lienzo">
+
+<div class="paso"><div class="etq"><b>1</b> · Progreso</div><div class="movil"><div class="scroll">
+ <div class="top"><h2>Tu progreso</h2></div>
+ <div class="chips"><span>1 mes</span><span class="s">3 meses</span><span>Todo</span></div>
+ <div class="card"><h3>Peso <span>objetivo <b>75 kg</b></span></h3>
+  <div class="big">84,6 <small>kg · −2,4 kg desde el 1 sep</small></div><svg viewBox="0 0 280 90" width="100%" height="90"><polyline fill="none" stroke="url(#g)" stroke-width="2.5" stroke-linecap="round" points="5,12 45,20 85,18 125,34 165,40 205,52 245,58 275,62"/><polyline fill="none" stroke="#657c88" stroke-dasharray="4 4" points="5,12 275,82"/><defs><linearGradient id="g"><stop offset="0" stop-color="#3ad6f0"/><stop offset="1" stop-color="#e05cc0"/></linearGradient></defs><circle cx="275" cy="62" r="4" fill="#e05cc0"/></svg>
+  <p style="font-size:11px">Línea discontinua: el ritmo de tu plan. Vas <b style="color:var(--verde)">un poco por delante</b>. Llegarás hacia <b style="color:var(--t)">marzo de 2027</b>.</p></div>
+ <div class="card"><h3>Calorías esta semana <span>media <b>1.980</b> / 2.050</span></h3>
+  <div class="barras"><div class="linea" style="bottom:72%"></div><i class="ok" style="height:68%"></i><i class="ok" style="height:70%"></i><i class="mas" style="height:86%"></i><i class="ok" style="height:66%"></i><i class="ok" style="height:71%"></i><i style="height:30%"></i><i style="height:0"></i></div>
+  <div class="dias"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div></div>
+ <div class="card" style="display:flex;justify-content:space-between"><div><h3 style="margin:0">Proteína media</h3><div class="big" style="font-size:22px">158 <small>/ 170 g</small></div></div><div><h3 style="margin:0">Días apuntados</h3><div class="big" style="font-size:22px">🔥 12 <small>seguidos</small></div></div></div>
+</div><div class="nav"><div>⌂<br>Hoy</div><div class="act">▥<br>Progreso</div><div class="fab">📷</div><div>💡<br>Ideas</div><div>👤<br>Perfil</div></div></div></div>
+
+<div class="paso"><div class="etq"><b>2</b> · Ideas (recomendador)</div><div class="movil"><div class="scroll">
+ <div class="top"><h2>Ideas para la cena</h2></div>
+ <div class="resta"><div style="font-size:12px;color:var(--t2)">Te quedan hoy</div><div class="big" style="font-size:24px">640 kcal <small>· P 48 g · H 60 g · G 20 g</small></div></div>
+ <div class="chips"><span class="s">🌙 Cena</span><span>⏱ Rápidas</span><span>🛒 Mercadona</span><span>♥ Lo que me encanta</span></div>
+ <div class="idea"><div class="em">🐟</div><div><b>Merluza al horno con patata <span class="tag">encaja</span></b><small>20 min · sin lactosa</small><div class="k"><b>590 kcal</b> · P 46 · H 58 · G 16</div></div></div>
+ <div class="idea"><div class="em">🍳</div><div><b>Tortilla francesa con ensalada y pan</b><small>10 min</small><div class="k"><b>520 kcal</b> · P 32 · H 45 · G 22</div></div></div>
+ <div class="idea"><div class="em">🥗</div><div><b>Ensalada de pollo, arroz y aguacate</b><small>15 min · con lo que te encanta</small><div class="k"><b>630 kcal</b> · P 50 · H 62 · G 19</div></div></div>
+ <div class="btn2">✨ Más ideas con IA</div>
+</div><div class="nav"><div>⌂<br>Hoy</div><div>▥<br>Progreso</div><div class="fab">📷</div><div class="act">💡<br>Ideas</div><div>👤<br>Perfil</div></div></div></div>
+
+<div class="paso"><div class="etq"><b>3</b> · Al tocar una idea</div><div class="movil"><div class="scroll">
+ <div class="top"><div class="ib">‹</div><h2>Merluza al horno</h2></div>
+ <div class="card"><h3>Ingredientes <span>1 persona</span></h3>
+  <div class="grupo" style="border:none">
+   <div class="fila"><span>Merluza, filete</span><em>200 g</em></div>
+   <div class="fila"><span>Patata</span><em>250 g</em></div>
+   <div class="fila"><span>Aceite de oliva</span><em>10 g</em></div>
+   <div class="fila"><span>Cebolla y pimiento</span><em>80 g</em></div></div></div>
+ <div class="card"><h3>Cómo se hace</h3><p>1. Patata en rodajas finas al horno 200 °C, 15 min.<br>2. Añade la merluza y la verdura, 10 min más.<br>3. Sal, limón y perejil.</p></div>
+ <div class="cambio"><span>Con esta cena terminas el día en</span><b>2.000 kcal</b></div>
+ <div class="btn">Añadir a la cena</div>
+</div></div></div>
+
+</div></body></html>

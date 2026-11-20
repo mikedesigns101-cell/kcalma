@@ -83,6 +83,7 @@ fun PantallaHoy(
     onAbrirComida: (ComidaDia) -> Unit,
     onAnadir: (ComidaDia) -> Unit,
     onCamara: () -> Unit,
+    onPestana: (Pestana) -> Unit,
     aviso: (@Composable () -> Unit)? = null,
 ) {
     val c = KcalmaTheme.colores
@@ -113,7 +114,7 @@ fun PantallaHoy(
                 Box(lateral) { TarjetaComida(cd, entradas.filter { it.comida == cd }, { onAbrirComida(cd) }, { onAnadir(cd) }) }
             }
         }
-        BarraInferior(Modifier.align(Alignment.BottomCenter), onCamara, pronto)
+        BarraInferior(Modifier.align(Alignment.BottomCenter), Pestana.HOY, onPestana, onCamara)
     }
 }
 
@@ -310,8 +311,12 @@ private fun TarjetaComida(comida: ComidaDia, entradas: List<Entrada>, onAbrir: (
 
 private enum class Icono { HOY, PROGRESO, IDEAS, PERFIL, CAMARA }
 
+/** Pestañas de la barra de abajo. */
+enum class Pestana { HOY, PROGRESO, IDEAS, PERFIL }
+
+/** Barra de abajo compartida por las pestañas; el contenido de encima debe dejar ~130 dp libres. */
 @Composable
-private fun BarraInferior(modifier: Modifier, onCamara: () -> Unit, pronto: (String) -> Unit) {
+fun BarraInferior(modifier: Modifier, actual: Pestana, onPestana: (Pestana) -> Unit, onCamara: () -> Unit) {
     val c = KcalmaTheme.colores
     // pointerInput vacío: la barra se queda los toques y no pasan a las tarjetas de debajo
     Box(modifier.fillMaxWidth().pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }) {
@@ -321,11 +326,11 @@ private fun BarraInferior(modifier: Modifier, onCamara: () -> Unit, pronto: (Str
                 .height(68.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ElementoBarra(Icono.HOY, "Hoy", activo = true, Modifier.weight(1f)) {}
-            ElementoBarra(Icono.PROGRESO, "Progreso", activo = false, Modifier.weight(1f)) { pronto("La pantalla de progreso") }
+            ElementoBarra(Icono.HOY, "Hoy", actual == Pestana.HOY, Modifier.weight(1f)) { onPestana(Pestana.HOY) }
+            ElementoBarra(Icono.PROGRESO, "Progreso", actual == Pestana.PROGRESO, Modifier.weight(1f)) { onPestana(Pestana.PROGRESO) }
             Spacer(Modifier.weight(1f))
-            ElementoBarra(Icono.IDEAS, "Ideas", activo = false, Modifier.weight(1f)) { pronto("El recomendador de comidas") }
-            ElementoBarra(Icono.PERFIL, "Perfil", activo = false, Modifier.weight(1f)) { pronto("La pantalla de perfil") }
+            ElementoBarra(Icono.IDEAS, "Ideas", actual == Pestana.IDEAS, Modifier.weight(1f)) { onPestana(Pestana.IDEAS) }
+            ElementoBarra(Icono.PERFIL, "Perfil", actual == Pestana.PERFIL, Modifier.weight(1f)) { onPestana(Pestana.PERFIL) }
         }
         Box(Modifier.fillMaxWidth().height(1.dp).background(c.borde))
         Box(

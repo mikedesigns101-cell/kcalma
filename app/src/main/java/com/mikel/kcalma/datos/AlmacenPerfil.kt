@@ -10,6 +10,11 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.mikel.kcalma.dominio.Perfil
+import com.mikel.kcalma.dominio.Pesada
+import java.time.LocalDate
+import org.json.JSONArray
+import org.json.JSONObject
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -36,6 +41,9 @@ class AlmacenPerfil(private val context: Context) {
         val noMeGusta = stringSetPreferencesKey("no_me_gusta")
         val meEncanta = stringSetPreferencesKey("me_encanta")
         val supers = stringSetPreferencesKey("supermercados")
+        val kcalManual = intPreferencesKey("kcal_manual")
+        /** Historial de peso: «aaaa-mm-dd=kg;…», ordenado por fecha. */
+        val pesos = stringPreferencesKey("pesos")
     }
 
     val perfil: Flow<Perfil?> = context.almacen.data.map { p ->
@@ -59,11 +67,24 @@ class AlmacenPerfil(private val context: Context) {
             noMeGusta = p[K.noMeGusta] ?: emptySet(),
             meEncanta = p[K.meEncanta] ?: emptySet(),
             supermercados = p[K.supers] ?: emptySet(),
+            kcalManual = p[K.kcalManual],
         )
     }
 
-    suspend fun guardar(perfil: Perfil) {
+    val pesos: Flow<List<Pesada>> = context.almacen.data.map { leerPesos(it[K.pesos]) }
+
+    /**
+     * Guarda el perfil. Si el peso ha cambiado respecto a la última pesada (o es la primera vez),
+     * lo apunta con la fecha de hoy; [forzarPesada] lo apunta aunque sea el mismo.
+     */
+    suspend fun guardar(perfil: Perfil, forzarPesada: Boolean = false) {
         context.almacen.edit { p ->
+            val pesos = leerPesos(p[K.pesos])
+            if (forzarPesada || pesos.lastOrNull()?.kg != perfil.pesoKg) {
+                val hoy = LocalDate.now().toString()
+                p[K.pesos] = escribirPesos(pesos.filter { it.fecha != hoy } + Pesada(hoy, perfil.pesoKg))
+            }
+            perfil.kcalManual?.let { p[K.kcalManual] = it } ?: p.remove(K.kcalManual)
             p[K.sexo] = perfil.sexo.name
             p[K.edad] = perfil.edad
             p[K.altura] = perfil.alturaCm
@@ -83,6 +104,42 @@ class AlmacenPerfil(private val context: Context) {
             p[K.supers] = perfil.supermercados
         }
     }
+
+    /** Todas las preferencias del perfil en JSON, con su tipo, para la copia de seguridad. */
+    suspend fun exportar(): JSONObject {
+        val o = JSONObject()
+        context.almacen.data.first().asMap().forEach { (k, v) ->
+            o.put(k.name, when (v) {
+                is Set<*> -> JSONObject().put("t", "set").put("v", JSONArray(v.toList()))
+                is Int -> JSONObject().put("t", "int").put("v", v)
+                is Double -> JSONObject().put("t", "double").put("v", v)
+                else -> JSONObject().put("t", "str").put("v", v.toString())
+            })
+        }
+        return o
+    }
+
+    suspend fun importar(o: JSONObject) {
+        context.almacen.edit { p ->
+            p.clear()
+            o.keys().forEach { k ->
+                val e = o.getJSONObject(k)
+                when (e.getString("t")) {
+                    "set" -> p[stringSetPreferencesKey(k)] = e.getJSONArray("v").let { a -> (0 until a.length()).map { a.getString(it) }.toSet() }
+                    "int" -> p[intPreferencesKey(k)] = e.getInt("v")
+                    "double" -> p[doublePreferencesKey(k)] = e.getDouble("v")
+                    else -> p[stringPreferencesKey(k)] = e.getString("v")
+                }
+            }
+        }
+    }
+
+    private fun leerPesos(texto: String?): List<Pesada> = texto.orEmpty().split(';').mapNotNull { t ->
+        val (f, kg) = t.split('=').takeIf { it.size == 2 } ?: return@mapNotNull null
+        kg.toDoubleOrNull()?.let { Pesada(f, it) }
+    }.sortedBy { it.fecha }
+
+    private fun escribirPesos(l: List<Pesada>) = l.sortedBy { it.fecha }.takeLast(1000).joinToString(";") { "${it.fecha}=${it.kg}" }
 
     private inline fun <reified E : Enum<E>> enumOr(nombre: String?, defecto: E): E =
         enumValues<E>().firstOrNull { it.name == nombre } ?: defecto

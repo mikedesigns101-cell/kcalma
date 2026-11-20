@@ -83,25 +83,9 @@ fun Onboarding(onTerminar: (Perfil) -> Unit) {
     var paso by rememberSaveable { mutableIntStateOf(0) }
     var perfil by remember { mutableStateOf(Perfil()) }
     // Los campos de texto se guardan aparte para poder dejarlos vacíos mientras se escribe
-    var edad by rememberSaveable { mutableStateOf("") }
-    var altura by rememberSaveable { mutableStateOf("") }
-    var peso by rememberSaveable { mutableStateOf("") }
-    var pesoObj by rememberSaveable { mutableStateOf("") }
-    var grasa by rememberSaveable { mutableStateOf("") }
-
-    fun num(s: String) = s.replace(',', '.').toDoubleOrNull()
-    val datosValidos = num(edad)?.let { it in 14.0..100.0 } == true &&
-        num(altura)?.let { it in 120.0..230.0 } == true &&
-        num(peso)?.let { it in 35.0..300.0 } == true &&
-        num(pesoObj)?.let { it in 35.0..300.0 } == true &&
-        (grasa.isEmpty() || num(grasa)?.let { it in 3.0..60.0 } == true)
-
-    fun aplicarDatos() {
-        perfil = perfil.copy(
-            edad = num(edad)!!.toInt(), alturaCm = num(altura)!!.toInt(),
-            pesoKg = num(peso)!!, pesoObjetivoKg = num(pesoObj)!!, grasaPct = num(grasa),
-        )
-    }
+    val campos = remember { CamposDatos(null) }
+    val datosValidos = campos.validos
+    fun aplicarDatos() { perfil = campos.aplicar(perfil) }
 
     BackHandler(enabled = paso > 0) { paso-- }
 
@@ -118,121 +102,30 @@ fun Onboarding(onTerminar: (Perfil) -> Unit) {
         when (p) {
             0 -> Bienvenida { paso = 1 }
             1 -> Paso(p, onAtras = { paso-- }, boton = "Siguiente", botonActivo = datosValidos, onBoton = { aplicarDatos(); paso++ }) {
-                TituloPaso("Empecemos por ti", "Con esto calculamos lo que gasta tu cuerpo en reposo.")
-                Segmentado(listOf("Hombre", "Mujer"), perfil.sexo.ordinal) { perfil = perfil.copy(sexo = Sexo.entries[it]) }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CampoNumero("Edad", edad, "años", { edad = it }, Modifier.weight(1f), ejemplo = "30")
-                    CampoNumero("Altura", altura, "cm", { altura = it }, Modifier.weight(1f), ejemplo = "175")
-                }
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CampoNumero("Peso actual", peso, "kg", { peso = it }, Modifier.weight(1f), ejemplo = "80", decimales = true)
-                    CampoNumero("Peso objetivo", pesoObj, "kg", { pesoObj = it }, Modifier.weight(1f), ejemplo = "75", decimales = true)
-                }
-                CampoNumero("% de grasa corporal (opcional)", grasa, "%", { grasa = it }, Modifier.fillMaxWidth(), ejemplo = "No lo sé", decimales = true)
-                Nota(resaltado("Si conoces tu % de grasa (báscula de bioimpedancia, plicómetro…) el cálculo es ", "más preciso", ". Si no, no pasa nada."))
+                BloqueDatos(perfil, campos) { perfil = it }
             }
             2 -> Paso(p, onAtras = { paso-- }, onBoton = { paso++ }) {
-                TituloPaso("¿Cómo es tu trabajo o tu día?", "Sin contar el ejercicio. Piensa en un día normal.")
-                val ops = listOf(
-                    Triple("💻", "Casi todo sentado", "Oficina, teletrabajo, estudiante, conductor"),
-                    Triple("🧍", "De pie o moviéndome a ratos", "Dependiente, profesor, peluquero, camarero de barra"),
-                    Triple("🚶", "Moviéndome casi todo el día", "Camarero de sala, enfermero, repartidor a pie, reponedor"),
-                    Triple("🏗️", "Trabajo físico duro", "Albañil, mudanzas, campo, almacén cargando peso"),
-                )
-                ops.forEachIndexed { i, (e, t, d) ->
-                    Opcion(e, t, d, perfil.trabajo.ordinal == i) { perfil = perfil.copy(trabajo = Trabajo.entries[i]) }
-                }
+                BloqueTrabajo(perfil) { perfil = it }
             }
             3 -> Paso(p, onAtras = { paso-- }, onBoton = { paso++ }) {
-                TituloPaso("¿Cuánto andas al día?", "Si no lo sabes, mira la app Salud o Fit de tu móvil, o elige lo que más se parezca.")
-                val ops = listOf(
-                    Triple("🛋️", "Menos de 5.000 pasos", "Casi todo en coche, poco paseo"),
-                    Triple("🚶", "5.000 – 8.000 pasos", "Algún paseo, recados andando"),
-                    Triple("🏃", "8.000 – 12.000 pasos", "Vas andando a casi todo o paseas a diario"),
-                    Triple("⛰️", "Más de 12.000 pasos", "Andas muchísimo, paseas al perro largo…"),
-                )
-                ops.forEachIndexed { i, (e, t, d) ->
-                    Opcion(e, t, d, perfil.pasos.ordinal == i) { perfil = perfil.copy(pasos = Pasos.entries[i]) }
-                }
-                Nota(resaltado("📱 Próximamente: ", "leer tus pasos automáticamente", " con Health Connect para ajustar tus calorías cada día."))
+                BloquePasos(perfil) { perfil = it }
             }
             4 -> Paso(p, onAtras = { paso-- }, onBoton = { paso++ }) {
-                TituloPaso("¿Haces ejercicio?", "Lo que haces de verdad, no lo que te gustaría 😉")
-                Contador("Días por semana", perfil.diasEjercicio) { perfil = perfil.copy(diasEjercicio = it.coerceIn(0, 7)) }
-                if (perfil.diasEjercicio > 0) {
-                    Etiqueta("Tipo de ejercicio")
-                    val ops = listOf(
-                        Triple("🏋️", "Pesas / gimnasio", "Fuerza, máquinas, crossfit"),
-                        Triple("🏃", "Cardio", "Correr, bici, natación, spinning"),
-                        Triple("⚽", "Deporte", "Fútbol, pádel, baloncesto…"),
-                    )
-                    ops.forEachIndexed { i, (e, t, d) ->
-                        Opcion(e, t, d, perfil.tipoEjercicio.ordinal == i) { perfil = perfil.copy(tipoEjercicio = TipoEjercicio.entries[i]) }
-                    }
-                    Etiqueta("Cada sesión dura")
-                    Segmentado(listOf("30 min", "1 hora", "1,5 h"), perfil.duracion.ordinal) { perfil = perfil.copy(duracion = Duracion.entries[it]) }
-                }
+                BloqueEjercicio(perfil) { perfil = it }
             }
             5 -> Paso(p, onAtras = { paso-- }, boton = "Calcular mi plan", onBoton = { paso++ }) {
-                TituloPaso("¿Qué quieres conseguir?", "Puedes cambiarlo cuando quieras.")
-                val ops = listOf(
-                    Triple("📉", "Perder grasa", "Bajar de peso manteniendo el músculo"),
-                    Triple("🔄", "Recomposición", "Mismo peso, menos grasa y más músculo. Ideal si empiezas en el gimnasio"),
-                    Triple("💪", "Ganar músculo", "Subir de peso poco a poco, sin coger mucha grasa"),
-                )
-                ops.forEachIndexed { i, (e, t, d) ->
-                    Opcion(e, t, d, perfil.objetivo.ordinal == i) { perfil = perfil.copy(objetivo = Objetivo.entries[i]) }
-                }
-                if (perfil.objetivo != Objetivo.RECOMPOSICION) {
-                    Etiqueta("¿A qué ritmo?")
-                    Segmentado(listOf("Suave", "Normal", "Rápido"), perfil.ritmo.ordinal) { perfil = perfil.copy(ritmo = Ritmo.entries[it]) }
-                    Nota(textoRitmo(perfil))
-                } else {
-                    Nota(resaltado("Comerás un ", "10 % por debajo", " de lo que gastas. Tu peso se mantendrá más o menos igual mientras cambia tu cuerpo."))
-                }
+                BloqueObjetivo(perfil) { perfil = it }
             }
             6 -> Paso(p, onAtras = { paso-- }, boton = "¡Vamos!", onBoton = { paso++ }) { TuPlan(perfil) }
             else -> Paso(p, onAtras = { paso-- }, boton = "Terminar", onBoton = { onTerminar(perfil) },
                 secundario = "Saltar por ahora", onSecundario = { onTerminar(perfil) }) {
-                TituloPaso("¿Qué no puedes o no quieres comer?", "Lo usamos para que las ideas de comida te encajen.")
-                Etiqueta("Alergias e intolerancias")
-                FilaChips {
-                    ALERGENOS.forEach { a ->
-                        val sel = a in perfil.alergias
-                        ChipSeleccion(a, if (sel) EstadoChip.NO else EstadoChip.NEUTRO) {
-                            perfil = perfil.copy(alergias = perfil.alergias.alternar(a))
-                        }
-                    }
-                }
-                Etiqueta("No me gusta")
-                FilaChips {
-                    perfil.noMeGusta.forEach { a ->
-                        ChipSeleccion(a, EstadoChip.NO) { perfil = perfil.copy(noMeGusta = perfil.noMeGusta - a) }
-                    }
-                    ChipAnadir { perfil = perfil.copy(noMeGusta = perfil.noMeGusta + it) }
-                }
-                Etiqueta("Me encanta")
-                FilaChips {
-                    perfil.meEncanta.forEach { a ->
-                        ChipSeleccion("♥ $a", EstadoChip.SI) { perfil = perfil.copy(meEncanta = perfil.meEncanta - a) }
-                    }
-                    ChipAnadir { perfil = perfil.copy(meEncanta = perfil.meEncanta + it) }
-                }
-                Etiqueta("Dónde compras")
-                FilaChips {
-                    SUPERMERCADOS.forEach { s ->
-                        val sel = s in perfil.supermercados
-                        ChipSeleccion(s, if (sel) EstadoChip.SI else EstadoChip.NEUTRO) {
-                            perfil = perfil.copy(supermercados = perfil.supermercados.alternar(s))
-                        }
-                    }
-                }
+                BloqueComida(perfil) { perfil = it }
             }
         }
     }
 }
 
-private fun Set<String>.alternar(x: String) = if (x in this) this - x else this + x
+internal fun Set<String>.alternar(x: String) = if (x in this) this - x else this + x
 
 /** Plantilla común: cabecera con progreso, contenido con scroll y botón abajo. */
 @Composable
@@ -296,7 +189,7 @@ private fun Bienvenida(onEmpezar: () -> Unit) {
 }
 
 @Composable
-private fun Contador(etiqueta: String, valor: Int, onCambio: (Int) -> Unit) {
+internal fun Contador(etiqueta: String, valor: Int, onCambio: (Int) -> Unit) {
     val c = KcalmaTheme.colores
     val forma = RoundedCornerShape(14.dp)
     Row(
@@ -319,7 +212,7 @@ private fun Contador(etiqueta: String, valor: Int, onCambio: (Int) -> Unit) {
 }
 
 @Composable
-private fun TuPlan(perfil: Perfil) {
+internal fun TuPlan(perfil: Perfil) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     val plan = Calculadora.calcular(perfil)
@@ -372,7 +265,7 @@ private fun TuPlan(perfil: Perfil) {
 }
 
 @Composable
-private fun LineaDesglose(texto: String, valor: String, fuerte: Boolean = false, color: Color? = null) {
+internal fun LineaDesglose(texto: String, valor: String, fuerte: Boolean = false, color: Color? = null) {
     val c = KcalmaTheme.colores
     Row(Modifier.fillMaxWidth()) {
         Text(texto, style = KcalmaTheme.tipo.pequeno, color = if (fuerte) c.texto else c.texto2, modifier = Modifier.weight(1f))
@@ -384,14 +277,14 @@ private fun LineaDesglose(texto: String, valor: String, fuerte: Boolean = false,
 }
 
 @Composable
-private fun resaltado(antes: String, fuerte: String, despues: String) = buildAnnotatedString {
+internal fun resaltado(antes: String, fuerte: String, despues: String) = buildAnnotatedString {
     append(antes)
     withStyle(SpanStyle(color = KcalmaTheme.colores.acento, fontWeight = FontWeight.SemiBold)) { append(fuerte) }
     append(despues)
 }
 
 @Composable
-private fun textoRitmo(p: Perfil) = run {
+internal fun textoRitmo(p: Perfil) = run {
     val semanal = Calculadora.kgSemana(p)
     val fecha = Calculadora.fechaObjetivo(p)
     val consejo = when (p.ritmo) {
@@ -403,16 +296,16 @@ private fun textoRitmo(p: Perfil) = run {
     resaltado("Ritmo ${p.ritmo.name.lowercase()}: ", "${kg(semanal)} kg por semana", ".$cuando $consejo")
 }
 
-private fun kg(x: Double): String {
+internal fun kg(x: Double): String {
     val s = if (x == Math.floor(x)) "%.0f".format(Locale.US, x) else "%.2f".format(Locale.US, x).trimEnd('0')
     return (if (x > 0) "+" else "") + s.replace('.', ',').replace("-", "−")
 }
 
-private fun aproximada(f: LocalDate): String {
+internal fun aproximada(f: LocalDate): String {
     val parte = when (f.dayOfMonth) { in 1..10 -> "principios"; in 11..20 -> "mediados"; else -> "finales" }
     val mes = f.month.getDisplayName(TextStyle.FULL, Locale.forLanguageTag("es-ES"))
     val anio = if (f.year != LocalDate.now().year) " de ${f.year}" else ""
     return "$parte de $mes$anio"
 }
 
-private fun miles(n: Int): String = "%,d".format(Locale.US, n).replace(',', '.').replace("-", "−")
+internal fun miles(n: Int): String = "%,d".format(Locale.US, n).replace(',', '.').replace("-", "−")

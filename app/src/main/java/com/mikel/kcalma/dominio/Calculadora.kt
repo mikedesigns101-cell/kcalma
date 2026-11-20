@@ -23,6 +23,8 @@ data class Plan(
     val kgSemana: Double,
     /** Si se ha aplicado el mínimo de seguridad. */
     val limitadoPorMinimo: Boolean,
+    /** Si las kcal las ha puesto el usuario a mano. */
+    val manual: Boolean = false,
 )
 
 object Calculadora {
@@ -69,7 +71,7 @@ object Calculadora {
         }
         val minimo = if (p.sexo == Sexo.HOMBRE) MINIMO_HOMBRE else MINIMO_MUJER
         val bruto = redondear10(gasto + ajuste)
-        val kcal = max(bruto, minimo)
+        val kcal = p.kcalManual ?: max(bruto, minimo)
 
         // Proteína y grasa por kg; si hay obesidad se usa el peso objetivo para no disparar la proteína
         val imc = p.pesoKg / ((p.alturaCm / 100.0) * (p.alturaCm / 100.0))
@@ -99,7 +101,8 @@ object Calculadora {
             hidratosG = hidratos.roundToInt(),
             grasasG = grasa.roundToInt(),
             kgSemana = kgSemana,
-            limitadoPorMinimo = kcal > bruto,
+            limitadoPorMinimo = p.kcalManual == null && kcal > bruto,
+            manual = p.kcalManual != null,
         )
     }
 

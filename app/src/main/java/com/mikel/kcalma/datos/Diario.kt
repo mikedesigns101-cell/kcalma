@@ -44,6 +44,58 @@ class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 
         // Futuras migraciones aquí, siempre sin borrar datos del usuario.
     }
 
+    // ---------- Copia de seguridad ----------
+
+    private val TABLAS = listOf("entradas", "productos", "habituales", "habitual_items")
+
+    /** Todas las tablas en JSON (fila = objeto columna → valor). */
+    fun exportar(): org.json.JSONObject {
+        val o = org.json.JSONObject()
+        TABLAS.forEach { t ->
+            val filas = org.json.JSONArray()
+            readableDatabase.query(t, null, null, null, null, null, null).use { c ->
+                while (c.moveToNext()) {
+                    val f = org.json.JSONObject()
+                    for (i in 0 until c.columnCount) when (c.getType(i)) {
+                        Cursor.FIELD_TYPE_INTEGER -> f.put(c.getColumnName(i), c.getLong(i))
+                        Cursor.FIELD_TYPE_FLOAT -> f.put(c.getColumnName(i), c.getDouble(i))
+                        Cursor.FIELD_TYPE_STRING -> f.put(c.getColumnName(i), c.getString(i))
+                        else -> {}
+                    }
+                    filas.put(f)
+                }
+            }
+            o.put(t, filas)
+        }
+        return o
+    }
+
+    /** Sustituye todo el diario por el de la copia, en una sola transacción. */
+    fun importar(o: org.json.JSONObject) {
+        val bd = writableDatabase
+        bd.beginTransaction()
+        try {
+            TABLAS.forEach { t ->
+                bd.delete(t, null, null)
+                val filas = o.optJSONArray(t) ?: return@forEach
+                for (i in 0 until filas.length()) {
+                    val f = filas.getJSONObject(i)
+                    val v = ContentValues()
+                    f.keys().forEach { k ->
+                        when (val x = f.get(k)) {
+                            is Int -> v.put(k, x.toLong()); is Long -> v.put(k, x)
+                            is Double -> v.put(k, x); is Number -> v.put(k, x.toDouble())
+                            else -> v.put(k, x.toString())
+                        }
+                    }
+                    bd.insert(t, null, v)
+                }
+            }
+            bd.setTransactionSuccessful()
+        } finally { bd.endTransaction() }
+        cambios.value++
+    }
+
     // ---------- Diario ----------
 
     fun entradasDe(fecha: String): Flow<List<Entrada>> =

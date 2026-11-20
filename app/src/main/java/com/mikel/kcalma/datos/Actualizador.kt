@@ -22,9 +22,9 @@ class Actualizador(private val contexto: Context) {
     private val prefs = contexto.getSharedPreferences("actualizador", Context.MODE_PRIVATE)
 
     /** Versión nueva sin ocultar, o null. Usa la respuesta guardada si se consultó hace menos de un día. */
-    suspend fun comprobar(): VersionNueva? = withContext(Dispatchers.IO) {
+    suspend fun comprobar(forzar: Boolean = false): VersionNueva? = withContext(Dispatchers.IO) {
         val ahora = System.currentTimeMillis()
-        if (ahora - prefs.getLong("ultima", 0) > UN_DIA) {
+        if (forzar || ahora - prefs.getLong("ultima", 0) > UN_DIA) {
             runCatching { consultarGitHub() }.onSuccess { v ->
                 prefs.edit().putLong("ultima", ahora)
                     .putString("nombre", v?.nombre).putString("notas", v?.notas).putString("url", v?.urlApk).apply()
@@ -32,7 +32,7 @@ class Actualizador(private val contexto: Context) {
         }
         val nombre = prefs.getString("nombre", null) ?: return@withContext null
         val url = prefs.getString("url", null) ?: return@withContext null
-        if (!esMasNueva(nombre, BuildConfig.VERSION_NAME) || prefs.getString("oculta", null) == nombre) return@withContext null
+        if (!esMasNueva(nombre, BuildConfig.VERSION_NAME) || (!forzar && prefs.getString("oculta", null) == nombre)) return@withContext null
         VersionNueva(nombre, prefs.getString("notas", "") ?: "", url)
     }
 

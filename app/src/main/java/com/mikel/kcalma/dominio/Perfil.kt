@@ -43,4 +43,9 @@ data class Perfil(
     val noMeGusta: Set<String> = emptySet(),
     val meEncanta: Set<String> = emptySet(),
     val supermercados: Set<String> = emptySet(),
+    /** Calorías puestas a mano por el usuario; null = las calculadas. */
+    val kcalManual: Int? = null,
 )
+
+/** Una pesada con su fecha (aaaa-mm-dd). */
+data class Pesada(val fecha: String, val kg: Double)
