@@ -84,6 +84,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
 
     var pestana by rememberSaveable { mutableStateOf(Pestana.HOY) }
     val pesos by almacen.pesos.collectAsState(initial = emptyList())
+    val dias by remember(fecha) { repo.diario.totalesDesde(LocalDate.parse(fecha).minusDays(100).toString()) }.collectAsState(initial = emptyMap())
     val claves = remember { Claves(contexto.applicationContext) }
     var claveGuardada by remember { mutableStateOf(claves.gemini() != null) }
     // La clave también se guarda desde la foto: se vuelve a mirar al cambiar de pantalla
@@ -92,7 +93,6 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
     val cambiarPestana: (Pestana) -> Unit = { p ->
         // Progreso e Ideas esperan a que Mikel apruebe sus maquetas
         when (p) {
-            Pestana.PROGRESO -> aviso("La pantalla de progreso llega en una próxima versión")
             Pestana.IDEAS -> aviso("El recomendador de comidas llega en una próxima versión")
             else -> pestana = p
         }
@@ -133,7 +133,10 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
     }
 
     when (val d = pila.lastOrNull()) {
-        null -> if (pestana == Pestana.PERFIL) PantallaPerfil(
+        null -> if (pestana == Pestana.PROGRESO) com.mikel.kcalma.ui.progreso.PantallaProgreso(
+            perfil = perfil, pesos = pesos, dias = dias, onPestana = cambiarPestana,
+            onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
+        ) else if (pestana == Pestana.PERFIL) PantallaPerfil(
             perfil = perfil,
             pesos = pesos,
             claveGuardada = claveGuardada,

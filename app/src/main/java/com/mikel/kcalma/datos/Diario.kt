@@ -101,6 +101,13 @@ class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 
     fun entradasDe(fecha: String): Flow<List<Entrada>> =
         cambios.map { leerEntradas("fecha = ?", arrayOf(fecha), "creado") }.flowOn(Dispatchers.IO)
 
+    /** Totales por día (aaaa-mm-dd) desde [fecha], para Progreso. */
+    fun totalesDesde(fecha: String): Flow<Map<String, com.mikel.kcalma.dominio.Nutrientes>> =
+        cambios.map {
+            leerEntradas("fecha >= ?", arrayOf(fecha), "fecha").groupBy { it.fecha }
+                .mapValues { (_, l) -> l.fold(com.mikel.kcalma.dominio.Nutrientes()) { s, e -> s + e.nutrientes } }
+        }.flowOn(Dispatchers.IO)
+
     fun anadir(fecha: String, comida: ComidaDia, alimento: Alimento, gramos: Double, unidad: Unidad, cantidad: Double) {
         val v = valores(alimento).apply {
             put("fecha", fecha); put("comida", comida.ordinal); put("gramos", gramos)
