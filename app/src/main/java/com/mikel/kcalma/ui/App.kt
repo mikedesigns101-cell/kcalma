@@ -281,6 +281,10 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
                 if (pila.lastOrNull() != Destino.Comida(d.comida)) pila.add(Destino.Comida(d.comida))
             },
             onEscanear = { pila.add(Destino.Escaner(d.comida)) },
+            onAnadirEntrada = { e ->
+                alcance.launch(Dispatchers.IO) { repo.diario.anadir(fecha, d.comida, e.alimento, e.gramos, e.unidad, e.cantidad) }
+                aviso("Añadido a ${d.comida.nombre} · ${e.nutrientes.kcalInt} kcal")
+            },
         )
         is Destino.Ficha -> FichaAlimento(
             alimento = d.alimento,

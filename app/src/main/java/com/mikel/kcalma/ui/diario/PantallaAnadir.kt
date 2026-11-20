@@ -46,6 +46,10 @@ import com.mikel.kcalma.datos.Habitual
 import com.mikel.kcalma.datos.Repositorio
 import com.mikel.kcalma.dominio.Alimento
 import com.mikel.kcalma.dominio.ComidaDia
+import com.mikel.kcalma.dominio.Entrada
+import com.mikel.kcalma.dominio.Unidad
+import java.time.LocalDate
+import androidx.compose.ui.text.input.KeyboardType
 import com.mikel.kcalma.ui.theme.KcalmaTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -69,6 +73,8 @@ fun PantallaAnadir(
     onEscanear: (() -> Unit)?,
     titulo: String = "Añadir",
     selectorComida: Boolean = true,
+    /** Atajos del diario (repetir, lo de siempre, solo calorías); null en la foto. */
+    onAnadirEntrada: ((Entrada) -> Unit)? = null,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -78,10 +84,21 @@ fun PantallaAnadir(
     var buscando by remember { mutableStateOf(false) }
     var recientes by remember { mutableStateOf<List<Alimento>>(emptyList()) }
     var habituales by remember { mutableStateOf<List<Habitual>>(emptyList()) }
+    var ultima by remember { mutableStateOf<List<Entrada>>(emptyList()) }
+    var frecuentes by remember { mutableStateOf<List<Entrada>>(emptyList()) }
+    var dialogoKcal by remember { mutableStateOf(false) }
     val foco = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) { recientes = repo.diario.recientes(); habituales = repo.diario.habituales() }
+    }
+    LaunchedEffect(comida) {
+        if (onAnadirEntrada == null) return@LaunchedEffect
+        val hoy = LocalDate.now()
+        withContext(Dispatchers.IO) {
+            ultima = repo.diario.ultimaComida(comida, hoy.toString())
+            frecuentes = repo.diario.frecuentes(comida, hoy.minusDays(45).toString())
+        }
     }
     LaunchedEffect(consulta, filtro) {
         if (consulta.isBlank() || filtro == MIS_COMIDAS) { resultados = emptyList(); return@LaunchedEffect }
@@ -92,6 +109,11 @@ fun PantallaAnadir(
         buscando = false
     }
 
+    if (dialogoKcal && onAnadirEntrada != null) DialogoKcal({ dialogoKcal = false }) { nombre, kcal, prot ->
+        dialogoKcal = false
+        val a = Alimento(nombre = nombre, racion = "1 ración", racionG = 100.0, kcal = kcal, proteinas = prot)
+        onAnadirEntrada(Entrada(0, "", comida, a, 100.0, Unidad.RACION, 1.0))
+    }
     Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 16.dp)) {
         BarraSuperior("✕", onCerrar, titulo) { if (selectorComida) SelectorComida(comida, onCambiarComida) }
 
@@ -139,10 +161,24 @@ fun PantallaAnadir(
                     items(habituales) { h -> FilaHabitual(h) { onHabitual(h) } }
                 }
                 consulta.isBlank() -> {
-                    if (recientes.isNotEmpty()) {
+                    if (onAnadirEntrada != null) {
+                        if (ultima.isNotEmpty()) item {
+                            val cuando = cuandoFue(ultima.first().fecha)
+                            FilaHabitual(Habitual(-1, "Repetir tu ${comida.nombre.lowercase()} de $cuando", ultima), "↻") {
+                                onHabitual(Habitual(-1, "Tu ${comida.nombre.lowercase()} de $cuando", ultima))
+                            }
+                        }
+                        item { FilaAtajo("⚡", "Añadir solo calorías", "Para cuando comes fuera y no sabes qué lleva") { dialogoKcal = true } }
+                        if (frecuentes.isNotEmpty()) {
+                            item { MiniTitulo("Sueles tomar en ${articuloComida(comida)}${comida.nombre.lowercase()}", Modifier.padding(top = 6.dp)) }
+                            items(frecuentes) { e -> FilaAlimento(e.alimento, { onAbrir(e.alimento) }, { onAnadirEntrada(e) }, habitual = e) }
+                        }
+                    }
+                    val otros = recientes.filter { a -> frecuentes.none { it.alimento.nombre == a.nombre && it.alimento.marca == a.marca } }
+                    if (otros.isNotEmpty()) {
                         item { MiniTitulo("Recientes") }
-                        items(recientes) { a -> FilaAlimento(a, { onAbrir(a) }, { onAnadirRapido(a) }) }
-                    } else item {
+                        items(otros) { a -> FilaAlimento(a, { onAbrir(a) }, { onAnadirRapido(a) }) }
+                    } else if (recientes.isEmpty() && ultima.isEmpty()) item {
                         Text("Escribe para buscar entre casi 80.000 alimentos de supermercados españoles, o escanea un código de barras.",
                             style = t.cuerpo, color = c.texto3, modifier = Modifier.padding(vertical = 8.dp))
                     }
@@ -195,7 +231,7 @@ private fun ChipFiltro(texto: String, activo: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun FilaHabitual(h: Habitual, onAnadir: () -> Unit) {
+private fun FilaHabitual(h: Habitual, emoji: String = "⭐", onAnadir: () -> Unit) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     val kcal = h.entradas.sumOf { it.nutrientes.kcal }.roundToInt()
@@ -204,7 +240,7 @@ private fun FilaHabitual(h: Habitual, onAnadir: () -> Unit) {
             .border(1.dp, c.borde, RoundedCornerShape(13.dp)).clickable(onClick = onAnadir).padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text("⭐", style = t.titulo)
+        Text(emoji, style = t.titulo, color = c.acento)
         Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
             Text(h.nombre, style = t.tituloTarjeta, color = c.texto)
             Text(h.entradas.joinToString(", ") { it.alimento.nombre }, style = t.pequeno, color = c.texto3, maxLines = 1)
@@ -212,5 +248,90 @@ private fun FilaHabitual(h: Habitual, onAnadir: () -> Unit) {
         Text("$kcal", style = t.tituloTarjeta, color = c.texto)
         Spacer(Modifier.width(10.dp))
         Text("+", style = t.numero, color = c.acento)
+    }
+}
+
+@Composable
+private fun FilaAtajo(emoji: String, titulo: String, detalle: String, onClick: () -> Unit) {
+    val c = KcalmaTheme.colores
+    val t = KcalmaTheme.tipo
+    Row(
+        Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(13.dp)).background(c.fondo2)
+            .border(1.dp, c.borde, RoundedCornerShape(13.dp)).clickable(onClick = onClick).padding(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(emoji, style = t.titulo)
+        Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
+            Text(titulo, style = t.tituloTarjeta, color = c.texto)
+            Text(detalle, style = t.pequeno, color = c.texto3, maxLines = 1)
+        }
+        Text("+", style = t.numero, color = c.acento)
+    }
+}
+
+private fun articuloComida(c: ComidaDia) = if (c == ComidaDia.DESAYUNO) "el " else "la "
+
+/** «ayer», «el martes», «el 3 nov». */
+private fun cuandoFue(fecha: String): String {
+    val f = runCatching { LocalDate.parse(fecha) }.getOrNull() ?: return fecha
+    val dias = java.time.temporal.ChronoUnit.DAYS.between(f, LocalDate.now())
+    val es = java.util.Locale.forLanguageTag("es-ES")
+    return when {
+        dias <= 1L -> "ayer"
+        dias < 7L -> "el " + f.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, es)
+        else -> "el ${f.dayOfMonth} " + f.month.getDisplayName(java.time.format.TextStyle.SHORT, es).trimEnd('.')
+    }
+}
+
+/** Calorías sin desglose (y proteína si se sabe), con un nombre opcional. */
+@Composable
+private fun DialogoKcal(onCerrar: () -> Unit, onAnadir: (String, Double, Double) -> Unit) {
+    val c = KcalmaTheme.colores
+    val t = KcalmaTheme.tipo
+    var nombre by remember { mutableStateOf("") }
+    var kcal by remember { mutableStateOf("") }
+    var prot by remember { mutableStateOf("") }
+    val k = kcal.toDoubleOrNull()?.takeIf { it > 0 }
+    androidx.compose.material3.AlertDialog(
+        onDismissRequest = onCerrar,
+        containerColor = c.fondo2,
+        title = { Text("Añadir solo calorías", style = t.titulo, color = c.texto) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Campo("¿Qué era? (opcional)", nombre, KeyboardType.Text) { nombre = it.take(40) }
+                Campo("Calorías (kcal)", kcal, KeyboardType.Number) { kcal = it.filter { ch -> ch.isDigit() }.take(4) }
+                Campo("Proteína en g (opcional)", prot, KeyboardType.Number) { prot = it.filter { ch -> ch.isDigit() }.take(3) }
+            }
+        },
+        confirmButton = {
+            Text(
+                "Añadir", style = t.titulo, color = if (k != null) c.acento else c.texto3,
+                modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable(enabled = k != null) {
+                    if (k != null) onAnadir(nombre.trim().ifEmpty { "Calorías rápidas" }, k, prot.toDoubleOrNull() ?: 0.0)
+                }.padding(10.dp),
+            )
+        },
+        dismissButton = {
+            Text(
+                "Cancelar", style = t.titulo, color = c.texto2,
+                modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable(onClick = onCerrar).padding(10.dp),
+            )
+        },
+    )
+}
+
+@Composable
+private fun Campo(etiqueta: String, valor: String, tipo: KeyboardType, onCambio: (String) -> Unit) {
+    val c = KcalmaTheme.colores
+    val t = KcalmaTheme.tipo
+    Column {
+        Text(etiqueta, style = t.pequeno, color = c.texto2)
+        BasicTextField(
+            valor, onCambio, singleLine = true,
+            textStyle = t.titulo.copy(color = c.texto), cursorBrush = SolidColor(c.acento),
+            keyboardOptions = KeyboardOptions(keyboardType = tipo),
+            modifier = Modifier.fillMaxWidth().padding(top = 4.dp).clip(RoundedCornerShape(10.dp)).background(c.fondo3)
+                .border(1.dp, c.borde, RoundedCornerShape(10.dp)).padding(horizontal = 12.dp, vertical = 10.dp),
+        )
     }
 }

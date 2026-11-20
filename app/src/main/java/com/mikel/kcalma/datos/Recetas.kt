@@ -3,6 +3,7 @@ package com.mikel.kcalma.datos
 import android.content.Context
 import com.mikel.kcalma.dominio.Alimento
 import com.mikel.kcalma.dominio.ComidaDia
+import com.mikel.kcalma.dominio.Gustos
 import com.mikel.kcalma.dominio.Ingrediente
 import com.mikel.kcalma.dominio.Perfil
 import com.mikel.kcalma.dominio.Receta
@@ -57,7 +58,7 @@ object Recetas {
         append("y unos ${proteina.roundToInt()} g de proteína cada una.")
         if (rapidas) append(" Que se hagan en 15 minutos o menos.")
         if (perfil.alergias.isNotEmpty()) append(" Alergias e intolerancias (prohibido): ${perfil.alergias.joinToString()}.")
-        if (perfil.noMeGusta.isNotEmpty()) append(" No le gusta: ${perfil.noMeGusta.joinToString()}.")
+        if (perfil.noMeGusta.isNotEmpty()) append(" No le gusta, no uses nada de esto: ${Gustos.describir(perfil.noMeGusta)}.")
         if (perfil.meEncanta.isNotEmpty()) append(" Le encanta: ${perfil.meEncanta.joinToString()}.")
     }
 

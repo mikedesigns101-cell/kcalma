@@ -58,10 +58,8 @@ object Recomendador {
         }
     }
 
-    private fun contiene(r: Receta, terminos: Set<String>): Boolean {
-        val texto = normalizar(r.nombre + " " + r.ingredientes.joinToString(" ") { it.alimento.nombre })
-        return terminos.any { t -> normalizar(t).takeIf { it.length > 2 }?.let { texto.contains(it.take(5)) } == true }
-    }
+    private fun contiene(r: Receta, terminos: Set<String>): Boolean =
+        Gustos.menciona(r.nombre + " " + r.ingredientes.joinToString(" ") { it.alimento.nombre }, terminos)
 
     fun recomendar(
         recetas: List<Receta>, perfil: Perfil, comida: ComidaDia, planKcal: Int,

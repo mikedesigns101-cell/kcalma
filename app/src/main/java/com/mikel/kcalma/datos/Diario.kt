@@ -146,6 +146,25 @@ class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 
             .filter { vistos.add(it.nombre + "|" + it.marca) }.take(limite)
     }
 
+    /** Lo apuntado en [comida] el último día anterior a [antesDe] en que se apuntó algo en ella. */
+    fun ultimaComida(comida: ComidaDia, antesDe: String): List<Entrada> {
+        val fecha = readableDatabase.rawQuery(
+            "SELECT MAX(fecha) FROM entradas WHERE comida = ? AND fecha < ?", arrayOf(comida.ordinal.toString(), antesDe),
+        ).use { c -> if (c.moveToFirst() && !c.isNull(0)) c.getString(0) else null } ?: return emptyList()
+        return leerEntradas("comida = ? AND fecha = ?", arrayOf(comida.ordinal.toString(), fecha), "creado")
+    }
+
+    /**
+     * Lo que más se repite en [comida] desde [desde] (al menos 2 veces), con la cantidad de la última vez,
+     * para añadirlo de un toque tal cual se suele tomar.
+     */
+    fun frecuentes(comida: ComidaDia, desde: String, limite: Int = 6): List<Entrada> =
+        leerEntradas("comida = ? AND fecha >= ?", arrayOf(comida.ordinal.toString(), desde), "creado DESC")
+            .groupBy { it.alimento.nombre + "|" + it.alimento.marca }
+            .values.filter { it.size >= 2 }
+            .sortedByDescending { it.size }
+            .take(limite).map { it.first() }
+
     private fun leerEntradas(donde: String?, args: Array<String>?, orden: String, limite: Int? = null): List<Entrada> =
         readableDatabase.query("entradas", null, donde, args, null, null, orden, limite?.toString()).use { c ->
             generateSequence { if (c.moveToNext()) c.entrada("fecha") else null }.toList()

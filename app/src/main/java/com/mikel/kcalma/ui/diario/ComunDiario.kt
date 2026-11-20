@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.mikel.kcalma.dominio.Alimento
+import com.mikel.kcalma.dominio.Entrada
 import com.mikel.kcalma.dominio.decimal
 import com.mikel.kcalma.dominio.emojiDe
 import com.mikel.kcalma.ui.theme.KcalmaTheme
@@ -69,11 +70,16 @@ fun IconoAlimento(nombre: String, tamano: Int = 38) {
 
 /** Fila de resultado: icono, nombre con supermercado, ración, kcal y botón + para añadir sin abrir la ficha. */
 @Composable
-fun FilaAlimento(a: Alimento, onAbrir: () -> Unit, onAnadir: () -> Unit) {
+fun FilaAlimento(a: Alimento, onAbrir: () -> Unit, onAnadir: () -> Unit, habitual: Entrada? = null) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
-    val gramos = a.gramosRapidos
-    val racion = if (a.racionValida != null) "1 ración (${decimal(gramos)} g)" else "100 g"
+    // Con [habitual], el + añade la cantidad de siempre
+    val gramos = habitual?.gramos ?: a.gramosRapidos
+    val racion = when {
+        habitual != null -> "sueles ${habitual.etiquetaCantidad}"
+        a.racionValida != null -> "1 ración (${decimal(gramos)} g)"
+        else -> "100 g"
+    }
     Column {
         Row(
             Modifier.fillMaxWidth().clickable(onClick = onAbrir).padding(vertical = 9.dp),

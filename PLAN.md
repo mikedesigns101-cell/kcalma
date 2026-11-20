@@ -77,6 +77,10 @@
 - **Publicación:** la 0.3.0 sale ya con la foto arreglada y Perfil; Progreso e Ideas van en la 0.4.0.
 - **Ajustes al implementar (0.4.0, Mikel pidió que decidiera yo):** sin chip de supermercado (las recetas usan alimentos genéricos, no productos de una cadena). Reparto orientativo por comida: desayuno 22 %, media mañana 10 %, comida 35 %, merienda 10 %, cena 25 %; la cena se lleva lo que quede del día, con un tope del 40 % del plan. Las cantidades se escalan entre ×0,6 y ×1,6 y la etiqueta «encaja» sale a ±12 %. Las ideas de la IA se emparejan con la base y, si no hay un alimento fiable, quedan como «Estimado por IA». En Hoy salen las ideas de la próxima comida sin apuntar; si ya están todas, no salen.
 
+### Gustos y atajos (21/11/2026, v0.4.2, Mikel pidió categorías y que yo eligiera atajos útiles)
+- **Gustos por categorías:** la app ofrece 26 categorías (Setas, Pescado, Marisco, Cerdo…); un toque = no me gusta, dos = me encanta. Cada categoría lleva sus palabras (Setas → champiñón, boletus, níscalo…), que filtran las recetas y se mandan a la IA. Lo que se escribe a mano solo bloquea esa palabra («nata» no quita la leche).
+- **Atajos en Añadir:** «Repetir tu comida de ayer» (lo último que apuntaste en esa comida, de un toque), «Sueles tomar» (lo que más repites en esa comida en 45 días, con la cantidad de siempre) y «Añadir solo calorías» (kcal y proteína opcional, para comer fuera).
+
 **Arquitectura sin servidor (confirmada el 20/11/2026):** no hay Supabase ni ningún backend. La app funciona entera en el móvil: base de datos local, la clave de cada usuario guardada cifrada (Android Keystore) y la llamada a la IA directamente desde la app. Cada amigo saca su propia clave gratis de Gemini en Google AI Studio, con una guía dentro de la app. La clave de Mikel nunca va en el APK. Sin sincronización: botón de exportar e importar copia de seguridad. Esto sustituye al "servidor intermedio" y a Supabase de las secciones 3 y 5.
 
 ---

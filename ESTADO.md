@@ -38,6 +38,10 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 - `ui/ideas/PantallaIdeas.kt`: lista, detalle y «Añadir a la comida». Hoy muestra las ideas de la próxima comida sin apuntar.
 - Probado en el emulador: lista, detalle, «Más ideas con IA» (Flash Lite, ~5 s) y añadir a la cena.
 
+## Gustos y atajos (v0.4.2)
+- `dominio/Gustos.kt`: categorías con raíces de palabra; las usan el recomendador y la petición a la IA. Pantalla en `BloqueGustos`.
+- Añadir: repetir la última comida, «Sueles tomar» (`Diario.frecuentes`) y «Añadir solo calorías».
+
 ## Pendiente
 1. Probar en el móvil: lectura real de un código de barras.
 2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.

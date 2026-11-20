@@ -49,6 +49,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.mikel.kcalma.dominio.ALERGENOS
+import com.mikel.kcalma.dominio.CATEGORIAS_GUSTO
+import com.mikel.kcalma.dominio.Gustos
 import com.mikel.kcalma.dominio.Calculadora
 import com.mikel.kcalma.dominio.Duracion
 import com.mikel.kcalma.dominio.Objetivo
@@ -213,19 +215,48 @@ fun BloqueAlergias(perfil: Perfil, onCambio: (Perfil) -> Unit) {
 
 @Composable
 fun BloqueGustos(perfil: Perfil, onCambio: (Perfil) -> Unit) {
-    Etiqueta("No me gusta")
+    // Lo escrito a mano que corresponde a una categoría cuenta como esa categoría
+    fun de(t: String) = Gustos.categoriaDe(t)?.nombre
+    val no = perfil.noMeGusta.mapNotNull(::de).toSet()
+    val si = perfil.meEncanta.mapNotNull(::de).toSet()
+    Etiqueta("Toca una vez: no me gusta · dos: me encanta")
     FilaChips {
-        perfil.noMeGusta.forEach { a ->
+        CATEGORIAS_GUSTO.forEach { cat ->
+            val estado = when (cat.nombre) { in no -> EstadoChip.NO; in si -> EstadoChip.SI; else -> EstadoChip.NEUTRO }
+            ChipSeleccion("${cat.emoji} ${cat.nombre}", estado) {
+                val sinNo = perfil.noMeGusta.filterNot { de(it) == cat.nombre }.toSet()
+                val sinSi = perfil.meEncanta.filterNot { de(it) == cat.nombre }.toSet()
+                onCambio(
+                    when (estado) {
+                        EstadoChip.NEUTRO -> perfil.copy(noMeGusta = sinNo + cat.nombre, meEncanta = sinSi)
+                        EstadoChip.NO -> perfil.copy(noMeGusta = sinNo, meEncanta = sinSi + cat.nombre)
+                        EstadoChip.SI -> perfil.copy(noMeGusta = sinNo, meEncanta = sinSi)
+                    }
+                )
+            }
+        }
+    }
+    // Lo que no está en ninguna categoría se escribe a mano
+    val anadir: (String, Boolean) -> Unit = { texto, gusta ->
+        val t = de(texto) ?: texto
+        onCambio(
+            if (gusta) perfil.copy(meEncanta = perfil.meEncanta + t, noMeGusta = perfil.noMeGusta - t)
+            else perfil.copy(noMeGusta = perfil.noMeGusta + t, meEncanta = perfil.meEncanta - t)
+        )
+    }
+    Etiqueta("Otros que no me gustan")
+    FilaChips {
+        perfil.noMeGusta.filter { de(it) == null }.forEach { a ->
             ChipSeleccion(a, EstadoChip.NO) { onCambio(perfil.copy(noMeGusta = perfil.noMeGusta - a)) }
         }
-        ChipAnadir { onCambio(perfil.copy(noMeGusta = perfil.noMeGusta + it)) }
+        ChipAnadir { anadir(it, false) }
     }
-    Etiqueta("Me encanta")
+    Etiqueta("Otros que me encantan")
     FilaChips {
-        perfil.meEncanta.forEach { a ->
+        perfil.meEncanta.filter { de(it) == null }.forEach { a ->
             ChipSeleccion("♥ $a", EstadoChip.SI) { onCambio(perfil.copy(meEncanta = perfil.meEncanta - a)) }
         }
-        ChipAnadir { onCambio(perfil.copy(meEncanta = perfil.meEncanta + it)) }
+        ChipAnadir { anadir(it, true) }
     }
 }
 
