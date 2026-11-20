@@ -84,31 +84,42 @@ object Gemini {
             .put(JSONObject().put("text", if (nota.isBlank()) "Sin nota." else "Nota del usuario: $nota"))
             .put(JSONObject().put("inline_data", JSONObject()
                 .put("mime_type", "image/jpeg").put("data", Base64.encodeToString(jpeg, Base64.NO_WRAP))))))
-        return withContext(Dispatchers.IO) { cadena(MODELOS, clave, contenido) }
+        return withContext(Dispatchers.IO) {
+            cadena(MODELOS, clave, contenido, INSTRUCCIONES, ESQUEMA, 0.2, ::interpretar) { l ->
+                l.joinToString { "${it.nombre} ${it.gramos.toInt()} g (${it.confianza})" }
+            }
+        }
     }
 
     /** Prueba los modelos en orden hasta que uno responda algo legible. */
-    private fun cadena(modelos: List<Pair<String, JSONObject?>>, clave: String, contenido: JSONArray): Respuesta<List<Reconocido>> {
-        var ultimo: Respuesta<List<Reconocido>> = Respuesta.Fallo("sin modelo")
+    private fun <T> cadena(
+        modelos: List<Pair<String, JSONObject?>>, clave: String, contenido: JSONArray,
+        instrucciones: String, esquema: JSONObject, temperatura: Double,
+        leer: (JSONObject) -> T, resumir: (T) -> String,
+    ): Respuesta<T> {
+        var ultimo: Respuesta<T> = Respuesta.Fallo("sin modelo")
         for ((modelo, razonamiento) in modelos) {
             val cuerpo = JSONObject()
-                .put("systemInstruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", INSTRUCCIONES))))
+                .put("systemInstruction", JSONObject().put("parts", JSONArray().put(JSONObject().put("text", instrucciones))))
                 .put("contents", contenido)
                 .put("generationConfig", JSONObject()
-                    .put("temperature", 0.2)
+                    .put("temperature", temperatura)
                     .put("responseMimeType", "application/json")
-                    .put("responseSchema", ESQUEMA)
+                    .put("responseSchema", esquema)
                     .apply { if (razonamiento != null) put("thinkingConfig", razonamiento) })
             val inicio = System.currentTimeMillis()
             val r = llamar("$BASE/models/$modelo:generateContent", clave, cuerpo.toString())
             ultimo = when (r) {
-                is Respuesta.Ok -> runCatching { Respuesta.Ok(interpretar(r.valor)) }.getOrElse {
+                is Respuesta.Ok -> runCatching { Respuesta.Ok(leer(r.valor)) }.getOrElse {
                     Registro.anotar("Gemini $modelo: respuesta ilegible: ${it.message} · ${r.valor.toString().take(600)}")
                     Respuesta.Fallo("respuesta ilegible")
                 }
-                else -> r as Respuesta<List<Reconocido>>
+                Respuesta.ClaveMala -> Respuesta.ClaveMala
+                Respuesta.Limite -> Respuesta.Limite
+                Respuesta.SinConexion -> Respuesta.SinConexion
+                is Respuesta.Fallo -> r
             }
-            val detalle = (ultimo as? Respuesta.Ok)?.valor?.joinToString { "${it.nombre} ${it.gramos.toInt()} g (${it.confianza})" } ?: resumen(ultimo)
+            val detalle = (ultimo as? Respuesta.Ok)?.valor?.let(resumir) ?: resumen(ultimo)
             Registro.anotar("Gemini $modelo en ${System.currentTimeMillis() - inicio} ms: $detalle")
             // Saturado, sin cuota, retirado, tiempo agotado…: se prueba el siguiente. Clave mala o sin red: no
             if (ultimo !is Respuesta.Fallo && ultimo !is Respuesta.Limite) break
@@ -116,8 +127,48 @@ object Gemini {
         return ultimo
     }
 
+    // ---------- Ideas de comida ----------
+
+    private val INSTRUCCIONES_IDEAS = """
+        Eres un nutricionista español. Propón recetas caseras españolas, sencillas y realistas, que encajen en las
+        calorías y la proteína que se piden para esa comida (±10 %). Respeta siempre las alergias y lo que no le gusta.
+        Usa ingredientes de supermercado español. Gramos en crudo, tal como se pesan al cocinar.
+        Campos de cada ingrediente: nombre corto en español de España; busqueda (alimento base en 1-2 palabras en singular,
+        sin marcas); gramos; kcal_100g, proteinas_100g, hidratos_100g, grasas_100g típicos de ese ingrediente en crudo.
+        pasos: 2-3 frases cortas. emoji: uno que represente el plato. alergenos: de la lista de 14 de la UE que contenga.
+    """.trimIndent()
+
+    private val ESQUEMA_IDEAS = JSONObject(
+        """
+        {"type":"OBJECT","properties":{"recetas":{"type":"ARRAY","items":{"type":"OBJECT","properties":{
+          "nombre":{"type":"STRING"},"emoji":{"type":"STRING"},"minutos":{"type":"INTEGER"},
+          "ingredientes":{"type":"ARRAY","items":{"type":"OBJECT","properties":{
+            "nombre":{"type":"STRING"},"busqueda":{"type":"STRING"},"gramos":{"type":"NUMBER"},
+            "kcal_100g":{"type":"NUMBER"},"proteinas_100g":{"type":"NUMBER"},"hidratos_100g":{"type":"NUMBER"},"grasas_100g":{"type":"NUMBER"}},
+            "required":["nombre","busqueda","gramos","kcal_100g","proteinas_100g","hidratos_100g","grasas_100g"]}},
+          "pasos":{"type":"ARRAY","items":{"type":"STRING"}},"alergenos":{"type":"ARRAY","items":{"type":"STRING"}}},
+          "required":["nombre","emoji","minutos","ingredientes","pasos","alergenos"]}}},"required":["recetas"]}
+        """
+    )
+
+    /** Recetas propuestas por la IA, sin emparejar todavía con la base. */
+    suspend fun ideas(clave: String, peticion: String): Respuesta<List<JSONObject>> = withContext(Dispatchers.IO) {
+        val contenido = JSONArray().put(JSONObject().put("parts", JSONArray().put(JSONObject().put("text", peticion))))
+        cadena(MODELOS, clave, contenido, INSTRUCCIONES_IDEAS, ESQUEMA_IDEAS, 0.9, { r ->
+            val lista = JSONObject(texto(r)).getJSONArray("recetas")
+            (0 until lista.length()).map { lista.getJSONObject(it) }
+        }) { l -> l.joinToString { it.optString("nombre") } }
+    }
+
+    /** Junta el texto de todas las partes que no son razonamiento y quita un posible ```json. */
+    private fun texto(respuesta: JSONObject): String {
+        val partes = respuesta.getJSONArray("candidates").getJSONObject(0).getJSONObject("content").getJSONArray("parts")
+        return (0 until partes.length()).map { partes.getJSONObject(it) }
+            .filter { !it.optBoolean("thought") && it.has("text") }.joinToString("") { it.getString("text") }
+            .trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
+    }
+
     internal fun interpretar(respuesta: JSONObject): List<Reconocido> {
-        // Junta el texto de todas las partes que no son razonamiento y quita un posible ```json
         val partes = respuesta.getJSONArray("candidates").getJSONObject(0).getJSONObject("content").getJSONArray("parts")
         val texto = (0 until partes.length()).map { partes.getJSONObject(it) }
             .filter { !it.optBoolean("thought") && it.has("text") }.joinToString("") { it.getString("text") }

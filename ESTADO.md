@@ -28,8 +28,18 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 - Registro local (`datos/Registro.kt`, también a logcat con etiqueta Kcalma) y «Mandar informe» → incidencia en GitHub.
 - Probado en el emulador (v0.2.1): clave, foto con nota «patatas cocidas» → «Patata, hervida» 200 g en 2,5 s.
 
+## Perfil y Progreso (v0.3.0)
+- `ui/perfil/`: datos, peso con historial, kcal a mano, clave de Gemini, copia de seguridad (`datos/Copia.kt`, JSON sin la clave), informe y buscar actualización.
+- `ui/progreso/`: peso frente al ritmo del plan, kcal de la semana, proteína media y racha.
+
+## Ideas (v0.4.0)
+- `assets/recetas.json`: 39 recetas españolas generadas con `datos/scripts/06_recetas.py` a partir de la base (gramos en crudo).
+- `dominio/Receta.kt` (Recomendador: objetivo por comida, escalado, «encaja», alergias, gustos, filtros) y `datos/Recetas.kt` (carga y conversión de las ideas de Gemini, emparejadas con la base).
+- `ui/ideas/PantallaIdeas.kt`: lista, detalle y «Añadir a la comida». Hoy muestra las ideas de la próxima comida sin apuntar.
+- Probado en el emulador: lista, detalle, «Más ideas con IA» (Flash Lite, ~5 s) y añadir a la cena.
+
 ## Pendiente
-1. Probar en el móvil: análisis de foto con Gemini, lectura real de un código de barras y actualización 0.1.0 → 0.2.0 desde la app.
+1. Probar en el móvil: lectura real de un código de barras.
 2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.
-3. Pantalla Perfil para cambiar o borrar la clave de Gemini.
-4. Siguiente función, a elegir con Mikel: recomendador de comidas, Health Connect, copia de seguridad, otros proveedores de IA.
+3. Corregir datos erróneos de BEDCA en la base (arroz hervido 392 kcal, lenteja hervida 331, garbanzo hervido 359, garbanzo en conserva 32). El filtro de kcal de la foto ya los evita.
+4. Siguiente función, a elegir con Mikel: Health Connect, otros proveedores de IA, más recetas.

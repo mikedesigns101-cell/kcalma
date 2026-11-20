@@ -53,6 +53,7 @@ import androidx.compose.runtime.remember
 import com.mikel.kcalma.dominio.Calculadora
 import com.mikel.kcalma.dominio.ComidaDia
 import com.mikel.kcalma.dominio.Entrada
+import com.mikel.kcalma.dominio.Idea
 import com.mikel.kcalma.dominio.Nutrientes
 import com.mikel.kcalma.dominio.Perfil
 import com.mikel.kcalma.ui.theme.KcalmaTheme
@@ -64,13 +65,6 @@ import kotlin.math.roundToInt
 // ---------- Datos ----------
 
 private data class Macro(val nombre: String, val actual: Int, val objetivo: Int, val color: Color)
-private data class Sugerencia(val origen: String, val nombre: String, val kcal: Int, val p: Int, val h: Int)
-
-private val sugerencias = listOf(
-    Sugerencia("Mercadona · 15 min", "Pollo a la plancha con arroz y pimientos", 620, 52, 68),
-    Sugerencia("Lidl · 10 min", "Ensalada de garbanzos con atún y huevo", 590, 46, 55),
-    Sugerencia("Dia · 20 min", "Salmón al horno con patata y brócoli", 610, 44, 58),
-)
 
 private val MARGEN = 18.dp
 
@@ -84,6 +78,11 @@ fun PantallaHoy(
     onAnadir: (ComidaDia) -> Unit,
     onCamara: () -> Unit,
     onPestana: (Pestana) -> Unit,
+    /** Ideas para la próxima comida, ya ajustadas a lo que queda. */
+    ideas: List<Idea> = emptyList(),
+    tituloIdeas: String = "Ideas para tu comida",
+    onIdea: (Idea) -> Unit = {},
+    onVerIdeas: () -> Unit = {},
     aviso: (@Composable () -> Unit)? = null,
 ) {
     val c = KcalmaTheme.colores
@@ -95,10 +94,6 @@ fun PantallaHoy(
         Macro("Grasas", comido.grasas.roundToInt(), plan.grasasG, c.grasas),
     )
     val lateral = Modifier.padding(horizontal = MARGEN)
-    val contexto = LocalContext.current
-    val pronto: (String) -> Unit = { que ->
-        Toast.makeText(contexto, "$que llega en una próxima versión", Toast.LENGTH_SHORT).show()
-    }
     Box(Modifier.fillMaxSize().background(c.fondo0)) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().statusBarsPadding(),
@@ -108,8 +103,10 @@ fun PantallaHoy(
             item { Column(lateral) { Cabecera(perfil.pesoKg) } }
             item { Column(lateral) { Anillo(objetivo = plan.kcal, comido = comido.kcalInt, ejercicio = 0) } }
             item { Box(lateral) { FilaMacros(macros) } }
-            item { Box(lateral) { TituloSeccion("Ideas para tu comida", "Ver más") { pronto("El recomendador de comidas") } } }
-            item { FilaSugerencias { pronto("El recomendador de comidas") } }
+            if (ideas.isNotEmpty()) {
+                item { Box(lateral) { TituloSeccion(tituloIdeas, "Ver más", onVerIdeas) } }
+                item { FilaSugerencias(ideas.take(5), onIdea) }
+            }
             items(ComidaDia.entries) { cd ->
                 Box(lateral) { TarjetaComida(cd, entradas.filter { it.comida == cd }, { onAbrirComida(cd) }, { onAnadir(cd) }) }
             }
@@ -232,7 +229,7 @@ private fun TituloSeccion(titulo: String, accion: String, onAccion: () -> Unit) 
 }
 
 @Composable
-private fun FilaSugerencias(onClick: () -> Unit) {
+private fun FilaSugerencias(ideas: List<Idea>, onClick: (Idea) -> Unit) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     LazyRow(
@@ -240,25 +237,27 @@ private fun FilaSugerencias(onClick: () -> Unit) {
         contentPadding = PaddingValues(horizontal = MARGEN),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        items(sugerencias) { s ->
+        items(ideas) { idea ->
+            val s = idea.receta
+            val n = s.nutrientes
             val forma = RoundedCornerShape(16.dp)
             Column(
                 Modifier.width(220.dp).clip(forma).background(c.fondo2)
                     .border(BorderStroke(1.dp, Brush.linearGradient(listOf(c.acento.copy(alpha = .5f), c.acento2.copy(alpha = .5f)))), forma)
-                    .clickable(onClick = onClick).padding(12.dp)
+                    .clickable { onClick(idea) }.padding(12.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(s.origen.uppercase(), style = t.diminuto, color = c.texto3, modifier = Modifier.weight(1f))
-                    Chip("✓ Cuadra", fondo = c.verde.copy(alpha = .13f), tinta = c.verde)
+                    Text("${s.emoji}  ${s.minutos} MIN", style = t.diminuto, color = c.texto3, modifier = Modifier.weight(1f))
+                    if (idea.encaja) Chip("✓ Encaja", fondo = c.verde.copy(alpha = .13f), tinta = c.verde)
                 }
                 Text(
                     s.nombre, style = t.tituloTarjeta, color = c.texto, maxLines = 2, minLines = 2,
                     modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Chip("${s.kcal} kcal")
-                    Chip("P ${s.p}")
-                    Chip("H ${s.h}")
+                    Chip("${n.kcalInt} kcal")
+                    Chip("P ${n.proteinas.roundToInt()}")
+                    Chip("H ${n.hidratos.roundToInt()}")
                 }
             }
         }

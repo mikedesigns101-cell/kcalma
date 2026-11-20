@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +33,15 @@ import com.mikel.kcalma.dominio.Alimento
 import com.mikel.kcalma.dominio.Calculadora
 import com.mikel.kcalma.dominio.ComidaDia
 import com.mikel.kcalma.dominio.Entrada
+import com.mikel.kcalma.dominio.FiltrosIdeas
+import com.mikel.kcalma.dominio.Idea
+import com.mikel.kcalma.dominio.Receta
+import com.mikel.kcalma.dominio.Recomendador
+import com.mikel.kcalma.datos.Recetas
+import com.mikel.kcalma.datos.Respuesta
+import com.mikel.kcalma.ui.ideas.DetalleIdea
+import com.mikel.kcalma.ui.ideas.EstadoIa
+import com.mikel.kcalma.ui.ideas.PantallaIdeas
 import com.mikel.kcalma.dominio.Nutrientes
 import com.mikel.kcalma.dominio.Perfil
 import com.mikel.kcalma.dominio.SUPERMERCADOS
@@ -61,6 +71,7 @@ private sealed interface Destino {
     data class Foto(val comida: ComidaDia) : Destino
     data class Editar(val bloque: Bloque) : Destino
     data object Clave : Destino
+    data class VerIdea(val idea: Idea, val comida: ComidaDia) : Destino
 }
 
 @Composable
@@ -72,7 +83,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
     val entradas by remember(fecha) { repo.diario.entradasDe(fecha) }.collectAsState(initial = emptyList())
     val plan = remember(perfil) { Calculadora.calcular(perfil) }
     val comido = entradas.fold(Nutrientes()) { s, e -> s + e.nutrientes }
-    val restante = Nutrientes(plan.kcal - comido.kcal, plan.proteinaG - comido.proteinas)
+    val restante = Nutrientes(plan.kcal - comido.kcal, plan.proteinaG - comido.proteinas, plan.hidratosG - comido.hidratos, plan.grasasG - comido.grasas)
     // Filtros del buscador: los supermercados del usuario o, si no eligió, los dos con más productos
     val supermercados = perfil.supermercados.sortedBy { SUPERMERCADOS.indexOf(it) }.ifEmpty { listOf("Mercadona", "Lidl") }
 
@@ -90,11 +101,41 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
     // La clave también se guarda desde la foto: se vuelve a mirar al cambiar de pantalla
     LaunchedEffect(pestana, pila.size) { claveGuardada = claves.gemini() != null }
     val aviso: (String) -> Unit = { Toast.makeText(contexto, it, Toast.LENGTH_SHORT).show() }
-    val cambiarPestana: (Pestana) -> Unit = { p ->
-        // Progreso e Ideas esperan a que Mikel apruebe sus maquetas
-        when (p) {
-            Pestana.IDEAS -> aviso("El recomendador de comidas llega en una próxima versión")
-            else -> pestana = p
+    val cambiarPestana: (Pestana) -> Unit = { pestana = it }
+
+    // ---- Ideas: recetas propias + las que pida a la IA ----
+    val recetas by produceState(emptyList<Receta>()) { value = runCatching { Recetas.todas(contexto.applicationContext) }.getOrDefault(emptyList()) }
+    // Próxima comida sin apuntar a partir de la hora actual (la cena si ya va todo apuntado)
+    val pendiente = ComidaDia.entries.drop(ComidaDia.segunHora(LocalTime.now().hour).ordinal)
+        .firstOrNull { cd -> entradas.none { it.comida == cd } }
+    val proxima = pendiente ?: ComidaDia.CENA
+    var comidaIdeas by rememberSaveable { mutableStateOf<ComidaDia?>(null) }
+    val comidaIdea = comidaIdeas ?: proxima
+    var filtros by remember { mutableStateOf(FiltrosIdeas()) }
+    val deIa = remember { mutableStateListOf<Receta>() }
+    var estadoIa by remember { mutableStateOf<EstadoIa>(EstadoIa.Nada) }
+    val ideasDe: (ComidaDia, FiltrosIdeas) -> List<Idea> = { cd, f ->
+        Recomendador.recomendar(recetas + deIa.filter { cd in it.comidas }, perfil, cd, plan.kcal, restante, f)
+    }
+    fun pedirIa() {
+        val clave = claves.gemini() ?: run { pila.add(Destino.Clave); return }
+        estadoIa = EstadoIa.Cargando
+        val cd = comidaIdea
+        alcance.launch {
+            val obj = Recomendador.objetivo(cd, plan.kcal, restante.kcal)
+            val prot = if (restante.kcal > 0) (restante.proteinas * obj / restante.kcal).coerceAtLeast(10.0) else 25.0
+            estadoIa = when (val r = Gemini.ideas(clave, Recetas.peticion(perfil, cd, obj, prot, filtros.rapidas))) {
+                is Respuesta.Ok -> {
+                    val nuevas = Recetas.deIa(repo, cd, r.valor)
+                    deIa.removeAll { it.nombre in nuevas.map { n -> n.nombre } }
+                    deIa.addAll(0, nuevas)
+                    if (nuevas.isEmpty()) EstadoIa.Error("La IA no devolvió recetas válidas. Prueba otra vez.") else EstadoIa.Nada
+                }
+                Respuesta.ClaveMala -> EstadoIa.Error("La clave de Gemini no es válida. Cámbiala en Perfil.")
+                Respuesta.Limite -> EstadoIa.Error("Has llegado al límite gratuito de Gemini por ahora. Prueba en un rato.")
+                Respuesta.SinConexion -> EstadoIa.Error("Sin conexión a internet.")
+                is Respuesta.Fallo -> EstadoIa.Error("La IA no respondió. Prueba otra vez.")
+            }
         }
     }
     val exportar = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
@@ -133,7 +174,19 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
     }
 
     when (val d = pila.lastOrNull()) {
-        null -> if (pestana == Pestana.PROGRESO) com.mikel.kcalma.ui.progreso.PantallaProgreso(
+        null -> if (pestana == Pestana.IDEAS) PantallaIdeas(
+            comida = comidaIdea,
+            restante = restante,
+            ideas = ideasDe(comidaIdea, filtros),
+            filtros = filtros,
+            estadoIa = estadoIa,
+            onComida = { comidaIdeas = it },
+            onFiltros = { filtros = it },
+            onAbrir = { pila.add(Destino.VerIdea(it, comidaIdea)) },
+            onMasIa = { pedirIa() },
+            onPestana = cambiarPestana,
+            onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
+        ) else if (pestana == Pestana.PROGRESO) com.mikel.kcalma.ui.progreso.PantallaProgreso(
             perfil = perfil, pesos = pesos, dias = dias, onPestana = cambiarPestana,
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
         ) else if (pestana == Pestana.PERFIL) PantallaPerfil(
@@ -164,6 +217,10 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             onAnadir = { c -> pila.add(Destino.Anadir(c)) },
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
             onPestana = cambiarPestana,
+            ideas = if (pendiente == null) emptyList() else ideasDe(proxima, FiltrosIdeas()),
+            tituloIdeas = "Ideas para ${if (proxima == ComidaDia.MEDIA_MANANA) "" else "la "}${proxima.nombre.lowercase()}",
+            onIdea = { pila.add(Destino.VerIdea(it, proxima)) },
+            onVerIdeas = { comidaIdeas = null; pestana = Pestana.IDEAS },
             aviso = nueva?.let { v ->
                 {
                     TarjetaActualizacion(
@@ -255,6 +312,21 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
                 alcance.launch { almacen.guardar(nuevo) }
                 pila.removeAt(pila.lastIndex)
                 aviso("Guardado")
+            },
+        )
+        is Destino.VerIdea -> DetalleIdea(
+            idea = d.idea,
+            comida = d.comida,
+            restante = restante,
+            planKcal = plan.kcal,
+            onAtras = { pila.removeAt(pila.lastIndex) },
+            onAnadir = {
+                alcance.launch(Dispatchers.IO) {
+                    d.idea.receta.ingredientes.forEach { i -> repo.diario.anadir(fecha, d.comida, i.alimento, i.gramos, Unidad.GRAMOS, i.gramos) }
+                }
+                aviso("«${d.idea.receta.nombre}» añadida a ${d.comida.nombre}")
+                pila.removeAt(pila.lastIndex)
+                pila.add(Destino.Comida(d.comida))
             },
         )
         Destino.Clave -> PantallaClave(

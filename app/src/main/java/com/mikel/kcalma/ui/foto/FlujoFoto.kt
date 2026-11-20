@@ -161,10 +161,7 @@ fun FlujoFoto(
  * estimación de la IA marcada como estimada.
  */
 private suspend fun emparejar(r: Reconocido, repo: Repositorio, id: Int): ItemFoto {
-    val consultas = Emparejado.consultas(r.busqueda, r.nombre)
-    // Genéricos primero (de la consulta más estricta a la más amplia); si no, cualquier producto
-    val candidato = consultas.firstNotNullOfOrNull { q -> Emparejado.elegir(repo.buscar(q, "").take(30), r.busqueda + " " + r.nombre, r.kcal100) }
-        ?: consultas.firstNotNullOfOrNull { q -> Emparejado.elegir(repo.buscar(q, null).take(30), r.busqueda + " " + r.nombre, r.kcal100) }
+    val candidato = repo.emparejar(r.busqueda, r.nombre, r.kcal100)
     val razonable = candidato != null
     return if (candidato != null && razonable) {
         ItemFoto(id, candidato, r.gramos, r.confianza, r.deLaNota)

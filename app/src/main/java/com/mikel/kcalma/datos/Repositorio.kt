@@ -16,6 +16,16 @@ class Repositorio(contexto: Context) {
         propios + catalogo.buscar(consulta, supermercado)
     }
 
+    /**
+     * Alimento de la base que corresponde a lo que propone la IA: genéricos primero (de la consulta más
+     * estricta a la más amplia) y, si no, cualquier producto. Null si nada encaja.
+     */
+    suspend fun emparejar(busqueda: String, nombre: String, kcal100: Double): Alimento? {
+        val consultas = Emparejado.consultas(busqueda, nombre)
+        return consultas.firstNotNullOfOrNull { q -> Emparejado.elegir(buscar(q, "").take(30), "$busqueda $nombre", kcal100) }
+            ?: consultas.firstNotNullOfOrNull { q -> Emparejado.elegir(buscar(q, null).take(30), "$busqueda $nombre", kcal100) }
+    }
+
     /** Orden: productos ya guardados, catálogo y, si no está, Open Food Facts (se guarda en el móvil). */
     suspend fun porCodigo(codigo: String): Busqueda = withContext(Dispatchers.IO) {
         diario.productoPorCodigo(codigo)?.let { return@withContext Busqueda.Encontrado(it) }
