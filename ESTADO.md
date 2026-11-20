@@ -19,7 +19,7 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 
 ## GitHub y actualizaciones
 - Repo público `mikedesigns101-cell/kcalma`. Cada versión es una release con `kcalma-X.Y.Z.apk` firmada (clave en `C:\Users\Mikel\.kcalma\`, fuera del repo).
-- La app mira la última release al abrirse (como mucho cada 10 min) y hay botón «Actualizar Kcalma» arriba en Perfil, que descarga directamente; muestra y muestra la tarjeta «Nueva versión» en Hoy (`datos/Actualizador.kt`).
+- La app mira la última release al abrirse (como mucho cada 10 min) y hay botón «Actualizar Kcalma» arriba en Perfil, que descarga directamente. Si hay versión nueva, sale la tarjeta «Nueva versión» en Hoy (`datos/Actualizador.kt`).
 
 ## Foto con IA (v0.2.0)
 - `datos/Claves.kt` (clave cifrada con Android Keystore, fuera de copias), `datos/Gemini.kt` (REST + responseSchema), `ui/foto/` (FlujoFoto, PantallasFoto, Imagen).
