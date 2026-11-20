@@ -71,6 +71,11 @@
 - **Copia de seguridad** (exportar e importar un archivo) en esta versión.
 - También: cambiar o borrar la clave de Gemini, Mandar informe y Buscar actualizaciones.
 
+### Progreso e Ideas (aprobadas el 20/11/2026, maqueta en `maquetas/kcalma-progreso-ideas.html`)
+- **Progreso:** gráfica de peso con la línea del ritmo del plan y fecha estimada, calorías de la semana frente al objetivo, proteína media y racha de días apuntados; periodos 1 mes, 3 meses y todo.
+- **Ideas:** lo que queda del día y filtros (comida, rápidas, supermercado, lo que me encanta). **Fuente: las dos.** Una lista propia de recetas españolas calculadas con la base y filtradas por lo que queda, alergias y gustos (sin internet), y el botón «Más ideas con IA» que pide otras a Gemini. Al tocar una: ingredientes, pasos y «Añadir a la comida».
+- **Publicación:** la 0.3.0 sale ya con la foto arreglada y Perfil; Progreso e Ideas van en la 0.4.0.
+
 **Arquitectura sin servidor (confirmada el 20/11/2026):** no hay Supabase ni ningún backend. La app funciona entera en el móvil: base de datos local, la clave de cada usuario guardada cifrada (Android Keystore) y la llamada a la IA directamente desde la app. Cada amigo saca su propia clave gratis de Gemini en Google AI Studio, con una guía dentro de la app. La clave de Mikel nunca va en el APK. Sin sincronización: botón de exportar e importar copia de seguridad. Esto sustituye al "servidor intermedio" y a Supabase de las secciones 3 y 5.
 
 ---
