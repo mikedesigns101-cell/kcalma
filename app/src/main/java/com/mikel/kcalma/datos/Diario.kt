@@ -23,7 +23,7 @@ data class Habitual(val id: Long, val nombre: String, val entradas: List<Entrada
  * Datos del usuario (diario.db): lo que come, sus comidas habituales y los productos
  * traídos de Open Food Facts. Cada fila guarda una copia completa del alimento.
  */
-class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 1) {
+class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 2) {
 
     /** Sube cada vez que algo cambia, para que las pantallas vuelvan a leer. */
     private val cambios = MutableStateFlow(0)
@@ -41,7 +41,18 @@ class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 
     }
 
     override fun onUpgrade(bd: SQLiteDatabase, antes: Int, ahora: Int) {
-        // Futuras migraciones aquí, siempre sin borrar datos del usuario.
+        // Migraciones siempre sin borrar datos del usuario.
+        if (antes < 2) corregirGenericos(bd)
+    }
+
+    /** v2: lo ya apuntado con genéricos de BEDCA que tenían datos erróneos (ver datos/scripts/07_correcciones.py). */
+    private fun corregirGenericos(bd: SQLiteDatabase) {
+        CORRECCIONES.forEach { (nombre, v) ->
+            val campos = listOf("kcal", "proteinas", "hidratos", "grasas", "fibra").zip(v.toList()).filter { it.second != null }
+            val sql = "UPDATE %s SET " + campos.joinToString { "${it.first} = ?" } + " WHERE generico = 1 AND nombre = ?"
+            val args = campos.map { it.second as Any } + nombre
+            listOf("entradas", "habitual_items").forEach { tabla -> bd.execSQL(sql.format(tabla), args.toTypedArray()) }
+        }
     }
 
     // ---------- Copia de seguridad ----------
@@ -230,3 +241,26 @@ class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 
         cantidad = d("cantidad") ?: 0.0,
     )
 }
+
+/** Mismos valores que CORRECCIONES en datos/scripts/07_correcciones.py: kcal, proteínas, hidratos, grasas, fibra. */
+private data class Valores(val kcal: Double?, val p: Double?, val h: Double?, val g: Double?, val f: Double?) {
+    fun toList() = listOf(kcal, p, h, g, f)
+}
+
+private val CORRECCIONES = mapOf(
+    "Arroz, hervido" to Valores(130.0, 2.7, 28.2, 0.3, 0.4),
+    "Garbanzo, hervido" to Valores(148.0, 8.9, 18.7, 2.5, 7.6),
+    "Lenteja, hervida" to Valores(116.0, 9.0, 12.2, 0.4, 7.9),
+    "Judías blancas, cocidas" to Valores(139.0, 9.7, 18.8, 0.4, 6.3),
+    "Garbanzo, en conserva" to Valores(120.0, null, null, null, null),
+    "Bonito, enlatado en aceite, escurrido" to Valores(null, null, null, 11.0, null),
+    "Cangrejo" to Valores(87.0, 18.1, 0.0, 1.1, null),
+    "Nécora" to Valores(87.0, 18.1, 0.0, 1.1, null),
+    "Chirla" to Valores(47.0, null, null, null, null),
+    "Dorada, cruda" to Valores(133.0, null, null, null, null),
+    "Jurel, crudo" to Valores(null, null, null, 5.2, null),
+    "Kebab" to Valores(173.0, null, null, null, null),
+    "Pimienta, negra" to Valores(251.0, null, null, null, null),
+    "Pimienta, blanca" to Valores(296.0, null, null, null, null),
+    "Puré de patata y queso, en copos" to Valores(350.0, null, null, null, null),
+)

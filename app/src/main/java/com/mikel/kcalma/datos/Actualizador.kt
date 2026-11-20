@@ -15,16 +15,19 @@ import java.net.URL
 data class VersionNueva(val nombre: String, val notas: String, val urlApk: String)
 
 /**
- * Busca versiones nuevas en las Releases del repositorio público (una vez al día),
+ * Busca versiones nuevas en las Releases del repositorio público (al abrir la app),
  * descarga la APK y abre el instalador de Android.
  */
 class Actualizador(private val contexto: Context) {
     private val prefs = contexto.getSharedPreferences("actualizador", Context.MODE_PRIVATE)
 
-    /** Versión nueva sin ocultar, o null. Usa la respuesta guardada si se consultó hace menos de un día. */
+    /**
+     * Versión nueva sin ocultar, o null. Pregunta a GitHub cada vez que se abre la app (como mucho cada 10 min);
+     * sin conexión, usa la última respuesta guardada. [forzar] pregunta siempre y no tiene en cuenta las ocultas.
+     */
     suspend fun comprobar(forzar: Boolean = false): VersionNueva? = withContext(Dispatchers.IO) {
         val ahora = System.currentTimeMillis()
-        if (forzar || ahora - prefs.getLong("ultima", 0) > UN_DIA) {
+        if (forzar || ahora - prefs.getLong("ultima", 0) > DIEZ_MIN) {
             runCatching { consultarGitHub() }.onSuccess { v ->
                 prefs.edit().putLong("ultima", ahora)
                     .putString("nombre", v?.nombre).putString("notas", v?.notas).putString("url", v?.urlApk).apply()
@@ -91,7 +94,7 @@ class Actualizador(private val contexto: Context) {
 
     companion object {
         const val REPOSITORIO = "mikedesigns101-cell/kcalma"
-        private const val UN_DIA = 24 * 60 * 60 * 1000L
+        private const val DIEZ_MIN = 10 * 60 * 1000L
 
         /** "0.10.0" > "0.9.2". */
         fun esMasNueva(a: String, b: String): Boolean {

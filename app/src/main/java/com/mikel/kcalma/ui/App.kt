@@ -202,9 +202,18 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
                 onImportar = { importar.launch(arrayOf("application/json", "application/octet-stream", "text/plain")) },
                 onInforme = { mandarInforme(contexto, "Desde Perfil", "") },
                 onActualizar = {
+                    aviso("Buscando actualizaciones…")
                     alcance.launch {
                         val v = actualizador.comprobar(forzar = true)
-                        if (v == null) aviso("Tienes la última versión") else { nueva = v; pestana = Pestana.HOY }
+                        if (v == null) aviso("Tienes la última versión (${com.mikel.kcalma.BuildConfig.VERSION_NAME})")
+                        else {
+                            // Descarga directa: en Hoy se ve el progreso y al terminar se abre el instalador
+                            nueva = v; pestana = Pestana.HOY; descarga = 0f
+                            runCatching { actualizador.instalar(v) { descarga = it } }.onFailure {
+                                aviso("No se pudo descargar. Revisa la conexión.")
+                            }
+                            descarga = null
+                        }
                     }
                 },
             ),

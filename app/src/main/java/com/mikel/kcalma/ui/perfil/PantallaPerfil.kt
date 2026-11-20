@@ -140,6 +140,9 @@ fun PantallaPerfil(
                 )
             }
 
+            Grupo("App") {
+                Fila("⬇️", "Actualizar Kcalma", "v${BuildConfig.VERSION_NAME}", onClick = acciones.onActualizar)
+            }
             Grupo("Mis datos") {
                 val ultima = pesos.lastOrNull()
                 Fila("⚖️", "Peso", "${kgTexto(perfil.pesoKg)} kg" + (ultima?.let { " · ${cuando(it.fecha)}" } ?: "")) { hojaPeso = true }
@@ -162,7 +165,6 @@ fun PantallaPerfil(
             Grupo("Datos y ayuda") {
                 Fila("💾", "Copia de seguridad", "Exportar · Importar") { dialogo = "copia" }
                 Fila("🐞", "Mandar informe", "", onClick = acciones.onInforme)
-                Fila("✨", "Buscar actualizaciones", "v${BuildConfig.VERSION_NAME}", onClick = acciones.onActualizar)
             }
         }
         BarraInferior(Modifier.align(Alignment.BottomCenter), Pestana.PERFIL, onPestana, onCamara)

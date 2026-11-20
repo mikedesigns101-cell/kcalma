@@ -46,9 +46,11 @@ def main():
         CREATE INDEX idx_codigo ON alimentos(codigo_barras);
         CREATE TABLE android_metadata (locale TEXT);
         INSERT INTO android_metadata VALUES ('es_ES');
-        PRAGMA user_version = 1;
+        PRAGMA user_version = 1;  -- 07_correcciones la sube
     """)
     destino.commit()
+    # Datos erróneos conocidos (sube también user_version)
+    __import__("07_correcciones").corregir(destino)
     destino.execute("VACUUM")
     destino.close()
     print(f"{n} alimentos -> {DESTINO} ({DESTINO.stat().st_size / 1e6:.1f} MB)")

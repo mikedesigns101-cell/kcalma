@@ -19,7 +19,7 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 
 ## GitHub y actualizaciones
 - Repo público `mikedesigns101-cell/kcalma`. Cada versión es una release con `kcalma-X.Y.Z.apk` firmada (clave en `C:\Users\Mikel\.kcalma\`, fuera del repo).
-- La app mira una vez al día la última release y muestra la tarjeta «Nueva versión» en Hoy (`datos/Actualizador.kt`).
+- La app mira la última release al abrirse (como mucho cada 10 min) y hay botón «Actualizar Kcalma» arriba en Perfil, que descarga directamente; muestra y muestra la tarjeta «Nueva versión» en Hoy (`datos/Actualizador.kt`).
 
 ## Foto con IA (v0.2.0)
 - `datos/Claves.kt` (clave cifrada con Android Keystore, fuera de copias), `datos/Gemini.kt` (REST + responseSchema), `ui/foto/` (FlujoFoto, PantallasFoto, Imagen).
@@ -41,5 +41,5 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 ## Pendiente
 1. Probar en el móvil: lectura real de un código de barras.
 2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.
-3. Corregir datos erróneos de BEDCA en la base (arroz hervido 392 kcal, lenteja hervida 331, garbanzo hervido 359, garbanzo en conserva 32). El filtro de kcal de la foto ya los evita.
+3. Hecho en v0.4.1: `datos/scripts/07_correcciones.py` corrige 15 genéricos de BEDCA (arroz, lenteja, garbanzo y judía cocidos, etc.) y quita 48 productos con kcal incoherentes; la base sube a la versión 2 y `Diario` (v2) corrige lo ya apuntado. Las bebidas alcohólicas no cuadran con sus macros por el alcohol, pero son correctas.
 4. Siguiente función, a elegir con Mikel: Health Connect, otros proveedores de IA, más recetas.
