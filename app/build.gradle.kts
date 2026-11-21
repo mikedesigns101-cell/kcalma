@@ -22,8 +22,10 @@ android {
         applicationId = "com.mikel.kcalma"
         minSdk = 26
         targetSdk = 36
-        versionCode = 8
-        versionName = "0.5.0"
+        // -PcodigoPrueba y -PetiquetaPrueba solo para probar actualizaciones en el emulador
+        versionCode = (findProperty("codigoPrueba") as String?)?.toInt() ?: 12
+        versionName = "0.6.0"
+        buildConfigField("String", "ETIQUETA_PRUEBA", "\"${findProperty("etiquetaPrueba") ?: ""}\"")
     }
 
     signingConfigs {

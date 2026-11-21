@@ -47,6 +47,14 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 - Probado en el emulador: Perfil, Recordatorios (permiso y alarmas), permiso de pasos («Conectado»), lista desde una idea, crear un plato, añadir una ración y verlo en Hoy. Ningún cierre inesperado.
 - Sin probar en el emulador: el widget colocado en la pantalla de inicio, la foto de la etiqueta (necesita un código desconocido y la cámara) y la tarjeta de ajuste (necesita semanas de datos; la cubren los tests).
 
+## Versión 0.6.0
+- Mover entradas o una comida entera a otra comida (⋯ en la pantalla de la comida; `Diario.mover`).
+- Cantidad recordada: la ficha y el + empiezan con la última cantidad de ese alimento (`Diario.ultimaDe` y `ultimasCantidades`).
+- Buscar por voz con el dictado del móvil; `dominio/Voz.kt` separa la cantidad («200 gramos de…», «dos huevos»).
+- Actualizaciones con `PackageInstaller` (`Actualizador`, `ReceptorInstalacion`). Al terminar sale una notificación para volver a abrir la app. Probado en el emulador con dos versiones de prueba temporales: se instalaron solas y con los permisos intactos.
+- Guía de avisos en el README y texto para la apelación a Play Protect en `docs/apelacion-play-protect.md`.
+- Sin probar en el emulador: el dictado real (no hay micrófono); la lectura del texto la cubren los tests.
+
 ## Pendiente
 1. Probar en el móvil: lectura real de un código de barras.
 2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.

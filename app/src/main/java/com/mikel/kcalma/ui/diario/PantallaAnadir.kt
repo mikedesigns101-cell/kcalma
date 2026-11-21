@@ -1,5 +1,13 @@
 package com.mikel.kcalma.ui.diario
 
+import android.content.Intent
+import android.speech.RecognizerIntent
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
+import com.mikel.kcalma.datos.Diario
+import com.mikel.kcalma.dominio.Voz
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -79,6 +87,8 @@ fun PantallaAnadir(
     onAnadirEntrada: ((Entrada) -> Unit)? = null,
     /** Mis platos caseros; null donde no se ofrecen (foto, ingredientes de un plato). */
     accionesPlatos: AccionesPlatos? = null,
+    /** Abrir la ficha empezando con una cantidad (la dictada o la de la última vez). */
+    onAbrirCon: ((Alimento, Pair<String, Entrada>) -> Unit)? = null,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -93,11 +103,37 @@ fun PantallaAnadir(
     var dialogoKcal by remember { mutableStateOf(false) }
     var platos by remember { mutableStateOf<List<Plato>>(emptyList()) }
     val foco = remember { FocusRequester() }
+    val contexto = LocalContext.current
+    var voz by remember { mutableStateOf<Voz.Cantidad?>(null) }
+    var ultimas by remember { mutableStateOf<Map<String, Entrada>>(emptyMap()) }
+    val dictar = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { r ->
+        val frase = r.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull() ?: return@rememberLauncherForActivityResult
+        val d = Voz.interpretar(frase)
+        consulta = d.texto.take(60)
+        voz = d.cantidad
+        if (filtro == MIS_COMIDAS) filtro = TODOS
+    }
+    // Con cantidad (dictada o la última vez), el + y la ficha la usan; solo donde se apunta al diario
+    fun sugerida(a: Alimento): Pair<String, Entrada>? {
+        if (onAnadirEntrada == null) return null
+        voz?.let { return "🎤 Lo que has dicho" to it.entrada(a, comida) }
+        return ultimas[Diario.clave(a)]?.let { "↺ La última vez" to it.copy(comida = comida) }
+    }
+    @Composable
+    fun Fila(a: Alimento) {
+        val s = sugerida(a)
+        if (s == null) FilaAlimento(a, { onAbrir(a) }, { onAnadirRapido(a) })
+        else FilaAlimento(
+            a, { onAbrirCon?.invoke(a, s) ?: onAbrir(a) }, { onAnadirEntrada?.invoke(s.second) },
+            habitual = s.second, etiqueta = if (voz != null) s.second.etiquetaCantidad else "la última vez ${s.second.etiquetaCantidad}",
+        )
+    }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             recientes = repo.diario.recientes(); habituales = repo.diario.habituales()
             if (accionesPlatos != null) platos = repo.diario.platos()
+            if (onAnadirEntrada != null) ultimas = repo.diario.ultimasCantidades()
         }
     }
     LaunchedEffect(comida) {
@@ -136,15 +172,27 @@ fun PantallaAnadir(
             Box(Modifier.weight(1f).padding(horizontal = 8.dp)) {
                 if (consulta.isEmpty()) Text("Busca un alimento o marca", style = t.titulo, color = c.texto3)
                 BasicTextField(
-                    consulta, { consulta = it.take(60) }, singleLine = true,
+                    consulta, { consulta = it.take(60); voz = null }, singleLine = true,
                     textStyle = t.titulo.copy(color = c.texto), cursorBrush = SolidColor(c.acento),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                     modifier = Modifier.fillMaxWidth().focusRequester(foco),
                 )
             }
             if (consulta.isNotEmpty()) {
-                Text("✕", style = t.cuerpo, color = c.texto3, modifier = Modifier.clickable { consulta = "" }.padding(8.dp))
+                Text("✕", style = t.cuerpo, color = c.texto3, modifier = Modifier.clickable { consulta = ""; voz = null }.padding(8.dp))
             }
+            Box(
+                Modifier.padding(end = 6.dp).size(34.dp).clip(RoundedCornerShape(9.dp)).background(c.fondo4).clickable {
+                    val i = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+                        .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                        .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es-ES")
+                        .putExtra(RecognizerIntent.EXTRA_PROMPT, "Di el alimento y la cantidad")
+                    runCatching { dictar.launch(i) }.onFailure {
+                        Toast.makeText(contexto, "Este móvil no tiene dictado por voz", Toast.LENGTH_SHORT).show()
+                    }
+                },
+                contentAlignment = Alignment.Center,
+            ) { Text("🎤", style = t.cuerpo) }
             if (onEscanear != null) Box(
                 Modifier.size(34.dp).clip(RoundedCornerShape(9.dp)).background(c.fondo4).clickable(onClick = onEscanear),
                 contentAlignment = Alignment.Center,
@@ -190,7 +238,7 @@ fun PantallaAnadir(
                     val otros = recientes.filter { a -> frecuentes.none { it.alimento.nombre == a.nombre && it.alimento.marca == a.marca } }
                     if (otros.isNotEmpty()) {
                         item { MiniTitulo("Recientes") }
-                        items(otros) { a -> FilaAlimento(a, { onAbrir(a) }, { onAnadirRapido(a) }) }
+                        items(otros) { a -> Fila(a) }
                     } else if (recientes.isEmpty() && ultima.isEmpty()) item {
                         Text("Escribe para buscar entre casi 80.000 alimentos de supermercados españoles, o escanea un código de barras.",
                             style = t.cuerpo, color = c.texto3, modifier = Modifier.padding(vertical = 8.dp))
@@ -203,12 +251,12 @@ fun PantallaAnadir(
                         item { MiniTitulo("Mis platos") }
                         items(mios) { p -> FilaPlato(p, accionesPlatos) }
                     }
-                    item { MiniTitulo("Resultados") }
+                    item { MiniTitulo("Resultados" + (voz?.let { " · ${it.etiqueta}" } ?: "")) }
                     if (resultados.isEmpty() && !buscando) item {
                         Text("Sin resultados. Prueba con menos palabras o escanea el código de barras.",
                             style = t.cuerpo, color = c.texto3, modifier = Modifier.padding(vertical = 8.dp))
                     }
-                    items(resultados) { a -> FilaAlimento(a, { onAbrir(a) }, { onAnadirRapido(a) }) }
+                    items(resultados) { a -> Fila(a) }
                 }
             }
         }

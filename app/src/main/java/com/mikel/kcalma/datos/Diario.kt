@@ -149,9 +149,28 @@ class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario
         avisar()
     }
 
+    /** Pasa las entradas [ids] a otra comida del mismo día. */
+    fun mover(ids: List<Long>, comida: ComidaDia) {
+        if (ids.isEmpty()) return
+        val v = ContentValues().apply { put("comida", comida.ordinal) }
+        writableDatabase.update("entradas", v, "id IN (${ids.joinToString(",")})", null)
+        avisar()
+    }
+
+    /** La última cantidad apuntada de cada alimento (clave nombre|marca), para empezar con ella. */
+    fun ultimasCantidades(): Map<String, Entrada> =
+        leerEntradas(null, null, "creado DESC", 400).distinctBy { clave(it.alimento) }.associateBy { clave(it.alimento) }
+
+    fun ultimaDe(a: Alimento): Entrada? =
+        leerEntradas("nombre = ? AND IFNULL(marca, '') = ?", arrayOf(a.nombre, a.marca ?: ""), "creado DESC", 1).firstOrNull()
+
     fun borrar(id: Long) {
         writableDatabase.delete("entradas", "id = ?", arrayOf(id.toString()))
         avisar()
+    }
+
+    companion object {
+        fun clave(a: Alimento) = a.nombre + "|" + (a.marca ?: "")
     }
 
     /** Últimos alimentos distintos que se han apuntado. */

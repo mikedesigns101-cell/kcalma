@@ -1,7 +1,14 @@
 package com.mikel.kcalma.datos
 
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageInstaller
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import android.widget.Toast
 import androidx.core.content.FileProvider
 import com.mikel.kcalma.BuildConfig
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +49,8 @@ class Actualizador(private val contexto: Context) {
     fun ocultar(v: VersionNueva) = prefs.edit().putString("oculta", v.nombre).apply()
 
     private fun consultarGitHub(): VersionNueva? {
-        val c = URL("https://api.github.com/repos/$REPOSITORIO/releases/latest").openConnection() as HttpURLConnection
+        val ruta = if (BuildConfig.ETIQUETA_PRUEBA.isEmpty()) "latest" else "tags/${BuildConfig.ETIQUETA_PRUEBA}"
+        val c = URL("https://api.github.com/repos/$REPOSITORIO/releases/$ruta").openConnection() as HttpURLConnection
         try {
             c.connectTimeout = 6000; c.readTimeout = 8000
             c.setRequestProperty("Accept", "application/vnd.github+json")
@@ -59,8 +67,19 @@ class Actualizador(private val contexto: Context) {
         } finally { c.disconnect() }
     }
 
-    /** Descarga la APK informando del progreso (0..1) y abre el instalador. */
+    /**
+     * Descarga la APK informando del progreso (0..1) y la instala. Si Kcalma aún no tiene permiso para instalar
+     * apps, abre esa pantalla de Ajustes (una sola vez en la vida de la app) y no descarga nada.
+     */
     suspend fun instalar(v: VersionNueva, progreso: (Float) -> Unit) {
+        if (Build.VERSION.SDK_INT >= 26 && !contexto.packageManager.canRequestPackageInstalls()) {
+            Toast.makeText(contexto, "Permite que Kcalma instale sus actualizaciones y vuelve a pulsar Actualizar. Solo se pide una vez.", Toast.LENGTH_LONG).show()
+            contexto.startActivity(
+                Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:${contexto.packageName}"))
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            return
+        }
         val archivo = withContext(Dispatchers.IO) {
             val carpeta = File(contexto.cacheDir, "actualizacion").apply { mkdirs(); listFiles()?.forEach { it.delete() } }
             val destino = File(carpeta, "kcalma-${v.nombre}.apk")
@@ -85,15 +104,54 @@ class Actualizador(private val contexto: Context) {
             } finally { c.disconnect() }
             destino
         }
-        val uri = FileProvider.getUriForFile(contexto, "${contexto.packageName}.archivos", archivo)
-        contexto.startActivity(
-            Intent(Intent.ACTION_VIEW).setDataAndType(uri, "application/vnd.android.package-archive")
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
-        )
+        // Instalación por sesión: Kcalma se actualiza a sí misma sin que Android pregunte (Android 12 o superior).
+        prefs.edit().putBoolean(ACTUALIZANDO, true).apply()
+        Toast.makeText(contexto, "Instalando… Kcalma se cerrará un momento y te avisará al terminar.", Toast.LENGTH_LONG).show()
+        val ok = withContext(Dispatchers.IO) {
+            runCatching { instalarConSesion(contexto, archivo) }.onFailure { Registro.error("Actualizar por sesión", it) }.isSuccess
+        }
+        if (!ok) abrirInstalador(contexto, archivo)
     }
 
     companion object {
         const val REPOSITORIO = "mikedesigns101-cell/kcalma"
+        private const val ACTUALIZANDO = "actualizando"
+
+        /** True una sola vez, justo después de una actualización hecha desde la propia app. */
+        fun recienActualizada(contexto: Context): Boolean {
+            val p = contexto.getSharedPreferences("actualizador", Context.MODE_PRIVATE)
+            if (!p.getBoolean(ACTUALIZANDO, false)) return false
+            p.edit().remove(ACTUALIZANDO).apply()
+            return true
+        }
+
+        private fun instalarConSesion(contexto: Context, archivo: File) {
+            val instalador = contexto.packageManager.packageInstaller
+            val parametros = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL).apply {
+                setAppPackageName(contexto.packageName)
+                setSize(archivo.length())
+                if (Build.VERSION.SDK_INT >= 31) setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
+            }
+            val id = instalador.createSession(parametros)
+            instalador.openSession(id).use { sesion ->
+                sesion.openWrite("kcalma.apk", 0, archivo.length()).use { salida ->
+                    archivo.inputStream().use { it.copyTo(salida) }
+                    sesion.fsync(salida)
+                }
+                val aviso = Intent(contexto, ReceptorInstalacion::class.java).putExtra(ReceptorInstalacion.APK, archivo.absolutePath)
+                val flags = PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0)
+                sesion.commit(PendingIntent.getBroadcast(contexto, id, aviso, flags).intentSender)
+            }
+        }
+
+        /** Plan B: el instalador clásico de Android, que siempre pregunta. */
+        fun abrirInstalador(contexto: Context, archivo: File) {
+            val uri = FileProvider.getUriForFile(contexto, "${contexto.packageName}.archivos", archivo)
+            contexto.startActivity(
+                Intent(Intent.ACTION_VIEW).setDataAndType(uri, "application/vnd.android.package-archive")
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+        }
         private const val DIEZ_MIN = 10 * 60 * 1000L
 
         /** "0.10.0" > "0.9.2". */
@@ -107,4 +165,27 @@ class Actualizador(private val contexto: Context) {
             return false
         }
     }
+}
+
+/** Resultado de la sesión de instalación: si Android pide confirmación la enseña; si falla, abre el instalador clásico. */
+class ReceptorInstalacion : BroadcastReceiver() {
+    override fun onReceive(contexto: Context, intent: Intent) {
+        val estado = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
+        when (estado) {
+            PackageInstaller.STATUS_PENDING_USER_ACTION -> {
+                @Suppress("DEPRECATION")
+                val confirmar = intent.getParcelableExtra<Intent>(Intent.EXTRA_INTENT) ?: return
+                runCatching { contexto.startActivity(confirmar.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
+                    .onFailure { Registro.error("Confirmar actualización", it) }
+            }
+            PackageInstaller.STATUS_SUCCESS, PackageInstaller.STATUS_FAILURE_ABORTED -> Unit
+            else -> {
+                Registro.error("Actualizar por sesión", Exception("estado $estado: ${intent.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE)}"))
+                val apk = intent.getStringExtra(APK)?.let(::File)?.takeIf { it.exists() } ?: return
+                runCatching { Actualizador.abrirInstalador(contexto, apk) }
+            }
+        }
+    }
+
+    companion object { const val APK = "apk" }
 }

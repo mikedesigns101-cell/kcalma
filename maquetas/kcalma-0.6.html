@@ -1,0 +1,95 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kcalma · 0.6.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><style>
+:root{--f0:#070c10;--f1:#0c141a;--f2:#101a21;--f3:#16232b;--f4:#1d2d36;--borde:#1a2a33;--t:#e9f2f6;--t2:#9db2bd;--t3:#657c88;--a:#3ad6f0;--a2:#e05cc0;--verde:#35d987;--deg:linear-gradient(135deg,var(--a),var(--a2))}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#03060a;font-family:Inter,system-ui,sans-serif;color:var(--t);padding:28px 16px}
+h1{font:700 22px Outfit,sans-serif;text-align:center;margin-bottom:6px}
+.sub{text-align:center;color:var(--t2);font-size:13px;margin-bottom:24px}
+.lienzo{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;max-width:1600px;margin:0 auto}
+.paso{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:340px}
+.etq{font:600 13px Outfit,sans-serif;color:var(--t2);text-align:center} .etq b{color:var(--a)}
+.nota{font-size:11.5px;color:var(--t3);text-align:center;line-height:1.45}
+.movil{width:340px;height:720px;background:var(--f0);border-radius:38px;border:9px solid #1b2228;overflow:hidden;position:relative;display:flex;flex-direction:column;padding:16px 16px 0}
+.top{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.ib{width:32px;height:32px;border-radius:10px;background:var(--f2);border:1px solid var(--borde);display:grid;place-items:center;color:var(--t2);font-size:14px;flex:none}
+.top h2{font:600 18px Outfit,sans-serif;flex:1}
+.card{background:var(--f2);border:1px solid var(--borde);border-radius:14px;padding:12px;margin-bottom:10px}
+.mt{font:600 10.5px Inter,sans-serif;letter-spacing:.08em;color:var(--t3);margin:12px 2px 6px;text-transform:uppercase}
+.fila{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--borde);font-size:13px}
+.fila:first-child{border-top:none}
+.fila .ic{width:28px;height:28px;border-radius:9px;background:var(--f4);display:grid;place-items:center;font-size:14px;flex:none}
+.fila span{flex:1} .fila em{font-style:normal;font-size:12px;color:var(--t2)}
+.pq{font-size:11.5px;color:var(--t2);line-height:1.45}
+.btn{background:var(--deg);color:#06141a;font:600 14px Outfit,sans-serif;text-align:center;border-radius:13px;padding:12px;margin-top:8px}
+.mas{width:26px;height:26px;border-radius:8px;background:var(--f4);display:grid;place-items:center;color:var(--t2);font-size:14px;flex:none}
+.velo{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.hoja{position:absolute;left:0;right:0;bottom:0;background:var(--f1);border-radius:22px 22px 0 0;border-top:1px solid var(--borde);padding:10px 16px 18px}
+.asa{width:36px;height:4px;border-radius:2px;background:var(--f4);margin:0 auto 12px}
+.hoja .fila.on{color:var(--a)} .hoja .fila.on em{color:var(--a)}
+.chip{display:inline-block;font-size:11px;padding:3px 8px;border-radius:8px;background:var(--f4);color:var(--t2);margin:2px 2px 0 0}
+.chip.a{background:rgba(58,214,240,.12);color:var(--a)}
+.buscar{display:flex;align-items:center;gap:8px;border:1.5px solid transparent;background:linear-gradient(var(--f2),var(--f2)) padding-box,var(--deg) border-box;border-radius:13px;padding:10px 12px;font-size:13px;color:var(--t3)}
+.buscar span{flex:1}
+.mic{width:30px;height:30px;border-radius:9px;background:var(--f4);display:grid;place-items:center;font-size:14px}
+.mic.on{background:var(--deg)}
+.ondas{display:flex;gap:4px;justify-content:center;align-items:center;height:40px;margin:8px 0}
+.ondas i{width:5px;border-radius:3px;background:var(--a)}
+.cant{display:flex;align-items:center;justify-content:space-between;background:var(--f3);border-radius:12px;padding:10px 12px}
+.cant b{font:700 24px Outfit,sans-serif}
+.res{display:flex;justify-content:space-around;text-align:center;font-size:11px;color:var(--t2);margin:10px 0}.res b{display:block;font:600 16px Outfit;color:var(--t)}
+</style></head><body>
+<h1>Kcalma 0.6.0 · Comodidad</h1>
+<p class="sub">Mover entre comidas, recordar la cantidad y buscar por voz</p>
+<div class="lienzo">
+
+<div class="paso"><div class="etq"><b>1</b> · Mover una entrada</div>
+<div class="movil">
+ <div class="top"><div class="ib">‹</div><h2>Cena</h2><div class="mas">⋯</div></div>
+ <div class="card">
+  <div class="fila"><div class="ic">🥣</div><span>Copos de avena<br><em>60 g</em></span><em>226</em><div class="mas">⋯</div></div>
+  <div class="fila"><div class="ic">🥛</div><span>Leche semidesnatada<br><em>250 g</em></span><em>115</em><div class="mas">⋯</div></div>
+ </div>
+ <div class="velo"></div>
+ <div class="hoja"><div class="asa"></div>
+  <div class="pq" style="margin-bottom:6px">Copos de avena · 60 g</div>
+  <div class="mt" style="margin-top:4px">Mover a</div>
+  <div class="fila on"><div class="ic">☕</div><span>Desayuno</span><em>hoy</em></div>
+  <div class="fila"><div class="ic">🍎</div><span>Media mañana</span></div>
+  <div class="fila"><div class="ic">🍽️</div><span>Comida</span></div>
+  <div class="fila"><div class="ic">🥪</div><span>Merienda</span></div>
+  <div class="fila" style="color:var(--t3)"><div class="ic">🌙</div><span>Cena (aquí)</span></div>
+  <div class="fila"><div class="ic">✎</div><span>Cambiar cantidad</span></div>
+ </div>
+</div>
+<p class="nota">Cada entrada tiene ⋯ para moverla a otra comida del mismo día. El ⋯ de arriba mueve <b>la comida entera</b> (todo lo de la cena al desayuno, por ejemplo). Deslizar para borrar sigue igual.</p></div>
+
+<div class="paso"><div class="etq"><b>2</b> · Recordar la cantidad</div>
+<div class="movil">
+ <div class="top"><div class="ib">✕</div><h2>Copos de avena</h2></div>
+ <div class="pq" style="margin:-6px 0 12px">Genérico · por 100 g: 377 kcal</div>
+ <div class="cant"><span class="pq">Cantidad</span><b>60 g</b></div>
+ <div style="margin-top:8px"><span class="chip a">↺ La última vez: 60 g</span><span class="chip">1 ración (40 g)</span><span class="chip">100 g</span></div>
+ <div class="res"><div><b>226</b>kcal</div><div><b>8</b>proteína</div><div><b>36</b>hidratos</div><div><b>4</b>grasas</div></div>
+ <div style="flex:1"></div>
+ <div class="btn" style="margin-bottom:20px">Añadir al desayuno</div>
+</div>
+<p class="nota">La ficha se abre con la última cantidad que usaste de ese alimento. Si nunca lo has apuntado, con 1 ración o 100 g, como ahora. El botón <b>+</b> de las listas también usa la última cantidad.</p></div>
+
+<div class="paso"><div class="etq"><b>3</b> · Buscar por voz</div>
+<div class="movil">
+ <div class="top"><div class="ib">✕</div><h2>Añadir</h2></div>
+ <div class="buscar"><span>🔍 Busca un alimento o marca</span><div class="mic on">🎤</div><div class="mic">▥</div></div>
+ <div class="card" style="margin-top:14px;text-align:center">
+  <div class="ondas"><i style="height:12px"></i><i style="height:26px"></i><i style="height:38px"></i><i style="height:22px"></i><i style="height:30px"></i><i style="height:14px"></i></div>
+  <div style="font:600 15px Outfit">«200 gramos de arroz hervido»</div>
+  <div class="pq" style="margin-top:4px">Escuchando…</div>
+ </div>
+ <div class="mt">Resultados · 200 g</div>
+ <div class="card">
+  <div class="fila"><div class="ic">🍚</div><span>Arroz, hervido<br><em>Genérico · 200 g</em></span><em>260</em><div class="mas" style="color:var(--a)">+</div></div>
+  <div class="fila"><div class="ic">🍚</div><span>Arroz redondo cocido<br><em>Hacendado · 200 g</em></span><em>272</em><div class="mas" style="color:var(--a)">+</div></div>
+ </div>
+</div>
+<p class="nota">El micro dicta con el reconocimiento de voz del propio móvil (gratis, sin la IA). Si dices una cantidad («200 gramos», «dos huevos», «medio plátano»), se quita del texto y se usa al añadir.</p></div>
+
+</div></body></html>

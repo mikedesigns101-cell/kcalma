@@ -64,6 +64,8 @@ fun FichaAlimento(
     inicial: Entrada?,
     onAtras: () -> Unit,
     onGuardar: (gramos: Double, unidad: Unidad, cantidad: Double) -> Unit,
+    /** Cantidad con la que empezar al añadir (la última vez o lo dictado) y su explicación. */
+    sugerida: Pair<String, Entrada>? = null,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -74,9 +76,10 @@ fun FichaAlimento(
     }
     fun base(u: Unidad) = when (u) { Unidad.GRAMOS -> 1.0; Unidad.RACION -> alimento.racionValida ?: 100.0; Unidad.ENVASE -> alimento.envaseG ?: 100.0 }
 
-    var unidad by rememberSaveable { mutableStateOf(inicial?.unidad?.takeIf { it in unidades } ?: unidades.first()) }
+    val inicio = inicial ?: sugerida?.second?.takeIf { it.unidad in unidades }
+    var unidad by rememberSaveable { mutableStateOf(inicio?.unidad ?: unidades.first()) }
     var texto by rememberSaveable {
-        mutableStateOf(inicial?.let { decimal(if (it.unidad == Unidad.GRAMOS) it.gramos else it.cantidad) } ?: if (unidad == Unidad.GRAMOS) "100" else "1")
+        mutableStateOf(inicio?.let { decimal(if (it.unidad == Unidad.GRAMOS) it.gramos else it.cantidad) } ?: if (unidad == Unidad.GRAMOS) "100" else "1")
     }
     val cantidad = texto.replace(',', '.').toDoubleOrNull() ?: 0.0
     val gramos = cantidad * base(unidad)
@@ -129,6 +132,14 @@ fun FichaAlimento(
                 BotonPaso("−") { sumar(-1) }
                 Spacer(Modifier.width(8.dp))
                 BotonPaso("+") { sumar(1) }
+            }
+            if (inicial == null && inicio != null) sugerida?.let { (texto0, e) ->
+                Text(
+                    "$texto0: ${e.etiquetaCantidad}", style = t.pequeno, color = c.acento,
+                    modifier = Modifier.padding(bottom = 10.dp).clip(RoundedCornerShape(8.dp)).background(c.acento.copy(alpha = .12f))
+                        .clickable { unidad = e.unidad; texto = decimal(if (e.unidad == Unidad.GRAMOS) e.gramos else e.cantidad) }
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                )
             }
             if (unidades.size > 1) {
                 val nombres = unidades.map { when (it) { Unidad.RACION -> "Ración"; Unidad.GRAMOS -> "Gramos"; Unidad.ENVASE -> "Envase" } }

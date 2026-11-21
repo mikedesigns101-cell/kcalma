@@ -82,7 +82,10 @@ private sealed interface Destino {
     data class Comida(val comida: ComidaDia) : Destino
     /** [paraPlato]: se eligen ingredientes de un plato casero en vez de apuntar en el diario. */
     data class Anadir(val comida: ComidaDia, val paraPlato: Boolean = false) : Destino
-    data class Ficha(val alimento: Alimento, val comida: ComidaDia, val entrada: Entrada? = null, val paraPlato: Boolean = false) : Destino
+    data class Ficha(
+        val alimento: Alimento, val comida: ComidaDia, val entrada: Entrada? = null, val paraPlato: Boolean = false,
+        val sugerida: Pair<String, Entrada>? = null,
+    ) : Destino
     data class Escaner(val comida: ComidaDia, val paraPlato: Boolean = false) : Destino
     data class Etiqueta(val comida: ComidaDia, val codigo: String?, val paraPlato: Boolean) : Destino
     data object Plato : Destino
@@ -232,11 +235,18 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
         if (pila.lastOrNull() != Destino.Comida(d.comida)) pila.add(Destino.Comida(d.comida))
     }
 
+    /** El + de las listas: la cantidad de la última vez o, si nunca se apuntó, 1 ración o 100 g. */
     fun anadirRapido(a: Alimento, comida: ComidaDia) {
-        val gramos = a.gramosRapidos
-        val unidad = if (a.racionValida != null) Unidad.RACION else Unidad.GRAMOS
-        alcance.launch(Dispatchers.IO) { repo.diario.anadir(fecha, comida, a, gramos, unidad, if (unidad == Unidad.RACION) 1.0 else gramos) }
-        Toast.makeText(contexto, "Añadido a ${comida.nombre} · ${a.nutrientes(gramos).kcalInt} kcal", Toast.LENGTH_SHORT).show()
+        alcance.launch(Dispatchers.IO) {
+            val ultima = repo.diario.ultimaDe(a)
+            val gramos = ultima?.gramos ?: a.gramosRapidos
+            val unidad = ultima?.unidad ?: if (a.racionValida != null) Unidad.RACION else Unidad.GRAMOS
+            val cantidad = ultima?.cantidad ?: if (unidad == Unidad.RACION) 1.0 else gramos
+            repo.diario.anadir(fecha, comida, a, gramos, unidad, cantidad)
+            withContext(Dispatchers.Main) {
+                Toast.makeText(contexto, "Añadido a ${comida.nombre} · ${a.nutrientes(gramos).kcalInt} kcal", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     when (val d = pila.lastOrNull()) {
@@ -359,6 +369,13 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
                 alcance.launch(Dispatchers.IO) { repo.diario.guardarHabitual(nombre, lista) }
             },
             onFoto = { pila.add(Destino.Foto(d.comida)) },
+            onMover = { lista, destino ->
+                alcance.launch(Dispatchers.IO) { repo.diario.mover(lista.map { it.id }, destino) }
+                val todas = lista.size == entradas.count { it.comida == d.comida }
+                aviso(if (todas) "Movido todo a ${destino.nombre}" else "Movido a ${destino.nombre}")
+                // Si se ha movido todo, se va a la comida de destino
+                if (todas) { pila.removeAt(pila.lastIndex); pila.add(Destino.Comida(destino)) }
+            },
         )
         is Destino.Anadir -> if (d.paraPlato) PantallaAnadir(
             comida = d.comida,
@@ -380,6 +397,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             onCerrar = { pila.removeAt(pila.lastIndex) },
             onAbrir = { a -> pila.add(Destino.Ficha(a, d.comida)) },
             onAnadirRapido = { a -> anadirRapido(a, d.comida) },
+            onAbrirCon = { a, s -> pila.add(Destino.Ficha(a, d.comida, sugerida = s)) },
             onHabitual = { h ->
                 alcance.launch {
                     withContext(Dispatchers.IO) {
@@ -409,6 +427,10 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             inicial = d.entrada,
             onAtras = { pila.removeAt(pila.lastIndex) },
             onGuardar = { g, u, c -> if (d.paraPlato) anadirIngrediente(d.alimento, g) else guardar(d, g, u, c) },
+            sugerida = d.sugerida ?: remember(d) {
+                if (d.entrada != null || d.paraPlato) null
+                else repo.diario.ultimaDe(d.alimento)?.let { "↺ La última vez" to it }
+            },
         )
         is Destino.Escaner -> Escaner(
             buscar = { repo.porCodigo(it) },

@@ -11,6 +11,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import com.mikel.kcalma.datos.Actualizador
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import com.mikel.kcalma.R
@@ -142,6 +143,21 @@ object Recordatorios {
         runCatching { NotificationManagerCompat.from(c).notify(clave.hashCode(), n) }.onFailure { Registro.error("Notificación", it) }
     }
 
+    /** Tras actualizarse sola la app se cierra: este aviso permite volver a abrirla con un toque. */
+    fun avisarActualizada(c: Context) {
+        if (!permisoNotificaciones(c)) return
+        if (Build.VERSION.SDK_INT >= 26) c.getSystemService(NotificationManager::class.java)?.createNotificationChannel(
+            NotificationChannel("actualizaciones", "Actualizaciones", NotificationManager.IMPORTANCE_HIGH),
+        )
+        val n = NotificationCompat.Builder(c, "actualizaciones")
+            .setSmallIcon(R.drawable.ic_notificacion)
+            .setContentTitle("Kcalma ${com.mikel.kcalma.BuildConfig.VERSION_NAME} instalada")
+            .setContentText("Toca para abrirla.")
+            .setContentIntent(WidgetHoy.abrir(c, null, 300))
+            .setAutoCancel(true).setPriority(NotificationCompat.PRIORITY_HIGH).build()
+        runCatching { NotificationManagerCompat.from(c).notify(300, n) }.onFailure { Registro.error("Notificación", it) }
+    }
+
     private fun crearCanal(c: Context) {
         if (Build.VERSION.SDK_INT < 26) return
         c.getSystemService(NotificationManager::class.java)?.createNotificationChannel(
@@ -160,6 +176,7 @@ class ReceptorAvisos : BroadcastReceiver() {
             try {
                 when (i.action) {
                     Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> {
+                        if (i.action == Intent.ACTION_MY_PACKAGE_REPLACED && Actualizador.recienActualizada(c)) Recordatorios.avisarActualizada(c)
                         Recordatorios.programarTodos(c)
                         WidgetHoy.refrescar(c)
                     }

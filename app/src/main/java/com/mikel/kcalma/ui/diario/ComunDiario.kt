@@ -70,13 +70,13 @@ fun IconoAlimento(nombre: String, tamano: Int = 38) {
 
 /** Fila de resultado: icono, nombre con supermercado, ración, kcal y botón + para añadir sin abrir la ficha. */
 @Composable
-fun FilaAlimento(a: Alimento, onAbrir: () -> Unit, onAnadir: () -> Unit, habitual: Entrada? = null, onEditar: (() -> Unit)? = null) {
+fun FilaAlimento(a: Alimento, onAbrir: () -> Unit, onAnadir: () -> Unit, habitual: Entrada? = null, onEditar: (() -> Unit)? = null, etiqueta: String? = null) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     // Con [habitual], el + añade la cantidad de siempre
     val gramos = habitual?.gramos ?: a.gramosRapidos
     val racion = when {
-        habitual != null -> "sueles ${habitual.etiquetaCantidad}"
+        habitual != null -> etiqueta ?: "sueles ${habitual.etiquetaCantidad}"
         a.racionValida != null -> "1 ración (${decimal(gramos)} g)"
         else -> "100 g"
     }
