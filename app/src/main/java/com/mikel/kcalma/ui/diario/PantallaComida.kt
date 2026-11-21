@@ -86,7 +86,7 @@ fun PantallaComida(
     Box(Modifier.fillMaxSize()) {
 
     Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
-        BarraSuperior("‹", onAtras, "${comida.icono} ${comida.nombre}") {
+        BarraSuperior("‹", onAtras, comida.nombre) {
             if (entradas.isNotEmpty()) BotonIcono("⋯", { mover = entradas })
         }
 
@@ -220,7 +220,8 @@ private fun FilaEntrada(e: Entrada, onEditar: () -> Unit, onBorrar: () -> Unit, 
         enableDismissFromStartToEnd = false,
         modifier = Modifier.padding(bottom = 7.dp),
         backgroundContent = {
-            Box(
+            // El cristal deja ver lo de detrás: el fondo rojo solo aparece mientras se desliza
+            if (estado.dismissDirection == SwipeToDismissBoxValue.EndToStart) Box(
                 Modifier.fillMaxSize().clip(forma).background(c.rojo.copy(alpha = .25f)).padding(end = 16.dp),
                 contentAlignment = Alignment.CenterEnd,
             ) { Icono(Ic.PAPELERA, tamano = 20.dp, color = c.rojo) }

@@ -166,10 +166,10 @@ private fun ola(x0: Float, ancho: Float, y: Float, amp: Float, fase: Float, larg
 /** Reflejo especular arriba a la izquierda y brillo suave abajo, como una pompa de jabón. */
 private fun DrawScope.brillo(centro: Offset, r: Float, col: androidx.compose.ui.graphics.Color) {
     val c0 = Offset(centro.x - r * .42f, centro.y - r * .52f)
-    drawCircle(Brush.radialGradient(listOf(col.copy(alpha = .85f), col.copy(alpha = .18f), col.copy(alpha = 0f)), c0, r * .2f), r * .2f, c0)
+    drawCircle(Brush.radialGradient(listOf(col.copy(alpha = .7f), col.copy(alpha = .1f), col.copy(alpha = 0f)), c0, r * .13f), r * .13f, c0)
     rotate(-24f, Offset(centro.x - r * .2f, centro.y - r * .68f)) {
         drawOval(
-            Brush.verticalGradient(listOf(col.copy(alpha = .32f), col.copy(alpha = 0f)), startY = centro.y - r * .86f, endY = centro.y - r * .5f),
+            Brush.verticalGradient(listOf(col.copy(alpha = .12f), col.copy(alpha = 0f)), startY = centro.y - r * .86f, endY = centro.y - r * .5f),
             topLeft = Offset(centro.x - r * .62f, centro.y - r * .86f), size = Size(r * .9f, r * .4f),
         )
     }

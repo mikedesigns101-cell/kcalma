@@ -65,7 +65,7 @@ fun Modifier.esferaBrillo(forma: Shape = CircleShape): Modifier {
             drawRect(
                 Brush.radialGradient(
                     listOf(c.brillo.copy(alpha = .55f), c.brillo.copy(alpha = .1f), c.brillo.copy(alpha = 0f)),
-                    Offset(size.width * .32f, size.height * .2f), size.maxDimension * .6f,
+                    Offset(size.minDimension * .45f, size.height * .2f), size.minDimension * .7f,
                 )
             )
         }

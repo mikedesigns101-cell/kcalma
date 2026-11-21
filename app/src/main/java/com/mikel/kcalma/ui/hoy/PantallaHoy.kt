@@ -65,6 +65,7 @@ import com.mikel.kcalma.ui.componentes.BurbujaIcono
 import com.mikel.kcalma.ui.componentes.Ic
 import com.mikel.kcalma.ui.componentes.Icono
 import com.mikel.kcalma.ui.componentes.entrada
+import com.mikel.kcalma.ui.componentes.fondoKcalma
 import com.mikel.kcalma.ui.componentes.esferaBrillo
 import com.mikel.kcalma.ui.componentes.icono
 import com.mikel.kcalma.ui.componentes.vidrio
@@ -129,7 +130,7 @@ fun PantallaHoy(
     val acciones = LocalAccionesMas.current
     val lateral = Modifier.padding(horizontal = MARGEN)
     var orden = 0
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().fondoKcalma()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().statusBarsPadding(),
             contentPadding = PaddingValues(top = 8.dp, bottom = 130.dp),
@@ -371,7 +372,12 @@ fun BarraInferior(modifier: Modifier, actual: Pestana, onPestana: (Pestana) -> U
         modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).padding(start = 12.dp, end = 12.dp, bottom = 10.dp)
             .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }
     ) {
-        BoxWithConstraints(Modifier.fillMaxWidth().height(68.dp).vidrio(RoundedCornerShape(30.dp))) {
+        BoxWithConstraints(
+            Modifier.fillMaxWidth().height(68.dp)
+                .shadow(18.dp, RoundedCornerShape(30.dp), ambientColor = c.fondo0, spotColor = c.fondo0)
+                .background(c.hoja, RoundedCornerShape(30.dp))
+                .vidrio(RoundedCornerShape(30.dp))
+        ) {
             val hueco = maxWidth / 5
             // Burbuja de cristal bajo la pestaña elegida
             Box(
