@@ -418,6 +418,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             supermercados = supermercados,
             repo = repo,
             empezarPorVoz = d.voz,
+            onVozLanzada = { if (pila.lastOrNull() == d) pila[pila.lastIndex] = d.copy(voz = false) },
             onCambiarComida = { c -> pila[pila.lastIndex] = Destino.Anadir(c) },
             onCerrar = { pila.removeAt(pila.lastIndex) },
             onAbrir = { a -> pila.add(Destino.Ficha(a, d.comida)) },

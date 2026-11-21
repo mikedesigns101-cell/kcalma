@@ -1,5 +1,6 @@
 package com.mikel.kcalma.ui.hoy
 
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
@@ -129,7 +130,6 @@ fun PantallaHoy(
     val progreso = if (total > 0) (comido.kcalInt.toFloat() / total).coerceIn(0f, 1f) else 0f
     val acciones = LocalAccionesMas.current
     val lateral = Modifier.padding(horizontal = MARGEN)
-    var orden = 0
     Box(Modifier.fillMaxSize().fondoKcalma()) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().statusBarsPadding(),
@@ -153,9 +153,9 @@ fun PantallaHoy(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = MARGEN).padding(top = 6.dp),
                 )
             }
-            item { Box(lateral.entrada(orden++)) { Saludo() } }
+            item { Box(lateral.entrada(0)) { Saludo() } }
             item {
-                Box(lateral.entrada(orden++)) {
+                Box(lateral.entrada(1)) {
                     Buscador(
                         onBuscar = { acciones?.buscar?.invoke() ?: onAnadir(ComidaDia.segunHora(LocalTime.now().hour)) },
                         onVoz = { acciones?.voz?.invoke() ?: onAnadir(ComidaDia.segunHora(LocalTime.now().hour)) },
@@ -163,10 +163,10 @@ fun PantallaHoy(
                     )
                 }
             }
-            item { Box(lateral.entrada(orden++)) { FilaMacros(macros) } }
+            item { Box(lateral.entrada(2)) { FilaMacros(macros) } }
             if (tarjeta != null) item { Box(lateral) { tarjeta() } }
-            items(ComidaDia.entries.chunked(2)) { par ->
-                Row(lateral.entrada(orden++).padding(bottom = 9.dp), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+            itemsIndexed(ComidaDia.entries.chunked(2)) { i, par ->
+                Row(lateral.entrada(3 + i).padding(bottom = 9.dp), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                     par.forEach { cd ->
                         TarjetaComida(cd, entradas.filter { it.comida == cd }, { onAbrirComida(cd) }, { onAnadir(cd) }, Modifier.weight(1f))
                     }

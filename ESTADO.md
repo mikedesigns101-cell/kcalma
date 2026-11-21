@@ -67,6 +67,14 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 - versionCode 16 (el 15 se usó en una versión de prueba del emulador).
 - Probado en el emulador con una versión de prueba temporal: la tarjeta sale al abrir y al volver a la app, sin cierres.
 
+## Versión 0.7.0 (rediseño «cristal»)
+- Temas en `ui/theme/Colores.kt`: Kcalma, Hielo, Aurora y Orquídea, translúcidos sobre un cielo oscuro con luces. `TemaRaideo` sigue opaco para el widget. Se eligen en Perfil → Apariencia (`PantallaApariencia.kt`), que también apaga las animaciones; si Android las tiene quitadas, Kcalma tampoco las pone (`KcalmaTheme.movimiento`).
+- `ui/componentes/Cristal.kt` (`fondoKcalma`, `vidrio`, `esferaBrillo`, `BurbujaIcono`, `BotonCristal`, `entrada`) e `Iconos.kt` (46 iconos propios con degradado, generados desde las maquetas).
+- Hoy: `Pompa.kt` (orbe con líquido = lo comido, olas, burbujas y chapoteo al tocar), saludo, buscador con voz y cámara, macros, comidas en dos columnas. Barra flotante con burbuja que se desliza y botón + con Buscar, Foto, Escanear y Dictar.
+- Con maqueta y revisadas en el emulador: Hoy, barra, +, Perfil, Apariencia, Progreso, Ideas, Comida, Ficha, Añadir, cámara de Foto.
+- Solo heredan el estilo cristal (sin maqueta propia): Etiqueta, Plato, Recordatorios, Lista, Privacidad, tarjetas de actualización y de ajuste, pasos del onboarding.
+- Sin probar en el emulador: el onboarding (haría falta borrar los datos), Escáner con cámara real, Receta, Lista y la hoja de peso.
+
 ## Pendiente
 1. Probar en el móvil: lectura real de un código de barras.
 2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.

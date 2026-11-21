@@ -1,5 +1,8 @@
 package com.mikel.kcalma.ui.hoy
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
@@ -55,9 +58,11 @@ fun Pompa(restantes: Int, progreso: Float, modifier: Modifier = Modifier, tamano
     val alcance = rememberCoroutineScope()
 
     // Al abrir: el anillo y el líquido suben desde cero y la cifra cuenta; después, cada cambio se anima
-    val nivel = remember { Animatable(if (mov) 0f else progreso) }
-    val cifra = remember { Animatable(if (mov) 0f else restantes.toFloat()) }
-    LaunchedEffect(progreso) { if (mov) nivel.animateTo(progreso, tween(1400, easing = FastOutSlowInEasing)) else nivel.snapTo(progreso) }
+    // La subida desde cero solo la primera vez (al volver con el scroll no se repite)
+    var vista by rememberSaveable { mutableStateOf(!mov) }
+    val nivel = remember { Animatable(if (vista) progreso else 0f) }
+    val cifra = remember { Animatable(if (vista) restantes.toFloat() else 0f) }
+    LaunchedEffect(progreso) { if (mov) nivel.animateTo(progreso, tween(1400, easing = FastOutSlowInEasing)) else nivel.snapTo(progreso); vista = true }
     LaunchedEffect(restantes) { if (mov) cifra.animateTo(restantes.toFloat(), tween(1300, easing = FastOutSlowInEasing)) else cifra.snapTo(restantes.toFloat()) }
     // Golpe al tocar: un muelle que rebota hasta 0
     val golpe = remember { Animatable(0f) }

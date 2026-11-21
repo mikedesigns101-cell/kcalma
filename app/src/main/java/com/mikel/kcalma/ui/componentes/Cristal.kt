@@ -1,5 +1,9 @@
 package com.mikel.kcalma.ui.componentes
 
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -101,11 +105,14 @@ fun BotonCristal(icono: Ic, onClick: () -> Unit, modifier: Modifier = Modifier, 
 @Composable
 fun Modifier.entrada(orden: Int): Modifier {
     val movimiento = KcalmaTheme.movimiento
-    val p = remember { Animatable(if (movimiento) 0f else 1f) }
+    // rememberSaveable: en listas, al volver a aparecer con el scroll no se repite la entrada
+    var vista by rememberSaveable { mutableStateOf(!movimiento) }
+    val p = remember { Animatable(if (vista) 1f else 0f) }
     LaunchedEffect(Unit) {
-        if (p.value < 1f) {
+        if (!vista) {
             delay(60L * orden.coerceAtMost(8))
             p.animateTo(1f, tween(420, easing = FastOutSlowInEasing))
+            vista = true
         }
     }
     return graphicsLayer {

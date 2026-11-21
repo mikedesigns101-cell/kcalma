@@ -100,6 +100,8 @@ fun PantallaAnadir(
     onAbrirCon: ((Alimento, Pair<String, Entrada>) -> Unit)? = null,
     /** Abre el dictado nada más entrar (botón del micrófono de Hoy). */
     empezarPorVoz: Boolean = false,
+    /** Se llama al abrir el dictado del principio, para que al volver de una ficha no se abra otra vez. */
+    onVozLanzada: () -> Unit = {},
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -150,7 +152,7 @@ fun PantallaAnadir(
         }
     }
     var vozLanzada by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(Unit) { if (empezarPorVoz && !vozLanzada) { vozLanzada = true; dictarAhora() } }
+    LaunchedEffect(Unit) { if (empezarPorVoz && !vozLanzada) { vozLanzada = true; onVozLanzada(); dictarAhora() } }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
