@@ -1,0 +1,256 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kcalma · Animaciones</title><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><style>
+:root{--a:#3ad6f0;--a2:#e05cc0;--bg1:#0b1a2e;--bg2:#04080f;--glow:rgba(58,214,240,.45);--glow2:rgba(224,92,192,.35);--t:#eef4fb;--t2:#b3c2d4;--t3:#7b8ca3}
+.violeta{--a:#7d8cff;--a2:#b066ff;--bg1:#0e1636;--bg2:#04060e;--glow:rgba(125,140,255,.5);--glow2:rgba(176,102,255,.4)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:radial-gradient(80% 60% at 50% 0%,#0b1424,#02040a 70%);font-family:Inter,system-ui,sans-serif;color:var(--t);padding:26px 16px}
+h1{font:700 22px Outfit,sans-serif;text-align:center;margin-bottom:6px}
+.sub{text-align:center;color:#8fa0b5;font-size:13px;margin-bottom:22px}
+.lienzo{display:flex;flex-wrap:wrap;gap:30px;justify-content:center}
+.paso{display:flex;flex-direction:column;align-items:center;gap:12px;width:344px}
+.etq{font:600 13px Outfit,sans-serif;color:#a9b8cc;text-align:center}.etq b{color:#3ad6f0}
+.nota{font-size:11.5px;color:#6f8097;text-align:center;line-height:1.45}
+
+/* Móvil: marco metálico brillante */
+.movil{width:340px;height:730px;border-radius:46px;overflow:hidden;position:relative;padding:14px 16px 0;display:flex;flex-direction:column;
+ background:radial-gradient(130% 55% at 50% 14%,var(--bg1),var(--bg2) 72%);
+ box-shadow:0 0 0 2px rgba(255,255,255,.22),0 0 0 6px #10151d,0 0 0 7px rgba(255,255,255,.18),0 40px 80px rgba(0,0,0,.7),0 0 60px rgba(80,140,255,.08)}
+/* Luces de color detrás del cristal: sin ellas el cristal no se nota */
+.movil::before{content:"";position:absolute;inset:-20%;z-index:0;pointer-events:none;filter:blur(38px);opacity:.9;
+ background:
+  radial-gradient(28% 18% at 50% 24%,var(--glow),transparent 70%),
+  radial-gradient(30% 20% at 12% 62%,var(--glow2),transparent 70%),
+  radial-gradient(32% 22% at 92% 72%,var(--glow),transparent 70%),
+  radial-gradient(40% 16% at 50% 102%,var(--glow2),transparent 70%)}
+/* Reflejo diagonal sobre la pantalla */
+.movil::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:inherit;
+ background:linear-gradient(115deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,0) 28%,rgba(255,255,255,0) 70%,rgba(255,255,255,.04) 100%)}
+.movil>*{position:relative;z-index:1}
+
+/* Cristal esmerilado: desenfoque, borde con brillo arriba a la izquierda y reflejo superior */
+.vidrio{position:relative;isolation:isolate;
+ background:linear-gradient(150deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.06) 38%,rgba(255,255,255,.025) 100%);
+ backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);
+ border-radius:20px;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(255,255,255,.06),inset 0 0 24px rgba(255,255,255,.04),0 10px 28px rgba(0,0,0,.38)}
+.vidrio::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+ background:linear-gradient(140deg,rgba(255,255,255,.65),rgba(255,255,255,.14) 30%,rgba(255,255,255,.03) 55%,rgba(255,255,255,.08) 80%,rgba(255,255,255,.35));
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.vidrio::before{content:"";position:absolute;left:1px;right:1px;top:1px;height:48%;border-radius:inherit;border-bottom-left-radius:40% 30%;border-bottom-right-radius:60% 20%;pointer-events:none;z-index:-1;
+ background:linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,0))}
+
+.estado{display:flex;justify-content:space-between;font:600 12px Inter,sans-serif;color:var(--t);padding:2px 8px 10px}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.boton{width:40px;height:40px;border-radius:50%!important;display:grid;place-items:center;font-size:15px;color:var(--t2)}
+.top h2{font:600 17px Outfit,sans-serif}
+
+/* Orbe: esfera de vidrio con brillo especular, borde iluminado y luz de color dentro */
+.orbe{width:182px;height:182px;border-radius:50%;margin:8px auto 10px;position:relative;display:grid;place-items:center;
+ background:
+  radial-gradient(circle at 30% 22%,rgba(255,255,255,.95) 0,rgba(255,255,255,.55) 3%,rgba(255,255,255,.12) 12%,transparent 24%),
+  radial-gradient(circle at 68% 88%,var(--glow2),transparent 42%),
+  radial-gradient(circle at 50% 60%,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 52%,rgba(160,220,255,.16) 64%,rgba(255,255,255,.42) 70%,rgba(255,255,255,0) 71%),
+  radial-gradient(circle at 50% 45%,rgba(20,40,70,.55),rgba(8,16,30,.25) 70%);
+ box-shadow:0 0 40px var(--glow),0 0 90px var(--glow2),inset 0 -14px 30px var(--glow),inset 0 8px 20px rgba(255,255,255,.18),inset 0 0 0 1px rgba(255,255,255,.35)}
+.orbe::after{content:"";position:absolute;left:14%;top:7%;width:46%;height:22%;border-radius:50%;pointer-events:none;
+ background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0));transform:rotate(-24deg);filter:blur(1px)}
+.orbe::before{content:"";position:absolute;inset:-16px;border-radius:50%;pointer-events:none;border:1px solid rgba(255,255,255,.08);box-shadow:0 0 30px var(--glow) inset}
+.orbe svg{position:absolute;inset:11px;filter:drop-shadow(0 0 6px var(--glow))}
+.orbe .n{font:700 38px Outfit,sans-serif;line-height:1;text-align:center;text-shadow:0 0 18px rgba(255,255,255,.35)}.orbe .n small{display:block;font:500 11.5px Inter,sans-serif;color:var(--t2);margin-top:4px;text-shadow:none}
+.saludo{text-align:center;font:600 21px Outfit,sans-serif}.saludo+p{text-align:center;color:var(--t2);font-size:13px;margin:3px 0 12px}
+
+.busca{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 16px;border-radius:26px!important;font-size:13px;color:var(--t3)}
+.busca span{flex:1}.mic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font-size:14px;position:relative}
+.mic.on,.mas{background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.75) 0,rgba(255,255,255,.2) 18%,transparent 36%),radial-gradient(circle at 50% 70%,var(--a2),var(--a) 75%);
+ box-shadow:0 0 18px var(--glow),0 0 34px var(--glow2),inset 0 1px 1px rgba(255,255,255,.6),inset 0 -6px 12px rgba(0,0,0,.18);border:1px solid rgba(255,255,255,.45);color:#fff}
+.rejilla{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:11px}
+.acc{display:flex;align-items:center;gap:9px;padding:10px 10px;border-radius:17px!important}
+.ic{display:grid;place-items:center;border-radius:50%;
+ background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.4),rgba(255,255,255,.08) 40%,rgba(255,255,255,.03));
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -4px 10px rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.16),0 0 14px rgba(255,255,255,.04)}
+.acc .ic{width:32px;height:32px;font-size:14px}
+.acc b{display:block;font:600 13px Inter,sans-serif}.acc i{font-style:normal;font-size:11px;color:var(--t2)}
+.acc .fl{margin-left:auto;color:var(--t3);font-size:13px}
+.nav{position:absolute!important;left:12px;right:12px;bottom:14px;height:68px;border-radius:28px!important;display:flex;align-items:center;justify-content:space-around;font-size:10.5px;color:var(--t3);z-index:2}
+.nav div{text-align:center;line-height:1.5}.nav .on{color:var(--t);text-shadow:0 0 10px var(--glow)}.nav .s{font-size:17px;display:block}
+.mas{width:60px;height:60px;border-radius:50%;margin-top:-28px;display:grid;place-items:center;font:300 34px Outfit,sans-serif}
+.macros{display:flex;gap:8px;margin-top:9px}.macros>div{flex:1;padding:8px 10px;border-radius:15px!important;font-size:10.5px;color:var(--t2)}
+.macros b{display:block;font:600 14px Outfit,sans-serif;color:var(--t)}.barra{height:4px;border-radius:2px;background:rgba(255,255,255,.1);margin-top:5px;overflow:hidden}.barra span{display:block;height:100%;border-radius:2px;box-shadow:0 0 8px currentColor}
+.chips{display:flex;gap:7px;margin:11px 0}.chip{padding:7px 13px;border-radius:16px!important;font-size:12px;color:var(--t2)}.chip.on{color:var(--t);box-shadow:0 0 14px var(--glow),inset 0 1px 0 rgba(255,255,255,.35)}
+.mt{font:600 11px Inter,sans-serif;letter-spacing:.08em;color:var(--t3);margin:12px 4px 7px;text-transform:uppercase}
+.fila{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:19px!important;margin-bottom:8px}
+.fila .ic{width:42px;height:42px;font-size:19px}
+.fila b{display:block;font:600 13.5px Inter,sans-serif}.fila i{font-style:normal;font-size:11.5px;color:var(--t2)}.fila .k{margin-left:auto;text-align:right;font:600 14px Outfit,sans-serif}.fila .k small{display:block;font:400 10.5px Inter;color:var(--t3)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}.tile{padding:12px;border-radius:19px!important;height:128px;overflow:hidden}
+.tile b{font:600 13.5px Outfit,sans-serif}.tile p{font-size:11px;color:var(--t2);margin-top:3px}
+.tile svg{position:absolute;left:0;right:0;bottom:0;filter:drop-shadow(0 0 6px var(--glow))}
+
+.nav svg{color:var(--t3)}.nav .on svg{filter:drop-shadow(0 0 6px var(--glow))}.nav .mas svg{color:#fff}
+.boton svg,.mic svg,.busca svg{color:var(--t2)}
+.ic svg{filter:drop-shadow(0 0 4px var(--glow))}
+.iconos{display:grid;grid-template-columns:repeat(6,96px);gap:14px;justify-content:center;margin:8px auto 34px;max-width:720px}
+.icono{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11.5px;color:#a9b8cc}
+.icono .ic{width:60px;height:60px}
+.panel{max-width:1480px;margin:0 auto 30px;padding:22px;border-radius:26px;position:relative;overflow:hidden;
+ background:radial-gradient(60% 80% at 20% 0%,rgba(58,214,240,.12),transparent 60%),radial-gradient(60% 80% at 90% 100%,rgba(224,92,192,.12),transparent 60%),#060b14;border:1px solid rgba(255,255,255,.08)}
+h3{font:600 16px Outfit,sans-serif;text-align:center;margin-bottom:4px}.h3s{text-align:center;color:#8fa0b5;font-size:12.5px;margin-bottom:16px}
+.antes{display:flex;gap:30px;justify-content:center;align-items:center;margin-top:6px;font-size:12px;color:#8fa0b5}
+.antes span{font-size:26px;letter-spacing:6px}
+
+.demos{display:grid;grid-template-columns:repeat(3,330px);gap:22px;justify-content:center;max-width:1100px;margin:0 auto}
+.demo{border-radius:26px;padding:18px;height:420px;position:relative;overflow:hidden;
+ background:radial-gradient(120% 70% at 50% 20%,#0b1a2e,#04080f 75%);box-shadow:0 0 0 1px rgba(255,255,255,.1),0 20px 40px rgba(0,0,0,.5)}
+.demo::before{content:"";position:absolute;inset:-20%;filter:blur(40px);opacity:.8;pointer-events:none;
+ background:radial-gradient(30% 20% at 30% 30%,rgba(58,214,240,.35),transparent 70%),radial-gradient(30% 22% at 80% 80%,rgba(224,92,192,.3),transparent 70%)}
+.demo>*{position:relative;z-index:1}
+.demo h4{font:600 14px Outfit,sans-serif;margin-bottom:2px}.demo .spec{font-size:11px;color:#8fa0b5;line-height:1.45;margin-bottom:10px}
+.escena{position:absolute;left:18px;right:18px;bottom:18px;top:104px}
+.repetir{position:absolute;right:14px;top:14px;z-index:3;font:500 11px Inter;color:#b3c2d4;padding:6px 10px;border-radius:12px;cursor:pointer}
+
+/* 1 Orbe: anillo que se dibuja, cifra que cuenta y respiración */
+.o1{width:170px;height:170px;margin:20px auto 0;animation:respira 4s ease-in-out infinite}
+@keyframes respira{0%,100%{box-shadow:0 0 36px var(--glow),0 0 80px var(--glow2),inset 0 -14px 30px var(--glow),inset 0 8px 20px rgba(255,255,255,.18),inset 0 0 0 1px rgba(255,255,255,.35)}
+ 50%{box-shadow:0 0 52px var(--glow),0 0 110px var(--glow2),inset 0 -18px 36px var(--glow),inset 0 8px 20px rgba(255,255,255,.22),inset 0 0 0 1px rgba(255,255,255,.45)}}
+.arco{stroke-dasharray:459;stroke-dashoffset:459}
+.en .arco{animation:dibuja 1.4s cubic-bezier(.2,.8,.2,1) .2s forwards}
+@keyframes dibuja{to{stroke-dashoffset:170}}
+
+/* 2 Tarjetas en cascada */
+.cascada .acc{opacity:0;transform:translateY(14px) scale(.98);margin-bottom:9px}
+.en .cascada .acc{animation:sube .55s cubic-bezier(.2,.8,.2,1) forwards}
+.en .cascada .acc:nth-child(2){animation-delay:.06s}.en .cascada .acc:nth-child(3){animation-delay:.12s}.en .cascada .acc:nth-child(4){animation-delay:.18s}
+@keyframes sube{to{opacity:1;transform:none}}
+
+/* 3 Botón + con resorte y hoja de cristal */
+.b3{position:absolute;left:50%;bottom:22px;transform:translateX(-50%)}
+.b3 .mas{margin:0}
+.en .b3 .mas{animation:pulsa 3.6s cubic-bezier(.3,1.6,.4,1) .4s}
+@keyframes pulsa{0%{transform:scale(1)}6%{transform:scale(.88)}14%{transform:scale(1.06) rotate(45deg)}20%,85%{transform:scale(1) rotate(45deg)}100%{transform:scale(1) rotate(0)}}
+.hoja{position:absolute;left:0;right:0;bottom:-260px;height:230px;border-radius:24px 24px 18px 18px!important;padding:14px}
+.en .hoja{animation:hoja 3.6s cubic-bezier(.2,.9,.25,1.08) .55s}
+@keyframes hoja{0%{bottom:-260px}16%,78%{bottom:86px}100%{bottom:-260px}}
+.velo{position:absolute;inset:-18px;background:rgba(0,0,0,.4);opacity:0;backdrop-filter:blur(3px)}
+.en .velo{animation:velo 3.6s ease .5s}@keyframes velo{0%,100%{opacity:0}14%,80%{opacity:1}}
+.op{display:flex;align-items:center;gap:12px;padding:9px 4px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.06)}
+.op .ic{width:36px;height:36px}
+
+/* 4 Barra con indicador de cristal que se desliza */
+.barra4.vidrio{position:absolute;left:0;right:0;bottom:20px;height:66px;border-radius:26px!important;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;padding:0 6px}
+.barra4 div{text-align:center;font-size:10px;color:#7b8ca3;position:relative;z-index:1;line-height:1.5}
+.barra4 div svg{opacity:.6}
+.burbuja{position:absolute;top:7px;bottom:7px;left:6px;width:calc((100% - 12px) / 4);border-radius:20px;z-index:0;
+ background:linear-gradient(150deg,rgba(255,255,255,.2),rgba(255,255,255,.05));box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 0 0 1px rgba(255,255,255,.12),0 0 16px rgba(58,214,240,.3)}
+.en .burbuja{animation:desliza 6s cubic-bezier(.34,1.2,.5,1) infinite}
+@keyframes desliza{0%,20%{transform:translateX(0)}25%,45%{transform:translateX(100%)}50%,70%{transform:translateX(200%)}75%,95%{transform:translateX(300%)}100%{transform:translateX(0)}}
+.en .barra4 div{animation:activa 6s ease infinite}
+.en .barra4 div:nth-of-type(2){animation-delay:1.5s}.en .barra4 div:nth-of-type(3){animation-delay:3s}.en .barra4 div:nth-of-type(4){animation-delay:4.5s}
+@keyframes activa{0%,22%{color:#eef4fb;text-shadow:0 0 10px rgba(58,214,240,.5)}26%,96%{color:#7b8ca3;text-shadow:none}100%{color:#eef4fb}}
+.lista4{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.lista4 .vidrio{height:58px;border-radius:16px!important}
+.en .lista4{animation:cambia 6s ease infinite}
+@keyframes cambia{0%,19%,25%,44%,50%,69%,75%,94%,100%{opacity:1;transform:none}21%,46%,71%,96%{opacity:0;transform:translateX(-10px)}}
+
+/* 5 Al añadir: el anillo baja, la cifra cambia y sale +376 */
+.o5{width:150px;height:150px;margin:12px auto 0}
+.flota{position:absolute;left:50%;top:40px;transform:translateX(-50%);font:700 18px Outfit;color:#e05cc0;opacity:0;text-shadow:0 0 12px rgba(224,92,192,.6)}
+.en .flota{animation:flota 1.6s cubic-bezier(.2,.8,.2,1) 1s forwards}
+@keyframes flota{0%{opacity:0;transform:translate(-50%,30px) scale(.8)}25%{opacity:1;transform:translate(-50%,0) scale(1.05)}100%{opacity:0;transform:translate(-50%,-30px)}}
+.arco5{stroke-dasharray:404;stroke-dashoffset:150;transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.2,1)}
+.chip5{margin:14px auto 0;width:max-content;padding:10px 16px;border-radius:16px!important;font-size:12.5px;display:flex;gap:10px;align-items:center;opacity:0;transform:translateY(10px)}
+.en .chip5{animation:sube .5s cubic-bezier(.2,.8,.2,1) .2s forwards}
+
+/* 6 Iconos vivos */
+.vivos{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:16px;justify-items:center}
+.vivos .ic{width:58px;height:58px}
+.en .dibujo path,.en .dibujo circle,.en .dibujo rect{stroke-dasharray:60;stroke-dashoffset:60;animation:traza 1.2s cubic-bezier(.3,.7,.2,1) forwards}
+@keyframes traza{to{stroke-dashoffset:0}}
+.pulso svg{animation:late 2.4s ease-in-out infinite}@keyframes late{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.gira svg{animation:gira 3s cubic-bezier(.6,0,.4,1) infinite}@keyframes gira{0%,60%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.vivos small{display:block;text-align:center;font-size:10.5px;color:#8fa0b5;margin-top:6px}
+
+/* 7 La pompa: flota, se deforma como una pompa de jabón, su película irisada gira y el brillo se mueve */
+.flotador{animation:flotar 6s ease-in-out infinite}
+@keyframes flotar{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.pompa{animation:respira 4s ease-in-out infinite,deforma 5.2s ease-in-out infinite}
+@keyframes deforma{
+ 0%,100%{border-radius:50%;transform:scale(1,1)}
+ 20%{border-radius:52% 48% 50% 50%/49% 51% 49% 51%;transform:scale(1.022,.98)}
+ 45%{border-radius:48% 52% 51% 49%/52% 48% 50% 50%;transform:scale(.982,1.02)}
+ 70%{border-radius:51% 49% 48% 52%/50% 50% 52% 48%;transform:scale(1.012,.99)}}
+.pelicula{position:absolute;inset:0;border-radius:inherit;pointer-events:none;mix-blend-mode:screen;opacity:.55;
+ background:conic-gradient(from 0deg,rgba(58,214,240,.0),rgba(58,214,240,.55),rgba(255,214,120,.35),rgba(224,92,192,.55),rgba(120,255,200,.3),rgba(58,214,240,.0));
+ -webkit-mask:radial-gradient(circle,transparent 58%,#000 69%,#000 72%,transparent 74%);mask:radial-gradient(circle,transparent 58%,#000 69%,#000 72%,transparent 74%);
+ animation:gira 11s linear infinite;filter:blur(2px)}
+.velo-iris{position:absolute;inset:8%;border-radius:50%;pointer-events:none;mix-blend-mode:screen;opacity:.18;
+ background:conic-gradient(from 90deg,#3ad6f0,#e05cc0,#f2bf4b,#3ee8a6,#3ad6f0);filter:blur(14px);animation:gira 16s linear infinite reverse}
+.pompa::after{animation:brillo 6s ease-in-out infinite}
+@keyframes brillo{0%,100%{transform:rotate(-24deg) translate(0,0);opacity:1}50%{transform:rotate(-18deg) translate(6px,3px);opacity:.75}}
+@keyframes gira{to{transform:rotate(360deg)}}
+.en .toque .pompa{animation:respira 4s ease-in-out infinite,gelatina .9s cubic-bezier(.3,1.4,.5,1) 1.2s,deforma 5.2s ease-in-out 2.1s infinite}
+@keyframes gelatina{0%{transform:scale(1,1)}20%{transform:scale(1.09,.91)}40%{transform:scale(.94,1.06)}60%{transform:scale(1.03,.97)}80%{transform:scale(.99,1.01)}100%{transform:scale(1,1)}}
+.onda{position:absolute;left:50%;top:50%;width:100%;height:100%;border-radius:50%;transform:translate(-50%,-50%) scale(1);opacity:0;pointer-events:none;border:1.5px solid rgba(255,255,255,.5);box-shadow:0 0 18px rgba(58,214,240,.5)}
+.en .onda{animation:onda 1s cubic-bezier(.2,.8,.2,1) 1.2s}
+@keyframes onda{0%{opacity:.8;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.45)}}
+.burbujita{position:absolute;border-radius:50%;pointer-events:none;
+ background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.8) 0,rgba(255,255,255,.15) 22%,transparent 40%),radial-gradient(circle,rgba(58,214,240,.05) 55%,rgba(200,240,255,.45) 68%,transparent 71%);
+ animation:asciende 7s ease-in infinite;opacity:0}
+@keyframes asciende{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:.9}100%{opacity:0;transform:translate(14px,-170px) scale(1)}}
+.demo.ancha{grid-column:1/-1;height:380px;display:grid;grid-template-columns:1fr 340px;align-items:center;gap:20px}
+.ancha .escena{position:relative;left:auto;right:auto;top:auto;bottom:auto;height:330px}
+.ancha .orbe{width:220px;height:220px;margin:55px auto 0}
+.ancha ul{font-size:12.5px;color:#b3c2d4;line-height:1.6;padding-left:18px;margin-top:10px}
+.mano{position:absolute;left:58%;top:58%;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.6);opacity:0;pointer-events:none}
+.en .mano{animation:mano 1.3s ease .4s}
+@keyframes mano{0%{opacity:0;transform:translate(30px,40px)}50%{opacity:1;transform:none}70%{transform:scale(.8)}100%{opacity:0;transform:scale(1)}}
+</style></head><body style="--glow:rgba(58,214,240,.45);--glow2:rgba(224,92,192,.35);--a:#3ad6f0;--a2:#e05cc0"><svg width="0" height="0" style="position:absolute"><defs><linearGradient id="g_kcalma" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3ad6f0"/><stop offset="1" stop-color="#e05cc0"/></linearGradient></defs></svg><h1>Kcalma · animaciones</h1><div class="sub">Se repiten solas. Todas usan las mismas curvas suaves (sin rebotes exagerados) y duran entre 0,25 y 0,6 s, salvo el orbe al abrir.</div>
+<div class="demos">
+
+<div class="demo" data-ciclo="4200"><div class="repetir vidrio">↻</div><h4>1 · Al abrir Hoy</h4><div class="spec">El anillo se dibuja en 1,4 s con frenada suave y la cifra cuenta a la vez. Después el orbe «respira»: su brillo sube y baja cada 4 s.</div>
+<div class="escena"><div class="flotador"><div class="orbe o1 pompa"><div class="velo-iris"></div><div class="pelicula"></div><svg viewBox="0 0 158 158"><circle cx="79" cy="79" r="73" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/><circle class="arco" cx="79" cy="79" r="73" fill="none" stroke="url(#g_kcalma)" stroke-width="5" stroke-linecap="round" transform="rotate(-90 79 79)"/></svg><div class="n"><span class="cuenta" data-fin="1237">0</span><small>kcal restantes</small></div></div></div></div></div>
+
+<div class="demo" data-ciclo="3000"><div class="repetir vidrio">↻</div><h4>2 · Tarjetas en cascada</h4><div class="spec">Las tarjetas suben 14 px y aparecen una tras otra, separadas 60 ms. Se usa al cambiar de pestaña y al abrir listas.</div>
+<div class="escena cascada">
+<div class="acc vidrio"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h12v4.5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3.5c0 1.5 1.5 1.5 1.5 3M12 3.5c0 1.5 1.5 1.5 1.5 3"/></svg></div><div><b>Desayuno</b><i>412 kcal</i></div><span class="fl">›</span></div>
+<div class="acc vidrio"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12.5" r="5"/><path d="M3.5 4v4.5a1.5 1.5 0 0 0 3 0V4M5 9v11"/><path d="M20.5 4c-1.7 0-2.5 2-2.5 5h2.5v11"/></svg></div><div><b>Comida</b><i>391 kcal</i></div><span class="fl">›</span></div>
+<div class="acc vidrio"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.5c-1.5-1.2-5-1.5-6.3 1.5-1.3 3 .2 7.2 2.3 9.3 1.3 1.3 2.6 1.2 4 .5 1.4.7 2.7.8 4-.5 2.1-2.1 3.6-6.3 2.3-9.3-1.3-3-4.8-2.7-6.3-1.5z"/><path d="M12 7.5c0-2 1-3.5 3-4"/></svg></div><div><b>Merienda</b><i>Sin registrar</i></div><span class="fl">+</span></div>
+<div class="acc vidrio"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/><path d="M17 3.5v3M15.5 5h3"/></svg></div><div><b>Cena</b><i>Sin registrar</i></div><span class="fl">+</span></div></div></div>
+
+<div class="demo" data-ciclo="4400"><div class="repetir vidrio">↻</div><h4>3 · Botón + y hoja de cristal</h4><div class="spec">Al tocarlo se hunde un poco, gira a × con un resorte corto y sube una hoja de cristal con las formas de añadir. El fondo se oscurece y desenfoca.</div>
+<div class="escena"><div class="velo"></div>
+<div class="hoja vidrio"><div class="op"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></div>Buscar alimento</div><div class="op"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg></div>Foto con IA</div><div class="op"><div class="ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5h3M17 5h3v3M20 16v3h-3M7 19H4v-3"/><path d="M8 9v6M11 9v6M13.5 9v6M16 9v6"/></svg></div>Escanear código</div></div>
+<div class="b3"><div class="mas"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></div></div></div></div>
+
+<div class="demo" data-ciclo="6000"><div class="repetir vidrio">↻</div><h4>4 · Cambiar de pestaña</h4><div class="spec">Una burbuja de cristal se desliza bajo la pestaña elegida con un leve rebote, y el contenido cambia con un fundido corto (0,25 s).</div>
+<div class="escena"><div class="lista4"><div class="vidrio"></div><div class="vidrio"></div><div class="vidrio"></div><div class="vidrio"></div></div>
+<div class="barra4 vidrio"><span class="burbuja"></span><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5" opacity=".35"/><path d="M12 3.5a8.5 8.5 0 0 1 8.5 8.5"/><circle cx="12" cy="12" r="3"/></svg><br>Hoy</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l5-6 4 3 7-9"/><path d="M15 6h5v5"/></svg><br>Progreso</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg><br>Ideas</div><div><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.5" r="3.8"/><path d="M4.5 20c1.4-3.6 4.2-5.2 7.5-5.2s6.1 1.6 7.5 5.2"/></svg><br>Perfil</div></div></div></div>
+
+<div class="demo" data-ciclo="3600"><div class="repetir vidrio">↻</div><h4>5 · Al añadir un alimento</h4><div class="spec">Al volver a Hoy, el anillo avanza, la cifra baja contando y sube un «−376» que se desvanece. Abajo aparece el aviso con «Deshacer».</div>
+<div class="escena"><div class="flota">−376 kcal</div>
+<div class="orbe o5"><svg viewBox="0 0 136 136"><circle cx="68" cy="68" r="64" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/><circle class="arco5" cx="68" cy="68" r="64" fill="none" stroke="url(#g_kcalma)" stroke-width="5" stroke-linecap="round" transform="rotate(-90 68 68)"/></svg><div class="n" style="font-size:32px"><span class="cuenta5">1.613</span><small>kcal restantes</small></div></div>
+<div class="chip5 vidrio">Macarrón · 250 g cocido <b style="color:#3ad6f0">DESHACER</b></div></div></div>
+
+<div class="demo" data-ciclo="3200"><div class="repetir vidrio">↻</div><h4>6 · Iconos vivos</h4><div class="spec">Los iconos se dibujan trazo a trazo la primera vez que aparecen. Algunos tienen un gesto propio: la llama de la racha late y el de progreso gira al actualizar.</div>
+<div class="escena"><div class="vivos">
+<div><div class="ic dibujo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h12v4.5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M16 10h1.5a2.5 2.5 0 0 1 0 5H16"/><path d="M8 3.5c0 1.5 1.5 1.5 1.5 3M12 3.5c0 1.5 1.5 1.5 1.5 3"/></svg></div><small>Desayuno</small></div><div><div class="ic dibujo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12.5" r="5"/><path d="M3.5 4v4.5a1.5 1.5 0 0 0 3 0V4M5 9v11"/><path d="M20.5 4c-1.7 0-2.5 2-2.5 5h2.5v11"/></svg></div><small>Comida</small></div><div><div class="ic dibujo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/><path d="M17 3.5v3M15.5 5h3"/></svg></div><small>Cena</small></div>
+<div><div class="ic pulso"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21c3.6 0 6-2.4 6-5.8 0-3.6-2.6-5.4-3.6-8.7-.3 2-1.4 3-2.4 3.5C12 7 10.6 4.6 8.8 3c.3 3.4-2.8 5.8-2.8 10.2C6 18.6 8.4 21 12 21z"/></svg></div><small>Racha</small></div>
+<div><div class="ic gira"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5" opacity=".35"/><path d="M12 3.5a8.5 8.5 0 0 1 8.5 8.5"/><circle cx="12" cy="12" r="3"/></svg></div><small>Actualizar</small></div><div><div class="ic dibujo"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="url(#g_kcalma)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2.5h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/></svg></div><small>Foto</small></div></div></div></div>
+<div class="demo ancha" data-ciclo="5200"><div class="repetir vidrio">↻</div>
+<div class="escena toque">
+<span class="burbujita" style="width:16px;height:16px;left:30%;bottom:20px;animation-delay:0s"></span>
+<span class="burbujita" style="width:10px;height:10px;left:64%;bottom:30px;animation-delay:2.4s"></span>
+<span class="burbujita" style="width:13px;height:13px;left:44%;bottom:10px;animation-delay:4.6s"></span>
+<div class="flotador"><div class="orbe pompa" style="position:relative"><div class="velo-iris"></div><div class="pelicula"></div><span class="onda"></span>
+<svg viewBox="0 0 158 158"><circle cx="79" cy="79" r="73" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="5"/><circle cx="79" cy="79" r="73" fill="none" stroke="url(#g_kcalma)" stroke-width="5" stroke-linecap="round" stroke-dasharray="459" stroke-dashoffset="170" transform="rotate(-90 79 79)"/></svg>
+<div class="n" style="font-size:44px">1.237<small>kcal restantes</small></div></div></div>
+<span class="mano"></span></div>
+<div><h4 style="font-size:17px">7 · La pompa</h4><div class="spec" style="font-size:12.5px">El orbe de Hoy se comporta como una pompa de jabón, siempre en movimiento pero sin distraer:</div>
+<ul><li>Flota: sube y baja 7 px cada 6 s.</li><li>Se deforma muy poco, como una pompa con aire (±2 %).</li><li>La película irisada del borde gira despacio: cian, dorado, magenta y verde.</li><li>El brillo de arriba se desplaza un poco, como si cambiara la luz.</li><li>Al tocarla tiembla como gelatina y suelta una onda.</li><li>De vez en cuando sube alguna burbujita por detrás.</li></ul>
+<div class="spec" style="margin-top:10px">Si el móvil tiene activado «Quitar animaciones», la pompa se queda quieta.</div></div></div>
+</div>
+<script>
+function contar(el, desde, hasta, ms){const t0=performance.now();function f(t){const p=Math.min(1,(t-t0)/ms),e=1-Math.pow(1-p,3);el.textContent=Math.round(desde+(hasta-desde)*e).toString().replace(/\B(?=(\d{3})+(?!\d))/g,'.');if(p<1)requestAnimationFrame(f)}requestAnimationFrame(f)}
+function lanzar(d){d.classList.remove('en');void d.offsetWidth;d.classList.add('en');
+ const c=d.querySelector('.cuenta');if(c)setTimeout(()=>contar(c,0,+c.dataset.fin,1400),200);
+ const a5=d.querySelector('.arco5');if(a5){a5.style.transition='none';a5.style.strokeDashoffset=150;const n=d.querySelector('.cuenta5');n.textContent='1.613';
+  setTimeout(()=>{a5.style.transition='';a5.style.strokeDashoffset=60;contar(n,1613,1237,1100)},900)}}
+document.querySelectorAll('.demo').forEach(d=>{lanzar(d);setInterval(()=>lanzar(d),+d.dataset.ciclo+1500);d.querySelector('.repetir').onclick=()=>lanzar(d)});
+</script></body></html>

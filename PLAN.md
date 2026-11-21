@@ -94,6 +94,14 @@ Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caser
   - Widget de 4×2: anillo, kcal restantes y botones de foto y añadir.
   - Los platos caseros salen en «Mis comidas» y en la búsqueda. Entran en la copia de seguridad; la lista de la compra no.
 
+### Rediseño «cristal» (21/11/2026, Mikel, a partir de una imagen de referencia)
+- Estilo cristal: paneles esmerilados con borde brillante, luces de color difuminadas detrás, orbe de vidrio con el anillo de kcal y botón + flotante en la barra. Maquetas en `maquetas/kcalma-cristal.html` y `kcalma-cristal-2.html`.
+- **Paleta: los colores de Kcalma (cian → magenta), opción 1A**, y además variaciones, aprobadas: Kcalma (por defecto), Hielo (cian → azul), Aurora (cian → verde menta) y Orquídea (magenta → violeta), elegibles en Perfil → Apariencia. Maqueta en `maquetas/kcalma-colores.html`.
+- Iconos propios en vez de emojis: trazo redondeado de 1,8, degradado del tema y burbuja de cristal (aprobado).
+- Animaciones fluidas y limpias, de 0,25 a 0,6 s con frenada suave: orbe que se dibuja y respira, tarjetas en cascada, + con hoja de cristal, burbuja en la barra, cifra que cuenta al añadir, iconos que se trazan. Demo en `maquetas/kcalma-animaciones.html` (aprobado).
+- **Orbe: pompa «B · Líquida»** (elegida entre tres en `maquetas/kcalma-pompas.html`): dentro hay líquido que se mece con dos olas; su nivel es lo comido hoy; al tocarla chapotea; flota y suben burbujitas. Quieta si el móvil tiene «Quitar animaciones».
+- **Alcance: todo de golpe** en una 0.7.0. Antes, maquetas cristal de todas las pantallas para aprobarlas.
+
 ### Aviso de malware y comodidad (21/11/2026, Mikel)
 - **Aviso al instalar:** se hacen las tres cosas. Mikel manda a Google la apelación de Play Protect con el texto de `docs/apelacion-play-protect.md`. Cada release lleva el enlace a su análisis en VirusTotal. El README tiene una guía de instalación que explica los avisos.
 - **0.6.0, mejoras de comodidad elegidas:** mover entradas (o una comida entera) a otra comida, recordar la última cantidad de cada alimento y buscar por voz. Descartadas por ahora: deshacer al borrar, ver días anteriores, copiar de otro día, cantidades rápidas y contador de agua. Maqueta en `maquetas/kcalma-0.6.html` (aprobada).
