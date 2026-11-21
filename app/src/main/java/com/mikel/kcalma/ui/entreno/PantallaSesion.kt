@@ -22,6 +22,10 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.background
+import androidx.compose.ui.draw.clip
+import com.mikel.kcalma.dominio.Fase
+import com.mikel.kcalma.dominio.BloqueRutina
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -133,6 +137,7 @@ fun PantallaSesion(
             }
         }
         if (rutina.formato == Formato.SERIES) SesionSeries(sesion, rutina, sesiones, ajustes, reloj, onSerie, onFicha) { preguntar = true }
+        else if (rutina.formato == Formato.INTERVALOS) SesionIntervalos(sesion, rutina, sesiones, ajustes, reloj, onSerie) { preguntar = true }
         else SesionTiempo(sesion, rutina, sesiones, ajustes, reloj, onSerie) { preguntar = true }
     }
     if (preguntar) {
@@ -450,6 +455,118 @@ private fun SesionTiempo(
             if (emom) item {
                 Text("Cada minuto se apunta solo. Toca el peso para cambiar de kettlebell.", style = t.pequeno, color = c.texto3, textAlign = TextAlign.Center)
             }
+        }
+        Box(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = MARGEN, vertical = 12.dp)) {
+            BotonPrincipal(if (acabado) "Guardar entreno" else "Terminar antes", onTerminar)
+        }
+    }
+}
+
+/** Peso de cada bloque al empezar: el ya apuntado en esta sesión o el que propone la progresión. */
+@Composable
+private fun kilosIniciales(sesion: Sesion, bloques: List<BloqueRutina>, sesiones: List<Sesion>, ajustes: AjustesEntreno) = remember(sesion.id) {
+    mutableStateListOf<Double>().apply {
+        bloques.forEach { b ->
+            val ej = Ejercicios.porId(b.ejercicio)!!
+            val ya = sesion.series.firstOrNull { it.ejercicio == b.ejercicio }
+            add(ya?.kg ?: Progresion.proponer(ej, b.copy(series = 1), sesiones.ultimasSeries(ej.id, sin = sesion.id), ajustes.kettlebells).series.first().kg)
+        }
+    }
+}
+
+/**
+ * Intervalos (Tabata y parecidos): cuenta atrás, trabajo y descanso con pitido y vibración en cada cambio.
+ * Cada ronda toca el siguiente ejercicio y se apunta sola al acabar su trabajo.
+ */
+@Composable
+private fun SesionIntervalos(
+    sesion: Sesion, rutina: Rutina, sesiones: List<Sesion>, ajustes: AjustesEntreno, reloj: Long,
+    onSerie: (Serie) -> Unit, onTerminar: () -> Unit,
+) {
+    val c = KcalmaTheme.colores
+    val t = KcalmaTheme.tipo
+    val contexto = LocalContext.current
+    val bloques = rutina.bloques.filter { Ejercicios.porId(it.ejercicio) != null }
+    if (bloques.isEmpty()) return
+    val kilos = kilosIniciales(sesion, bloques, sesiones, ajustes)
+    val fase = rutina.fase((reloj - sesion.inicio).coerceAtLeast(0))
+    val acabado = fase.tipo == Fase.Tipo.FIN
+    val cerradas = if (acabado) rutina.rondas else fase.cerradas
+    // Al cerrar el trabajo de cada ronda se apunta su ejercicio (reps 0: por tiempo)
+    LaunchedEffect(cerradas) {
+        for (k in 0 until cerradas) {
+            if (sesion.series.none { it.orden == k }) bloques[k % bloques.size].let { b -> onSerie(Serie(b.ejercicio, k, kilos[k % bloques.size], 0)) }
+        }
+    }
+    // Pitido en cada cambio de fase (no al abrir la pantalla)
+    var ultima by rememberSaveable { mutableStateOf("") }
+    val clave = "${fase.tipo}${fase.ronda}"
+    LaunchedEffect(clave) {
+        if (ultima.isNotEmpty() && ultima != clave) avisar(contexto, true)
+        ultima = clave
+    }
+    val seg = ((fase.queda + 999) / 1000)
+    val toca = if (fase.tipo == Fase.Tipo.DESCANSA) fase.ronda + 1 else fase.ronda.coerceAtLeast(0)
+    val siguiente = when (fase.tipo) {
+        Fase.Tipo.PREPARA -> "Primero: ${Ejercicios.porId(bloques[0].ejercicio)!!.nombre}"
+        Fase.Tipo.TRABAJA -> if (fase.ronda + 1 < rutina.rondas) "Luego: descansa ${rutina.pausa} s" else "Última ronda"
+        Fase.Tipo.DESCANSA -> "Ahora viene: ${Ejercicios.porId(bloques[toca % bloques.size].ejercicio)!!.nombre}"
+        Fase.Tipo.FIN -> "Has hecho las ${rutina.rondas} rondas"
+    }
+
+    Box(Modifier.fillMaxSize()) {
+        LazyColumn(Modifier.fillMaxSize(), contentPadding = PaddingValues(start = MARGEN, end = MARGEN, bottom = 120.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            item {
+                Text(
+                    if (acabado) "¡Hecho!" else if (fase.tipo == Fase.Tipo.PREPARA) "Prepárate" else "Ronda ${fase.ronda + 1} de ${rutina.rondas}",
+                    style = t.cuerpo, color = c.texto2, modifier = Modifier.padding(top = 4.dp),
+                )
+            }
+            item {
+                Anillo(
+                    if (acabado) 1f else 1f - fase.queda / fase.largo.toFloat(),
+                    if (acabado) "0:00" else if (fase.tipo == Fase.Tipo.PREPARA) "$seg" else reloj(seg),
+                    when (fase.tipo) { Fase.Tipo.PREPARA -> "empieza en"; Fase.Tipo.TRABAJA -> "¡TRABAJA!"; Fase.Tipo.DESCANSA -> "descansa"; Fase.Tipo.FIN -> "terminado" },
+                    Modifier.padding(vertical = 14.dp),
+                )
+            }
+            item { Text(siguiente, style = t.titulo, color = c.texto, textAlign = TextAlign.Center, modifier = Modifier.padding(bottom = 10.dp)) }
+            item {
+                // Rondas hechas: un punto por ronda
+                Row(Modifier.padding(bottom = 14.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    for (k in 0 until rutina.rondas.coerceAtMost(30)) Box(
+                        Modifier.size(10.dp).clip(CircleShape).background(
+                            if (k < cerradas) c.acento else if (k == fase.ronda && fase.tipo == Fase.Tipo.TRABAJA) c.acento.copy(alpha = .45f) else c.texto.copy(alpha = .12f)
+                        )
+                    )
+                }
+            }
+            bloques.forEachIndexed { i, b ->
+                item(key = "b$i") {
+                    val ej = Ejercicios.porId(b.ejercicio)!!
+                    val ahoraEste = !acabado && fase.tipo != Fase.Tipo.PREPARA && i == toca % bloques.size
+                    Row(
+                        Modifier.padding(bottom = 8.dp).fillMaxWidth().vidrio(RoundedCornerShape(18.dp), resaltado = ahoraEste).padding(10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        FiguraEjercicio(ej, Modifier.size(if (ahoraEste) 64.dp else 44.dp))
+                        Column(Modifier.weight(1f).padding(start = 10.dp)) {
+                            Text(ej.nombre, style = t.tituloTarjeta, color = c.texto)
+                            Text("${rutina.trabajo} s a buen ritmo", style = t.pequeno, color = c.texto2)
+                        }
+                        if (ej.conPeso) {
+                            val opciones = if (ej.material == Material.KETTLEBELL) ajustes.kettlebells.sorted() else emptyList()
+                            Text(
+                                "${Progresion.kg(kilos[i])} kg", style = t.numero, color = c.texto,
+                                modifier = Modifier.vidrio(RoundedCornerShape(12.dp), resaltado = true).clickable(enabled = opciones.isNotEmpty()) {
+                                    kilos[i] = opciones.firstOrNull { it > kilos[i] } ?: opciones.first()
+                                }.padding(horizontal = 10.dp, vertical = 6.dp),
+                            )
+                        }
+                    }
+                }
+            }
+            item { Text("Cada ronda se apunta sola. Pita y vibra al cambiar.", style = t.pequeno, color = c.texto3, textAlign = TextAlign.Center) }
         }
         Box(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = MARGEN, vertical = 12.dp)) {
             BotonPrincipal(if (acabado) "Guardar entreno" else "Terminar antes", onTerminar)

@@ -7,6 +7,10 @@ val firma = Properties().apply {
     if (archivo.exists()) archivo.inputStream().use { load(it) }
 }
 
+// Token de GitHub solo con permiso de escribir incidencias en kcalma (ver PLAN.md §0). Fuera del repositorio.
+val tokenInformes = file(System.getenv("KCALMA_INFORMES") ?: "C:/Users/Mikel/.kcalma/github-informes.txt")
+    .takeIf { it.exists() }?.readText()?.trim().orEmpty()
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -25,6 +29,7 @@ android {
         // -PcodigoPrueba y -PetiquetaPrueba solo para probar actualizaciones en el emulador
         versionCode = (findProperty("codigoPrueba") as String?)?.toInt() ?: 18
         versionName = "0.8.0"
+        buildConfigField("String", "GITHUB_INFORMES", "\"$tokenInformes\"")
         buildConfigField("String", "ETIQUETA_PRUEBA", "\"${findProperty("etiquetaPrueba") ?: ""}\"")
     }
 

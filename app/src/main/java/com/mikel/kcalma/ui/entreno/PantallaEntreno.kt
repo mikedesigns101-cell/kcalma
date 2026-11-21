@@ -62,6 +62,7 @@ internal fun minutos(m: Int) = if (m < 60) "$m min" else "${m / 60} h${if (m % 6
 
 internal fun detalleRutina(r: Rutina): String = when (r.formato) {
     Formato.SERIES -> "${r.bloques.size} ${if (r.bloques.size == 1) "ejercicio" else "ejercicios"} · ${r.totalSeries} series · ${minutos(r.duracion())}"
+    Formato.INTERVALOS -> "Intervalos ${r.trabajo}/${r.pausa} s · ${r.rondas} rondas · ${minutos(r.duracion())}"
     else -> "${r.formato.nombre} · ${minutos(r.minutos)}"
 }
 
@@ -77,6 +78,7 @@ fun PantallaEntreno(
     onContinuar: (Sesion) -> Unit,
     onCrear: () -> Unit,
     onKettlebells: (List<Double>) -> Unit,
+    onBiblioteca: () -> Unit,
     onPestana: (Pestana) -> Unit,
     onCamara: () -> Unit,
 ) {
@@ -121,6 +123,19 @@ fun PantallaEntreno(
                         if (seccion == Seccion.KETTLEBELL) "  Crear rutina de kettlebell" else "  Crear rutina",
                         style = t.tituloTarjeta, color = c.acento,
                     )
+                }
+            }
+            item {
+                Row(
+                    lateral.padding(top = 8.dp).fillMaxWidth().vidrio(RoundedCornerShape(20.dp)).clickable(onClick = onBiblioteca).padding(13.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icono(Ic.BUSCAR, tamano = 17.dp)
+                    Column(Modifier.weight(1f).padding(start = 10.dp)) {
+                        Text("Biblioteca de ejercicios", style = t.tituloTarjeta, color = c.texto)
+                        Text("${com.mikel.kcalma.dominio.Ejercicios.todos.size} ejercicios con su técnica y animación", style = t.pequeno, color = c.texto2)
+                    }
+                    Text("›", style = t.titulo, color = c.texto3)
                 }
             }
             val ultimas = sesiones.filter { it.terminada }.take(4)

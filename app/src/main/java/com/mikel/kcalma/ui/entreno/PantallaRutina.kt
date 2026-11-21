@@ -93,7 +93,7 @@ fun PantallaRutina(
                     }
                 }
             }
-            item { Rotulo(if (r.formato == Formato.SERIES) "Ejercicios" else "Cada vuelta", lateral) }
+            item { Rotulo(when (r.formato) { Formato.SERIES -> "Ejercicios"; Formato.INTERVALOS -> "Por turnos, una ronda cada uno"; else -> "Cada vuelta" }, lateral) }
             itemsIndexed(r.bloques) { _, b ->
                 val ej = Ejercicios.porId(b.ejercicio) ?: return@itemsIndexed
                 val ultima = sesiones.ultimasSeries(ej.id)
@@ -106,6 +106,7 @@ fun PantallaRutina(
                         Text(ej.nombre, style = t.tituloTarjeta, color = c.texto)
                         Text(
                             if (r.formato == Formato.SERIES) "${b.series} × ${b.repsMin}–${b.repsMax}${if (ej.porLado) " por lado" else ""} · descanso ${b.descanso} s"
+                            else if (r.formato == Formato.INTERVALOS) "${r.trabajo} s de trabajo · ${r.pausa} s de descanso"
                             else "${b.repsMin} reps${if (ej.porLado) " por lado" else ""}",
                             style = t.pequeno, color = c.texto2,
                         )

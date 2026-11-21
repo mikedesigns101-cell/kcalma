@@ -16,7 +16,8 @@ import com.mikel.kcalma.datos.AlmacenPerfil
 import com.mikel.kcalma.datos.Claves
 import com.mikel.kcalma.datos.Copia
 import com.mikel.kcalma.datos.Gemini
-import com.mikel.kcalma.ui.componentes.mandarInforme
+import com.mikel.kcalma.ui.componentes.BurbujaInforme
+import com.mikel.kcalma.ui.componentes.HojaInforme
 import com.mikel.kcalma.ui.foto.PantallaClave
 import com.mikel.kcalma.ui.hoy.Pestana
 import com.mikel.kcalma.ui.hoy.AccionesMas
@@ -61,6 +62,9 @@ import com.mikel.kcalma.ui.hoy.PantallaHoy
 import com.mikel.kcalma.ui.hoy.TarjetaActualizacion
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.dp
 import com.mikel.kcalma.ui.componentes.fondoKcalma
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -109,6 +113,7 @@ private sealed interface Destino {
     data class Sesion(val id: Long) : Destino
     data class Ejercicio(val id: String) : Destino
     data class EditarRutina(val rutina: com.mikel.kcalma.dominio.Rutina) : Destino
+    data object Biblioteca : Destino
 }
 
 @Composable
@@ -189,6 +194,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         }
     }
     val cambiarPestana: (Pestana) -> Unit = { pestana = it }
+    var informePerfil by remember { mutableStateOf(false) }
 
     // ---- Entreno: las escrituras van en orden por un solo hilo (una serie corregida dos veces no se pisa) ----
     val entrenos = repo.entrenos
@@ -293,7 +299,32 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         foto = { pila.add(Destino.Foto(ahora())) },
         escanear = { pila.add(Destino.Escaner(ahora())) },
     )
+    // Nombre de la pantalla actual para los informes de fallos
+    // (nombres escritos a mano: en la release R8 cambia los nombres de las clases)
+    val pantalla = when (val d = pila.lastOrNull()) {
+        null -> when (pestana) { Pestana.HOY -> "Hoy"; Pestana.IDEAS -> "Ideas"; Pestana.ENTRENO -> "Entreno"; Pestana.PROGRESO -> "Progreso"; Pestana.PERFIL -> "Perfil" }
+        is Destino.Comida -> "Comida (${d.comida.nombre})"
+        is Destino.Anadir -> if (d.paraPlato) "Añadir ingrediente" else "Añadir alimento"
+        is Destino.Ficha -> "Ficha de alimento (${d.alimento.nombre})"
+        is Destino.Escaner -> "Escáner"
+        is Destino.Etiqueta -> "Leer etiqueta"
+        Destino.Plato -> "Plato casero"
+        Destino.Lista -> "Lista de la compra"
+        Destino.Recordatorios -> "Recordatorios"
+        Destino.Apariencia -> "Apariencia"
+        is Destino.Foto -> "Foto de comida"
+        is Destino.Editar -> "Editar perfil"
+        Destino.Clave -> "Clave de Gemini"
+        is Destino.VerIdea -> "Idea (${d.idea.receta.nombre})"
+        is Destino.Rutina -> "Rutina ${d.id}"
+        is Destino.Sesion -> "Sesión de entreno"
+        is Destino.Ejercicio -> "Ejercicio ${d.id}"
+        is Destino.EditarRutina -> "Editor de rutina"
+        Destino.Biblioteca -> "Biblioteca de ejercicios"
+    }
+    if (informePerfil) HojaInforme("Desde Perfil", "Perfil", "") { informePerfil = false }
     CompositionLocalProvider(LocalAccionesMas provides accionesMas) {
+    androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.fillMaxSize()) {
     when (val d = pila.lastOrNull()) {
         null -> if (pestana == Pestana.IDEAS) PantallaIdeas(
             comida = comidaIdea,
@@ -320,6 +351,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             onContinuar = continuar,
             onCrear = { pila.add(Destino.EditarRutina(com.mikel.kcalma.dominio.Rutina("", "", seccion, emptyList()))) },
             onKettlebells = { kg -> enBd { entrenos.guardarKettlebells(kg) } },
+            onBiblioteca = { pila.add(Destino.Biblioteca) },
             onPestana = cambiarPestana,
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
         ) else if (pestana == Pestana.PERFIL) PantallaPerfil(
@@ -352,7 +384,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
                 onBorrarClave = { claves.borrarGemini(); claveGuardada = false; aviso("Clave borrada") },
                 onExportar = { exportar.launch("kcalma-copia-${LocalDate.now()}.json") },
                 onImportar = { importar.launch(arrayOf("application/json", "application/octet-stream", "text/plain")) },
-                onInforme = { mandarInforme(contexto, "Desde Perfil", "") },
+                onInforme = { informePerfil = true },
                 onActualizar = {
                     aviso("Buscando actualizaciones…")
                     alcance.launch {
@@ -446,6 +478,10 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
                     aviso("Rutina guardada")
                 }
             },
+        )
+        Destino.Biblioteca -> com.mikel.kcalma.ui.entreno.PantallaBiblioteca(
+            onAtras = { pila.removeAt(pila.lastIndex) },
+            onEjercicio = { pila.add(Destino.Ejercicio(it.id)) },
         )
         is Destino.Ejercicio -> com.mikel.kcalma.dominio.Ejercicios.porId(d.id)?.let { ej ->
             com.mikel.kcalma.ui.entreno.PantallaFichaEjercicio(ej, sesionesE) { pila.removeAt(pila.lastIndex) }
@@ -655,6 +691,13 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
                 pila.removeAt(pila.lastIndex); aviso("Clave guardada")
             },
         )
+    }
+    // Burbuja 🐞 encima de todo, abajo a la derecha por encima de la barra
+    BurbujaInforme(
+        pantalla,
+        androidx.compose.ui.Modifier.align(androidx.compose.ui.Alignment.BottomEnd).navigationBarsPadding()
+            .padding(end = 14.dp, bottom = if (pila.isEmpty()) 96.dp else 90.dp),
+    )
     }
     }
 }

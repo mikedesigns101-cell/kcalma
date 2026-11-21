@@ -190,6 +190,7 @@ class Entrenos(contexto: Context) : SQLiteOpenHelper(contexto, "entreno.db", nul
         fun json(r: Rutina): JSONObject = JSONObject()
             .put("id", r.id).put("nombre", r.nombre).put("seccion", r.seccion.name).put("formato", r.formato.name)
             .put("minutos", r.minutos).put("dias", JSONArray(r.dias.sorted())).put("descripcion", r.descripcion)
+            .put("trabajo", r.trabajo).put("pausa", r.pausa).put("rondas", r.rondas)
             .put("bloques", JSONArray(r.bloques.map {
                 JSONObject().put("e", it.ejercicio).put("s", it.series).put("min", it.repsMin).put("max", it.repsMax).put("d", it.descanso)
             }))
@@ -205,6 +206,7 @@ class Entrenos(contexto: Context) : SQLiteOpenHelper(contexto, "entreno.db", nul
                 },
                 formato = Formato.entries.firstOrNull { it.name == o.optString("formato") } ?: Formato.SERIES,
                 minutos = o.optInt("minutos"),
+                trabajo = o.optInt("trabajo", 20), pausa = o.optInt("pausa", 10), rondas = o.optInt("rondas", 8),
                 dias = (0 until d.length()).map { d.getInt(it) }.toSet(),
                 descripcion = o.optString("descripcion"),
             )

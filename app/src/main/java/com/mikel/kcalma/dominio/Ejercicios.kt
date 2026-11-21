@@ -24,7 +24,9 @@ import com.mikel.kcalma.dominio.Musculo.TRICEPS
 
 /** Catálogo de ejercicios. Los ids son para siempre: el historial los guarda. */
 object Ejercicios {
-    val todos: List<Ejercicio> = listOf(
+    val todos: List<Ejercicio> get() = TODOS
+    private val TODOS: List<Ejercicio> by lazy { BASE + EjerciciosMas.lista }
+    private val BASE: List<Ejercicio> = listOf(
         // ---------- Pierna ----------
         Ejercicio(
             "sentadilla", "Sentadilla", BARRA, Patron.SENTADILLA, setOf(CUADRICEPS, GLUTEO), setOf(ADUCTORES, ISQUIOS, LUMBAR),
@@ -322,7 +324,7 @@ object Ejercicios {
         ),
     )
 
-    private val porId = todos.associateBy { it.id }
+    private val porId by lazy { TODOS.associateBy { it.id } }
     fun porId(id: String): Ejercicio? = porId[id]
 
     /** Los que se pueden hacer en cada sección. */
@@ -381,6 +383,12 @@ object Rutinas {
             "p_kb_amrap", "AMRAP 12", Seccion.KETTLEBELL,
             listOf(b("kb_swing", 1, 15, 15, 0), b("flexiones", 1, 10, 10, 0), b("kb_zancada", 1, 10, 10, 0)),
             formato = Formato.AMRAP, minutos = 12, descripcion = "Máximas rondas: swing, flexión, zancada",
+        ),
+        Rutina(
+            "p_kb_tabata", "Tabata de kettlebell", Seccion.KETTLEBELL,
+            listOf(b("kb_swing", 1, 0, 0, 0), b("kb_goblet", 1, 0, 0, 0)),
+            formato = Formato.INTERVALOS, trabajo = 20, pausa = 10, rondas = 8,
+            descripcion = "20 s a tope, 10 s de descanso, 8 rondas",
         ),
         Rutina(
             "p_kb_fuerza", "Fuerza con kettlebell", Seccion.KETTLEBELL,

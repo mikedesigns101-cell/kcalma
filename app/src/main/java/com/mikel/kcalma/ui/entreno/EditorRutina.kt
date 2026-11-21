@@ -82,12 +82,18 @@ fun PantallaEditorRutina(inicial: Rutina, onAtras: () -> Unit, onGuardar: (Rutin
                         val f = Formato.entries[it]
                         r = r.copy(formato = f, minutos = if (f != Formato.SERIES && r.minutos == 0) 12 else r.minutos)
                     }
-                    if (r.formato != Formato.SERIES) Paso("Minutos en total", r.minutos, 1, 60) { r = r.copy(minutos = it) }
+                    if (r.formato == Formato.EMOM || r.formato == Formato.AMRAP) Paso("Minutos en total", r.minutos, 1, 60) { r = r.copy(minutos = it) }
+                    if (r.formato == Formato.INTERVALOS) Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Paso("Trabajo (s)", r.trabajo, 5, 300, Modifier.weight(1f), salto = 5) { r = r.copy(trabajo = it) }
+                        Paso("Descanso (s)", r.pausa, 0, 300, Modifier.weight(1f), salto = 5) { r = r.copy(pausa = it) }
+                        Paso("Rondas", r.rondas, 1, 50, Modifier.weight(1f)) { r = r.copy(rondas = it) }
+                    }
                     Text(
                         when (r.formato) {
                             Formato.SERIES -> "Series con descanso; te propongo el peso según lo que hiciste."
                             Formato.EMOM -> "Cada minuto empiezas un ejercicio, en orden. Lo que sobra del minuto, descansas."
                             Formato.AMRAP -> "Tantas vueltas como puedas en el tiempo; apuntas cada vuelta."
+                            Formato.INTERVALOS -> "Trabajo y descanso cronometrados, con pitido. Cada ronda toca el siguiente ejercicio. Unos ${r.duracion()} min."
                         },
                         style = t.pequeno, color = c.texto3, modifier = Modifier.padding(start = 2.dp, top = 2.dp),
                     )
@@ -130,7 +136,7 @@ fun PantallaEditorRutina(inicial: Rutina, onAtras: () -> Unit, onGuardar: (Rutin
                         }
                         Paso("Descanso (s)", b.descanso, 0, 600, Modifier.padding(top = 6.dp), salto = 15) { v -> bloques { it[i] = b.copy(descanso = v) } }
                     } else {
-                        Paso("Reps por vuelta", b.repsMin, 1, 50, Modifier.padding(top = 6.dp)) { v -> bloques { it[i] = b.copy(repsMin = v, repsMax = v) } }
+                        if (r.formato != Formato.INTERVALOS) Paso("Reps por vuelta", b.repsMin, 1, 50, Modifier.padding(top = 6.dp)) { v -> bloques { it[i] = b.copy(repsMin = v, repsMax = v) } }
                     }
                 }
             }

@@ -31,6 +31,8 @@ enum class Ic(val trazos: List<Trazo>) {
     CARRITO(listOf(Trazo("M3.5 4.5h2.5l2 11h10.5l2-8H7"), Trazo("M8.2,19.5a1.3,1.3 0 1,0 2.6,0a1.3,1.3 0 1,0 -2.6,0"), Trazo("M15.7,19.5a1.3,1.3 0 1,0 2.6,0a1.3,1.3 0 1,0 -2.6,0"))),
     CENA(listOf(Trazo("M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"), Trazo("M17 3.5v3M15.5 5h3"))),
     CERRAR(listOf(Trazo("M6 6l12 12M18 6L6 18"))),
+    CHAT(listOf(Trazo("M4.5 5.5h15v10.5h-8.5l-4.5 3.5v-3.5h-2z"), Trazo("M8.5 10.75h.01M12 10.75h.01M15.5 10.75h.01"))),
+    ENVIAR(listOf(Trazo("M4 11.5l16-7-6.5 16-2.5-6.5z"), Trazo("M11 14l9-9.5"))),
     CHECK(listOf(Trazo("M5 12.5l4.5 4.5L19 7.5"))),
     CHISPAS(listOf(Trazo("M12 3.5l1.6 4.4 4.4 1.6-4.4 1.6L12 15.5l-1.6-4.4L6 9.5l4.4-1.6z"), Trazo("M18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"))),
     COMIDA(listOf(Trazo("M7,12.5a5,5 0 1,0 10,0a5,5 0 1,0 -10,0"), Trazo("M3.5 4v4.5a1.5 1.5 0 0 0 3 0V4M5 9v11"), Trazo("M20.5 4c-1.7 0-2.5 2-2.5 5h2.5v11"))),
