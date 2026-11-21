@@ -1,5 +1,7 @@
 package com.mikel.kcalma.ui.hoy
 
+import com.mikel.kcalma.ui.componentes.Ic
+import com.mikel.kcalma.ui.componentes.Icono
 import com.mikel.kcalma.ui.componentes.vidrio
 
 import androidx.compose.foundation.BorderStroke
@@ -34,7 +36,7 @@ fun TarjetaActualizacion(v: VersionNueva, progreso: Float?, onActualizar: () -> 
         Modifier.fillMaxWidth().padding(bottom = 10.dp).vidrio(forma, resaltado = true).padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("✨", style = t.titulo)
+            Icono(Ic.CHISPAS, tamano = 20.dp)
             Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
                 Text("Nueva versión ${v.nombre}", style = t.tituloTarjeta, color = c.texto)
                 if (v.notas.isNotBlank()) Text(v.notas, style = t.pequeno, color = c.texto3, maxLines = 1, overflow = TextOverflow.Ellipsis)

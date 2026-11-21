@@ -1,5 +1,7 @@
 package com.mikel.kcalma.ui.diario
 
+import com.mikel.kcalma.ui.componentes.Ic
+import com.mikel.kcalma.ui.componentes.Icono
 import com.mikel.kcalma.ui.componentes.vidrio
 import com.mikel.kcalma.ui.componentes.fondoKcalma
 
@@ -110,9 +112,9 @@ fun PantallaComida(
             items(entradas, key = { "${it.id}/$restauradas" }) { e -> FilaEntrada(e, { onEditar(e) }, { onBorrar(e); borrada = e }, { mover = listOf(e) }) }
             item {
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Accion("🔍", "Buscar", Modifier.weight(1f), onBuscar)
-                    Accion("▥", "Escanear", Modifier.weight(1f), onEscanear)
-                    Accion("📸", "Foto", Modifier.weight(1f), onFoto)
+                    Accion(Ic.BUSCAR, "Buscar", Modifier.weight(1f), onBuscar)
+                    Accion(Ic.ESCANER, "Escanear", Modifier.weight(1f), onEscanear)
+                    Accion(Ic.CAMARA, "Foto", Modifier.weight(1f), onFoto)
                 }
             }
             if (entradas.isNotEmpty()) item {
@@ -221,7 +223,7 @@ private fun FilaEntrada(e: Entrada, onEditar: () -> Unit, onBorrar: () -> Unit, 
             Box(
                 Modifier.fillMaxSize().clip(forma).background(c.rojo.copy(alpha = .25f)).padding(end = 16.dp),
                 contentAlignment = Alignment.CenterEnd,
-            ) { Text("🗑", style = t.titulo) }
+            ) { Icono(Ic.PAPELERA, tamano = 20.dp, color = c.rojo) }
         },
     ) {
         Row(
@@ -247,14 +249,14 @@ private fun FilaEntrada(e: Entrada, onEditar: () -> Unit, onBorrar: () -> Unit, 
 }
 
 @Composable
-private fun Accion(icono: String, texto: String, modifier: Modifier, onClick: () -> Unit) {
+private fun Accion(icono: Ic, texto: String, modifier: Modifier, onClick: () -> Unit) {
     val c = KcalmaTheme.colores
     val forma = RoundedCornerShape(13.dp)
     Column(
         modifier.vidrio(forma).clickable(onClick = onClick).padding(vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(icono, style = KcalmaTheme.tipo.titulo, color = c.texto)
+        Icono(icono, tamano = 22.dp)
         Text(texto, style = KcalmaTheme.tipo.pequeno, color = c.texto2, modifier = Modifier.padding(top = 3.dp))
     }
 }

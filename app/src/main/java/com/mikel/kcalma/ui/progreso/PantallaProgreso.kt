@@ -1,5 +1,7 @@
 package com.mikel.kcalma.ui.progreso
 
+import com.mikel.kcalma.ui.componentes.Ic
+import com.mikel.kcalma.ui.componentes.Icono
 import com.mikel.kcalma.ui.componentes.vidrio
 import com.mikel.kcalma.ui.componentes.fondoKcalma
 
@@ -195,7 +197,8 @@ fun PantallaProgreso(
                     Column(horizontalAlignment = Alignment.End) {
                         Text("Días apuntados", style = t.pequeno, color = c.texto2)
                         Row(verticalAlignment = Alignment.Bottom) {
-                            Text("🔥 $racha", style = t.campo, color = c.texto)
+                            Icono(Ic.RACHA, tamano = 20.dp, modifier = Modifier.padding(end = 4.dp, bottom = 4.dp))
+                            Text("$racha", style = t.campo, color = c.texto)
                             Text(if (racha == 1) " seguido" else " seguidos", style = t.pequeno, color = c.texto3, modifier = Modifier.padding(bottom = 3.dp))
                         }
                     }

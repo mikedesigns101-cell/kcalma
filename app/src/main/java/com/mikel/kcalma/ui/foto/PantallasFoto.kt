@@ -1,5 +1,7 @@
 package com.mikel.kcalma.ui.foto
 
+import com.mikel.kcalma.ui.componentes.Ic
+import com.mikel.kcalma.ui.componentes.Icono
 import com.mikel.kcalma.ui.componentes.vidrio
 import com.mikel.kcalma.ui.componentes.fondoKcalma
 
@@ -315,7 +317,7 @@ fun PantallaCamara(
                 Modifier.fillMaxWidth().clip(forma).background(c.fondo0.copy(alpha = .78f)).border(1.dp, c.borde, forma).padding(horizontal = 12.dp, vertical = 11.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("✏️", style = t.cuerpo)
+                Icono(Ic.LAPIZ, tamano = 16.dp, color = c.texto2)
                 Box(Modifier.weight(1f).padding(start = 8.dp)) {
                     if (nota.isEmpty()) Text("Nota opcional: «lleva una cucharada de aceite»", style = t.pequeno, color = c.texto3, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     BasicTextField(
@@ -327,14 +329,14 @@ fun PantallaCamara(
 
             Row(Modifier.fillMaxWidth().padding(top = 18.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    BotonRedondo("🖼️") { if (!ocupado) galeria.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                    BotonRedondo(Ic.GALERIA) { if (!ocupado) galeria.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
                 }
                 Box(
                     Modifier.size(76.dp).border(BorderStroke(4.dp, c.degradado), CircleShape).padding(8.dp).clip(CircleShape)
                         .background(c.texto).alpha(if (hayCamara && !ocupado) 1f else .4f).clickable { disparar() },
                 )
                 Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    BotonRedondo("⚡", activo = flash) { flash = !flash }
+                    BotonRedondo(Ic.RAYO, activo = flash) { flash = !flash }
                 }
             }
         }
@@ -342,13 +344,13 @@ fun PantallaCamara(
 }
 
 @Composable
-private fun BotonRedondo(simbolo: String, activo: Boolean = false, onClick: () -> Unit) {
+private fun BotonRedondo(icono: Ic, activo: Boolean = false, onClick: () -> Unit) {
     val c = KcalmaTheme.colores
     Box(
         Modifier.size(48.dp).clip(CircleShape).background(if (activo) c.acento.copy(alpha = .25f) else c.fondo0.copy(alpha = .7f))
             .border(1.dp, if (activo) c.acento else c.borde, CircleShape).clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
-    ) { Text(simbolo, style = KcalmaTheme.tipo.titulo) }
+    ) { Icono(icono, tamano = 22.dp, color = if (activo) null else c.texto) }
 }
 
 @Composable

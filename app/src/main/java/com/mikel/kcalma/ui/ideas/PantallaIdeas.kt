@@ -1,5 +1,7 @@
 package com.mikel.kcalma.ui.ideas
 
+import com.mikel.kcalma.ui.componentes.Ic
+import com.mikel.kcalma.ui.componentes.Icono
 import com.mikel.kcalma.ui.componentes.vidrio
 
 import com.mikel.kcalma.ui.componentes.fondoKcalma
@@ -80,10 +82,13 @@ fun PantallaIdeas(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Ideas para ${articulo(comida)}${comida.nombre.lowercase()}", style = t.marca, color = c.texto, modifier = Modifier.weight(1f))
-                Text(
-                    if (enLista > 0) "🛒 $enLista" else "🛒", style = t.cuerpo, color = c.texto,
-                    modifier = Modifier.tarjeta().clickable(onClick = onLista).padding(horizontal = 12.dp, vertical = 7.dp),
-                )
+                Row(
+                    Modifier.tarjeta().clickable(onClick = onLista).padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icono(Ic.CARRITO, tamano = 18.dp, color = c.texto)
+                    if (enLista > 0) Text(" $enLista", style = t.cuerpo, color = c.texto)
+                }
             }
             Spacer(Modifier.height(12.dp))
             Column(Modifier.fillMaxWidth().tarjeta().padding(14.dp)) {
@@ -122,7 +127,7 @@ fun PantallaIdeas(
                     if (estadoIa is EstadoIa.Error) Text(estadoIa.texto, style = t.pequeno, color = c.aviso, modifier = Modifier.padding(bottom = 8.dp))
                     val forma = RoundedCornerShape(14.dp)
                     Text(
-                        "✨ Más ideas con IA", style = t.titulo, color = c.acento,
+                        "Más ideas con IA", style = t.titulo, color = c.acento,
                         modifier = Modifier.fillMaxWidth().clip(forma).border(1.dp, c.acento.copy(alpha = .45f), forma)
                             .clickable(onClick = onMasIa).padding(vertical = 13.dp),
                         textAlign = androidx.compose.ui.text.style.TextAlign.Center,
