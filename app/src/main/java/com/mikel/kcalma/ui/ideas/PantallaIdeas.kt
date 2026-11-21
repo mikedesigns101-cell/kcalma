@@ -1,5 +1,9 @@
 package com.mikel.kcalma.ui.ideas
 
+import com.mikel.kcalma.ui.componentes.vidrio
+
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -69,7 +73,7 @@ fun PantallaIdeas(
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
-    Box(Modifier.fillMaxSize().background(c.fondo0)) {
+    Box(Modifier.fillMaxSize().fondoKcalma()) {
         Column(
             Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp).padding(top = 14.dp, bottom = 130.dp),
@@ -136,7 +140,7 @@ private fun articulo(c: ComidaDia) = if (c == ComidaDia.MEDIA_MANANA) "" else "l
 private fun Modifier.tarjeta(): Modifier {
     val c = KcalmaTheme.colores
     val forma = RoundedCornerShape(16.dp)
-    return clip(forma).background(c.fondo2).border(1.dp, c.borde, forma)
+    return vidrio(forma)
 }
 
 @Composable
@@ -195,7 +199,7 @@ fun DetalleIdea(idea: Idea, comida: ComidaDia, restante: Nutrientes, planKcal: I
     val t = KcalmaTheme.tipo
     val r = idea.receta
     val n = r.nutrientes
-    Box(Modifier.fillMaxSize().background(c.fondo0)) {
+    Box(Modifier.fillMaxSize().fondoKcalma()) {
         Column(
             Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp).padding(top = 8.dp, bottom = 150.dp),

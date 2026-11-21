@@ -18,6 +18,11 @@ import com.mikel.kcalma.datos.Gemini
 import com.mikel.kcalma.ui.componentes.mandarInforme
 import com.mikel.kcalma.ui.foto.PantallaClave
 import com.mikel.kcalma.ui.hoy.Pestana
+import com.mikel.kcalma.ui.hoy.AccionesMas
+import com.mikel.kcalma.ui.hoy.LocalAccionesMas
+import com.mikel.kcalma.ui.perfil.PantallaApariencia
+import com.mikel.kcalma.ui.theme.Tema
+import androidx.compose.runtime.CompositionLocalProvider
 import com.mikel.kcalma.ui.perfil.AccionesPerfil
 import com.mikel.kcalma.ui.perfil.Bloque
 import com.mikel.kcalma.ui.perfil.EditarPerfil
@@ -82,7 +87,7 @@ import com.mikel.kcalma.widget.WidgetHoy
 private sealed interface Destino {
     data class Comida(val comida: ComidaDia) : Destino
     /** [paraPlato]: se eligen ingredientes de un plato casero en vez de apuntar en el diario. */
-    data class Anadir(val comida: ComidaDia, val paraPlato: Boolean = false) : Destino
+    data class Anadir(val comida: ComidaDia, val paraPlato: Boolean = false, val voz: Boolean = false) : Destino
     data class Ficha(
         val alimento: Alimento, val comida: ComidaDia, val entrada: Entrada? = null, val paraPlato: Boolean = false,
         val sugerida: Pair<String, Entrada>? = null,
@@ -92,6 +97,7 @@ private sealed interface Destino {
     data object Plato : Destino
     data object Lista : Destino
     data object Recordatorios : Destino
+    data object Apariencia : Destino
     data class Foto(val comida: ComidaDia) : Destino
     data class Editar(val bloque: Bloque) : Destino
     data object Clave : Destino
@@ -99,7 +105,7 @@ private sealed interface Destino {
 }
 
 @Composable
-fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
+fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, animaciones: Boolean) {
     val contexto = LocalContext.current
     val alcance = rememberCoroutineScope()
     val pila = remember { mutableStateListOf<Destino>() }
@@ -254,6 +260,14 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
         }
     }
 
+    val ahora = { ComidaDia.segunHora(LocalTime.now().hour) }
+    val accionesMas = AccionesMas(
+        buscar = { pila.add(Destino.Anadir(ahora())) },
+        voz = { pila.add(Destino.Anadir(ahora(), voz = true)) },
+        foto = { pila.add(Destino.Foto(ahora())) },
+        escanear = { pila.add(Destino.Escaner(ahora())) },
+    )
+    CompositionLocalProvider(LocalAccionesMas provides accionesMas) {
     when (val d = pila.lastOrNull()) {
         null -> if (pestana == Pestana.IDEAS) PantallaIdeas(
             comida = comidaIdea,
@@ -276,6 +290,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             perfil = perfil,
             pesos = pesos,
             claveGuardada = claveGuardada,
+            tema = tema.nombre,
             actividad = when (estadoSalud) {
                 Salud.Estado.CONECTADO -> pasosHoy?.let { "%,d pasos hoy".format(java.util.Locale.US, it).replace(',', '.') } ?: "Conectado"
                 Salud.Estado.SIN_PERMISO -> "Sin conectar"
@@ -284,6 +299,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             },
             acciones = AccionesPerfil(
                 onRecordatorios = { pila.add(Destino.Recordatorios) },
+                onApariencia = { pila.add(Destino.Apariencia) },
                 onActividad = {
                     when (estadoSalud) {
                         Salud.Estado.CONECTADO -> aviso("Conectado con Health Connect. Se suma la mitad de lo que camines de más.")
@@ -326,6 +342,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             onAnadir = { c -> pila.add(Destino.Anadir(c)) },
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
             onPestana = cambiarPestana,
+            onPeso = { pestana = Pestana.PERFIL },
+            onAvisos = { pila.add(Destino.Recordatorios) },
             ideas = if (pendiente == null) emptyList() else ideasDe(proxima, FiltrosIdeas()),
             tituloIdeas = "Ideas para ${if (proxima == ComidaDia.MEDIA_MANANA) "" else "la "}${proxima.nombre.lowercase()}",
             onIdea = { pila.add(Destino.VerIdea(it, proxima)) },
@@ -399,6 +417,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             comida = d.comida,
             supermercados = supermercados,
             repo = repo,
+            empezarPorVoz = d.voz,
             onCambiarComida = { c -> pila[pila.lastIndex] = Destino.Anadir(c) },
             onCerrar = { pila.removeAt(pila.lastIndex) },
             onAbrir = { a -> pila.add(Destino.Ficha(a, d.comida)) },
@@ -487,6 +506,12 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             },
         )
         Destino.Recordatorios -> PantallaRecordatorios(onAtras = { pila.removeAt(pila.lastIndex) })
+        Destino.Apariencia -> PantallaApariencia(
+            tema = tema, animaciones = animaciones,
+            onTema = { alcance.launch { almacen.guardarTema(it.name) } },
+            onAnimaciones = { alcance.launch { almacen.guardarAnimaciones(it) } },
+            onAtras = { pila.removeAt(pila.lastIndex) },
+        )
         is Destino.Foto -> FlujoFoto(
             comidaInicial = d.comida,
             repo = repo,
@@ -536,5 +561,6 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
                 pila.removeAt(pila.lastIndex); aviso("Clave guardada")
             },
         )
+    }
     }
 }

@@ -44,11 +44,11 @@ import com.mikel.kcalma.ui.theme.KcalmaTheme
 @Composable
 fun BotonPrincipal(texto: String, onClick: () -> Unit, modifier: Modifier = Modifier, activo: Boolean = true) {
     val c = KcalmaTheme.colores
-    val forma = RoundedCornerShape(15.dp)
+    val forma = RoundedCornerShape(26.dp)
     Box(
         modifier.fillMaxWidth().height(52.dp).alpha(if (activo) 1f else .35f)
-            .shadow(if (activo) 14.dp else 0.dp, forma, ambientColor = c.acento, spotColor = c.acento)
-            .clip(forma).background(c.degradado)
+            .shadow(if (activo) 16.dp else 0.dp, forma, ambientColor = c.acento, spotColor = c.acento2)
+            .esferaBrillo(forma)
             .clickable(enabled = activo, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) { Text(texto, style = KcalmaTheme.tipo.titulo, color = c.sobreAcento) }
@@ -59,11 +59,7 @@ fun BotonPrincipal(texto: String, onClick: () -> Unit, modifier: Modifier = Modi
 fun CabeceraPaso(progreso: Float, onAtras: () -> Unit) {
     val c = KcalmaTheme.colores
     Row(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 18.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(c.fondo2)
-                .border(1.dp, c.borde, RoundedCornerShape(10.dp)).clickable(onClick = onAtras),
-            contentAlignment = Alignment.Center,
-        ) { Text("‹", style = KcalmaTheme.tipo.marca, color = c.texto2) }
+        BotonCristal(Ic.ATRAS, onAtras, tamano = 38.dp)
         Spacer(Modifier.width(12.dp))
         Box(Modifier.weight(1f).height(5.dp).clip(CircleShape).background(c.fondo3)) {
             Box(Modifier.fillMaxWidth(progreso).height(5.dp).clip(CircleShape).background(c.degradado))
@@ -86,16 +82,15 @@ fun TituloPaso(titulo: String, subtitulo: String? = null) {
 @Composable
 fun Opcion(emoji: String, titulo: String, detalle: String, seleccionada: Boolean, onClick: () -> Unit) {
     val c = KcalmaTheme.colores
-    val forma = RoundedCornerShape(14.dp)
-    val borde = if (seleccionada) BorderStroke(1.5.dp, c.degradado) else BorderStroke(1.dp, c.borde)
+    val forma = RoundedCornerShape(18.dp)
     Row(
-        Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(forma).background(c.fondo2).border(borde, forma)
+        Modifier.fillMaxWidth().padding(bottom = 8.dp).vidrio(forma, resaltado = seleccionada)
             .clickable(onClick = onClick).padding(horizontal = 12.dp, vertical = 11.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
-            Modifier.size(36.dp).clip(RoundedCornerShape(10.dp))
-                .background(if (seleccionada) c.acento.copy(alpha = .14f) else c.fondo4),
+            Modifier.size(36.dp).clip(CircleShape)
+                .background(if (seleccionada) c.acento.copy(alpha = .16f) else c.fondo3),
             contentAlignment = Alignment.Center,
         ) { Text(emoji, style = KcalmaTheme.tipo.titulo) }
         Column(Modifier.padding(start = 11.dp)) {
@@ -110,13 +105,12 @@ fun Opcion(emoji: String, titulo: String, detalle: String, seleccionada: Boolean
 fun Segmentado(opciones: List<String>, seleccionado: Int, onSeleccion: (Int) -> Unit) {
     val c = KcalmaTheme.colores
     Row(
-        Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(RoundedCornerShape(12.dp)).background(c.fondo2)
-            .border(1.dp, c.borde, RoundedCornerShape(12.dp)).padding(3.dp)
+        Modifier.fillMaxWidth().padding(bottom = 8.dp).vidrio(RoundedCornerShape(18.dp)).padding(4.dp)
     ) {
         opciones.forEachIndexed { i, texto ->
             val on = i == seleccionado
             Box(
-                Modifier.weight(1f).clip(RoundedCornerShape(9.dp)).background(if (on) c.fondo4 else c.fondo2)
+                Modifier.weight(1f).then(if (on) Modifier.vidrio(RoundedCornerShape(14.dp)) else Modifier)
                     .clickable { onSeleccion(i) }.padding(vertical = 9.dp),
                 contentAlignment = Alignment.Center,
             ) { Text(texto, style = KcalmaTheme.tipo.cuerpo, color = if (on) c.texto else c.texto2) }
@@ -132,7 +126,7 @@ fun CampoNumero(
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
-    val forma = RoundedCornerShape(14.dp)
+    val forma = RoundedCornerShape(18.dp)
     // Toda la tarjeta es el campo: tocar en cualquier parte abre el teclado
     BasicTextField(
         value = valor,
@@ -150,8 +144,8 @@ fun CampoNumero(
         modifier = modifier.padding(bottom = 8.dp),
         decorationBox = { campo ->
             Column(
-                Modifier.fillMaxWidth().clip(forma).background(c.fondo2)
-                    .border(1.dp, if (error) c.rojo else c.borde, forma).padding(horizontal = 12.dp, vertical = 10.dp)
+                Modifier.fillMaxWidth().vidrio(forma).then(if (error) Modifier.border(1.dp, c.rojo, forma) else Modifier)
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
             ) {
                 Text(etiqueta, style = t.pequeno, color = if (error) c.rojo else c.texto3)
                 Row(verticalAlignment = Alignment.Bottom) {
@@ -217,11 +211,10 @@ fun ChipAnadir(onAnadir: (String) -> Unit) {
 @Composable
 fun Nota(texto: AnnotatedString, modifier: Modifier = Modifier) {
     val c = KcalmaTheme.colores
-    val forma = RoundedCornerShape(12.dp)
+    val forma = RoundedCornerShape(16.dp)
     Text(
-        texto, style = KcalmaTheme.tipo.pequeno, color = c.texto3,
-        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp).clip(forma).background(c.fondo1)
-            .border(1.dp, c.borde, forma).padding(horizontal = 11.dp, vertical = 9.dp),
+        texto, style = KcalmaTheme.tipo.pequeno, color = c.texto2,
+        modifier = modifier.fillMaxWidth().padding(vertical = 4.dp).vidrio(forma).padding(horizontal = 12.dp, vertical = 10.dp),
     )
 }
 

@@ -1,5 +1,7 @@
 package com.mikel.kcalma.ui.hoy
 
+import com.mikel.kcalma.ui.componentes.vidrio
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -29,8 +31,7 @@ fun TarjetaActualizacion(v: VersionNueva, progreso: Float?, onActualizar: () -> 
     val t = KcalmaTheme.tipo
     val forma = RoundedCornerShape(16.dp)
     Column(
-        Modifier.fillMaxWidth().padding(bottom = 10.dp).clip(forma).background(c.fondo2)
-            .border(BorderStroke(1.dp, c.degradado), forma).padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp)
+        Modifier.fillMaxWidth().padding(bottom = 10.dp).vidrio(forma, resaltado = true).padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("✨", style = t.titulo)

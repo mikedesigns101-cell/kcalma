@@ -1,5 +1,7 @@
 package com.mikel.kcalma.ui.hoy
 
+import com.mikel.kcalma.ui.componentes.vidrio
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -34,8 +36,7 @@ fun TarjetaAjuste(p: Propuesta, onAceptar: () -> Unit, onAhoraNo: () -> Unit) {
     val menor = p.gastoReal < p.gastoEstimado
     val kg = "%.1f".format(Locale.US, abs(p.cambioKg)).replace('.', ',')
     Column(
-        Modifier.fillMaxWidth().padding(bottom = 14.dp).clip(forma).background(c.fondo2)
-            .border(BorderStroke(1.5.dp, c.degradado), forma).padding(14.dp),
+        Modifier.fillMaxWidth().padding(bottom = 14.dp).vidrio(forma, resaltado = true).padding(14.dp),
     ) {
         Text(if (menor) "📊 Tu gasto real es algo menor" else "📊 Tu gasto real es algo mayor", style = t.tituloTarjeta, color = c.texto)
         Text(buildAnnotatedString {
@@ -64,4 +65,3 @@ fun TarjetaAjuste(p: Propuesta, onAceptar: () -> Unit, onAhoraNo: () -> Unit) {
     }
 }
 
-private fun miles(n: Int): String = "%,d".format(Locale.US, n).replace(',', '.')

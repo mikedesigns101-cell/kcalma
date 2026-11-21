@@ -1,5 +1,8 @@
 package com.mikel.kcalma.ui.diario
 
+import com.mikel.kcalma.ui.componentes.vidrio
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
@@ -112,7 +115,7 @@ private fun FormularioEtiqueta(
     val kcal = num("kcal")
     val listo = !leyendo && datos != null && nombre.isNotEmpty() && kcal != null
 
-    Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 16.dp)) {
+    Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 16.dp)) {
         BarraSuperior("‹", onAtras, "Producto nuevo")
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Image(
@@ -129,7 +132,7 @@ private fun FormularioEtiqueta(
                     Text("Leído con Gemini. Revisa que cuadre con la etiqueta.", style = t.pequeno, color = c.texto2, modifier = Modifier.padding(vertical = 10.dp))
                     val forma = RoundedCornerShape(14.dp)
                     Column(
-                        Modifier.fillMaxWidth().clip(forma).background(c.fondo2).border(1.dp, c.borde, forma).padding(12.dp),
+                        Modifier.fillMaxWidth().vidrio(forma).padding(12.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         CAMPOS.forEach { (k, etiqueta) ->

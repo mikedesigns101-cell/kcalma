@@ -1,5 +1,10 @@
 package com.mikel.kcalma.ui.perfil
 
+import com.mikel.kcalma.ui.componentes.BurbujaIcono
+import com.mikel.kcalma.ui.componentes.Ic
+import com.mikel.kcalma.ui.componentes.vidrio
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -91,6 +96,7 @@ class AccionesPerfil(
     val onActualizar: () -> Unit,
     val onRecordatorios: () -> Unit = {},
     val onActividad: () -> Unit = {},
+    val onApariencia: () -> Unit = {},
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,6 +108,8 @@ fun PantallaPerfil(
     acciones: AccionesPerfil,
     /** Estado de Health Connect para la fila de Actividad del móvil. */
     actividad: String = "",
+    /** Nombre del tema de color elegido. */
+    tema: String = "",
     onPestana: (Pestana) -> Unit,
     onCamara: () -> Unit,
 ) {
@@ -111,7 +119,7 @@ fun PantallaPerfil(
     var hojaPeso by remember { mutableStateOf(false) }
     var dialogo by remember { mutableStateOf<String?>(null) }
 
-    Box(Modifier.fillMaxSize().background(c.fondo0)) {
+    Box(Modifier.fillMaxSize().fondoKcalma()) {
         Column(
             Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp).padding(top = 14.dp, bottom = 130.dp),
@@ -130,7 +138,7 @@ fun PantallaPerfil(
             // Plan
             val forma = RoundedCornerShape(16.dp)
             Column(
-                Modifier.fillMaxWidth().clip(forma).background(c.fondo2).border(BorderStroke(1.5.dp, c.degradado), forma)
+                Modifier.fillMaxWidth().vidrio(forma, resaltado = true)
                     .clickable { acciones.onEditar(Bloque.OBJETIVO) }.padding(14.dp),
             ) {
                 Row(verticalAlignment = Alignment.Bottom) {
@@ -145,34 +153,35 @@ fun PantallaPerfil(
             }
 
             Grupo("App") {
-                Fila("⬇️", "Actualizar Kcalma", "v${BuildConfig.VERSION_NAME}", onClick = acciones.onActualizar)
+                Fila(Ic.COPIA, "Actualizar Kcalma", "v${BuildConfig.VERSION_NAME}", onClick = acciones.onActualizar)
+                Fila(Ic.PALETA, "Apariencia", tema, onClick = acciones.onApariencia)
             }
             Grupo("Mis datos") {
                 val ultima = pesos.lastOrNull()
-                Fila("⚖️", "Peso", "${kgTexto(perfil.pesoKg)} kg" + (ultima?.let { " · ${cuando(it.fecha)}" } ?: "")) { hojaPeso = true }
-                Fila("📏", Bloque.DATOS.titulo, "${perfil.alturaCm} cm · ${perfil.edad} · ${if (perfil.sexo == Sexo.HOMBRE) "H" else "M"}") { acciones.onEditar(Bloque.DATOS) }
-                Fila("🏃", Bloque.ACTIVIDAD.titulo, resumenActividad(perfil)) { acciones.onEditar(Bloque.ACTIVIDAD) }
-                Fila("🎯", Bloque.OBJETIVO.titulo, resumenObjetivoCorto(perfil)) { acciones.onEditar(Bloque.OBJETIVO) }
+                Fila(Ic.PESO, "Peso", "${kgTexto(perfil.pesoKg)} kg" + (ultima?.let { " · ${cuando(it.fecha)}" } ?: "")) { hojaPeso = true }
+                Fila(Ic.REGLA, Bloque.DATOS.titulo, "${perfil.alturaCm} cm · ${perfil.edad} · ${if (perfil.sexo == Sexo.HOMBRE) "H" else "M"}") { acciones.onEditar(Bloque.DATOS) }
+                Fila(Ic.RAYO, Bloque.ACTIVIDAD.titulo, resumenActividad(perfil)) { acciones.onEditar(Bloque.ACTIVIDAD) }
+                Fila(Ic.DIANA, Bloque.OBJETIVO.titulo, resumenObjetivoCorto(perfil)) { acciones.onEditar(Bloque.OBJETIVO) }
             }
             Grupo("Comida") {
-                Fila("⚠️", "Alergias", perfil.alergias.joinToString().ifEmpty { "Ninguna" }) { acciones.onEditar(Bloque.ALERGIAS) }
-                Fila("❤️", "Gustos", "${perfil.meEncanta.size} me encantan · ${perfil.noMeGusta.size} no") { acciones.onEditar(Bloque.GUSTOS) }
-                Fila("🛒", "Supermercados", perfil.supermercados.sortedBy { SUPERMERCADOS.indexOf(it) }.joinToString().ifEmpty { "Todos" }) {
+                Fila(Ic.ALERTA, "Alergias", perfil.alergias.joinToString().ifEmpty { "Ninguna" }) { acciones.onEditar(Bloque.ALERGIAS) }
+                Fila(Ic.CORAZON, "Gustos", "${perfil.meEncanta.size} me encantan · ${perfil.noMeGusta.size} no") { acciones.onEditar(Bloque.GUSTOS) }
+                Fila(Ic.CARRITO, "Supermercados", perfil.supermercados.sortedBy { SUPERMERCADOS.indexOf(it) }.joinToString().ifEmpty { "Todos" }) {
                     acciones.onEditar(Bloque.SUPERMERCADOS)
                 }
             }
             Grupo("Avisos y móvil") {
-                Fila("🔔", "Recordatorios", "Comidas y peso", onClick = acciones.onRecordatorios)
-                Fila("👟", "Pasos y ejercicio", actividad, onClick = acciones.onActividad)
+                Fila(Ic.AVISOS, "Recordatorios", "Comidas y peso", onClick = acciones.onRecordatorios)
+                Fila(Ic.PASOS, "Pasos y ejercicio", actividad, onClick = acciones.onActividad)
             }
             Grupo("Foto con IA") {
-                Fila("🔑", "Clave de Gemini", if (claveGuardada) "Guardada" else "Sin clave", valorColor = if (claveGuardada) c.verde else c.aviso) {
+                Fila(Ic.LLAVE, "Clave de Gemini", if (claveGuardada) "Guardada" else "Sin clave", valorColor = if (claveGuardada) c.verde else c.aviso) {
                     if (claveGuardada) dialogo = "clave" else acciones.onClave()
                 }
             }
             Grupo("Datos y ayuda") {
-                Fila("💾", "Copia de seguridad", "Exportar · Importar") { dialogo = "copia" }
-                Fila("🐞", "Mandar informe", "", onClick = acciones.onInforme)
+                Fila(Ic.COPIA, "Copia de seguridad", "Exportar · Importar") { dialogo = "copia" }
+                Fila(Ic.INFO, "Mandar informe", "", onClick = acciones.onInforme)
             }
         }
         BarraInferior(Modifier.align(Alignment.BottomCenter), Pestana.PERFIL, onPestana, onCamara)
@@ -182,7 +191,7 @@ fun PantallaPerfil(
         ModalBottomSheet(
             onDismissRequest = { hojaPeso = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = c.fondo1,
+            containerColor = c.hoja,
         ) { HojaPeso(perfil, pesos) { kg -> acciones.onGuardarPeso(kg); hojaPeso = false } }
     }
 
@@ -217,7 +226,7 @@ private fun Dialogo(
     val c = KcalmaTheme.colores
     AlertDialog(
         onDismissRequest = onCerrar,
-        containerColor = c.fondo2,
+        containerColor = c.hoja,
         title = { Text(titulo, style = KcalmaTheme.tipo.titulo, color = c.texto) },
         text = { Text(texto, style = KcalmaTheme.tipo.cuerpo, color = c.texto2) },
         confirmButton = { TextButton(onClick = principal.second) { Text(principal.first, color = c.acento) } },
@@ -235,20 +244,18 @@ private fun Grupo(titulo: String, filas: @Composable () -> Unit) {
     val c = KcalmaTheme.colores
     Text(titulo.uppercase(), style = KcalmaTheme.tipo.etiqueta, color = c.texto3, modifier = Modifier.padding(start = 2.dp, top = 16.dp, bottom = 6.dp))
     val forma = RoundedCornerShape(14.dp)
-    Column(Modifier.fillMaxWidth().clip(forma).background(c.fondo2).border(1.dp, c.borde, forma)) { filas() }
+    Column(Modifier.fillMaxWidth().vidrio(forma)) { filas() }
 }
 
 @Composable
-private fun Fila(emoji: String, texto: String, valor: String, valorColor: androidx.compose.ui.graphics.Color? = null, onClick: () -> Unit) {
+private fun Fila(icono: Ic, texto: String, valor: String, valorColor: androidx.compose.ui.graphics.Color? = null, onClick: () -> Unit) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 12.dp, vertical = 11.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(30.dp).clip(RoundedCornerShape(9.dp)).background(c.fondo4), contentAlignment = Alignment.Center) {
-            Text(emoji, style = t.cuerpo)
-        }
+        BurbujaIcono(icono, tamano = 32.dp, icon = 16.dp)
         Text(texto, style = t.cuerpo, color = c.texto, modifier = Modifier.padding(start = 10.dp).weight(1f))
         Text(
             valor, style = t.pequeno, color = valorColor ?: c.texto2, maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -333,11 +340,10 @@ fun EditarPerfil(bloque: Bloque, inicial: Perfil, onAtras: () -> Unit, onGuardar
     }
     val afectaPlan = bloque in setOf(Bloque.DATOS, Bloque.ACTIVIDAD, Bloque.OBJETIVO)
 
-    Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 20.dp)) {
+    Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 20.dp)) {
         Row(Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 14.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(34.dp).clip(RoundedCornerShape(10.dp)).background(c.fondo2)
-                    .border(1.dp, c.borde, RoundedCornerShape(10.dp)).clickable(onClick = onAtras),
+                Modifier.size(34.dp).vidrio(RoundedCornerShape(10.dp)).clickable(onClick = onAtras),
                 contentAlignment = Alignment.Center,
             ) { Text("‹", style = t.marca, color = c.texto2) }
             Text(bloque.titulo, style = t.marca, color = c.texto, modifier = Modifier.padding(start = 12.dp))
@@ -371,7 +377,7 @@ fun EditarPerfil(bloque: Bloque, inicial: Perfil, onAtras: () -> Unit, onGuardar
             val despues = Calculadora.calcular(resultado()).kcal
             val forma = RoundedCornerShape(13.dp)
             Row(
-                Modifier.fillMaxWidth().padding(top = 12.dp).clip(forma).background(c.fondo1).border(1.dp, c.borde, forma)
+                Modifier.fillMaxWidth().padding(top = 12.dp).vidrio(forma)
                     .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {

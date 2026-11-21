@@ -1,5 +1,13 @@
 package com.mikel.kcalma.ui.diario
 
+import androidx.compose.foundation.shape.CircleShape
+
+import com.mikel.kcalma.ui.componentes.Ic
+
+import com.mikel.kcalma.ui.componentes.Icono
+
+import com.mikel.kcalma.ui.componentes.vidrio
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,12 +39,16 @@ import kotlin.math.roundToInt
 /** Botón cuadrado pequeño de las barras superiores (✕, ‹, ☆…). */
 @Composable
 fun BotonIcono(simbolo: String, onClick: () -> Unit, tinta: Color = KcalmaTheme.colores.texto2) {
-    val c = KcalmaTheme.colores
-    val forma = RoundedCornerShape(10.dp)
+    val icono = when (simbolo) {
+        "‹" -> Ic.ATRAS; "✕" -> Ic.CERRAR; "⋯" -> Ic.MENU; "☆", "★" -> Ic.ESTRELLA; "🔦" -> Ic.RAYO; else -> null
+    }
     Box(
-        Modifier.size(34.dp).clip(forma).background(c.fondo2).border(1.dp, c.borde, forma).clickable(onClick = onClick),
+        Modifier.size(38.dp).vidrio(CircleShape).clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
-    ) { Text(simbolo, style = KcalmaTheme.tipo.titulo, color = tinta) }
+    ) {
+        if (icono != null) Icono(icono, tamano = 18.dp, color = tinta)
+        else Text(simbolo, style = KcalmaTheme.tipo.titulo, color = tinta)
+    }
 }
 
 /** Barra superior: botón izquierdo, título y un elemento opcional a la derecha. */
@@ -63,7 +75,7 @@ fun EtiquetaSuper(texto: String) {
 @Composable
 fun IconoAlimento(nombre: String, tamano: Int = 38) {
     Box(
-        Modifier.size(tamano.dp).clip(RoundedCornerShape((tamano * 0.28f).dp)).background(KcalmaTheme.colores.fondo3),
+        Modifier.size(tamano.dp).vidrio(CircleShape),
         contentAlignment = Alignment.Center,
     ) { Text(emojiDe(nombre), style = if (tamano > 50) KcalmaTheme.tipo.tituloPaso else KcalmaTheme.tipo.titulo) }
 }

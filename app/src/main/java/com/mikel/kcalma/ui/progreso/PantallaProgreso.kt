@@ -1,5 +1,8 @@
 package com.mikel.kcalma.ui.progreso
 
+import com.mikel.kcalma.ui.componentes.vidrio
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -78,7 +81,7 @@ fun PantallaProgreso(
     val enPeriodo = pesos.filter { runCatching { !LocalDate.parse(it.fecha).isBefore(desde) }.getOrDefault(false) }
         .ifEmpty { listOfNotNull(pesos.lastOrNull()) }
 
-    Box(Modifier.fillMaxSize().background(c.fondo0)) {
+    Box(Modifier.fillMaxSize().fondoKcalma()) {
         Column(
             Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp).padding(top = 14.dp, bottom = 130.dp),
@@ -207,7 +210,7 @@ fun PantallaProgreso(
 private fun Tarjeta(contenido: @Composable () -> Unit) {
     val c = KcalmaTheme.colores
     val forma = RoundedCornerShape(16.dp)
-    Column(Modifier.fillMaxWidth().padding(bottom = 12.dp).clip(forma).background(c.fondo2).border(1.dp, c.borde, forma).padding(14.dp)) {
+    Column(Modifier.fillMaxWidth().padding(bottom = 12.dp).vidrio(forma).padding(14.dp)) {
         contenido()
     }
 }

@@ -1,5 +1,7 @@
 package com.mikel.kcalma.ui.diario
 
+import com.mikel.kcalma.ui.componentes.vidrio
+
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -148,7 +150,7 @@ fun Escaner(
         var texto by remember { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { escribir = false },
-            containerColor = c.fondo2,
+            containerColor = c.hoja,
             title = { Text("Código de barras", style = t.titulo, color = c.texto) },
             text = {
                 Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.fondo3).padding(12.dp)) {
@@ -175,7 +177,7 @@ private fun HojaResultado(
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     val forma = RoundedCornerShape(22.dp)
-    Column(Modifier.fillMaxWidth().clip(forma).background(c.fondo1).border(1.dp, c.borde, forma).padding(14.dp)) {
+    Column(Modifier.fillMaxWidth().vidrio(forma).padding(14.dp)) {
         when (resultado) {
             null -> Text("Buscando $codigo…", style = t.cuerpo, color = c.texto2)
             is Busqueda.Encontrado -> {

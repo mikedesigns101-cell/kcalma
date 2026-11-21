@@ -1,5 +1,8 @@
 package com.mikel.kcalma.ui.diario
 
+import com.mikel.kcalma.ui.componentes.vidrio
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -63,9 +66,9 @@ fun PantallaPlato(e: EdicionPlato, onAtras: () -> Unit, onAnadirIngrediente: () 
     var cambiando by remember { mutableStateOf<Int?>(null) }
     var borrar by remember { mutableStateOf(false) }
     val forma = RoundedCornerShape(14.dp)
-    val tarjeta = Modifier.fillMaxWidth().clip(forma).background(c.fondo2).border(1.dp, c.borde, forma)
+    val tarjeta = Modifier.fillMaxWidth().vidrio(forma)
 
-    Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 16.dp)) {
+    Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 16.dp)) {
         BarraSuperior("‹", onAtras, if (e.id > 0) "Editar plato" else "Nuevo plato") {
             if (onBorrar != null) Text("Borrar", style = t.pequeno, color = c.rojo, modifier = Modifier.clickable { borrar = true }.padding(8.dp))
         }
@@ -127,7 +130,7 @@ fun PantallaPlato(e: EdicionPlato, onAtras: () -> Unit, onAnadirIngrediente: () 
         var texto by remember(i) { mutableStateOf(ing.gramos.roundToInt().toString()) }
         AlertDialog(
             onDismissRequest = { cambiando = null },
-            containerColor = c.fondo2,
+            containerColor = c.hoja,
             title = { Text(ing.alimento.nombre, style = t.titulo, color = c.texto) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -153,7 +156,7 @@ fun PantallaPlato(e: EdicionPlato, onAtras: () -> Unit, onAnadirIngrediente: () 
     }
     if (borrar && onBorrar != null) AlertDialog(
         onDismissRequest = { borrar = false },
-        containerColor = c.fondo2,
+        containerColor = c.hoja,
         title = { Text("¿Borrar «${e.nombre}»?", style = t.titulo, color = c.texto) },
         text = { Text("Lo ya apuntado en el diario no cambia.", style = t.cuerpo, color = c.texto2) },
         confirmButton = { TextButton(onClick = { borrar = false; onBorrar() }) { Text("Borrar", color = c.rojo) } },

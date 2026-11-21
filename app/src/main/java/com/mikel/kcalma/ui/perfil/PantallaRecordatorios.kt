@@ -1,5 +1,8 @@
 package com.mikel.kcalma.ui.perfil
 
+import com.mikel.kcalma.ui.componentes.vidrio
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import android.Manifest
 import android.app.TimePickerDialog
 import android.os.Build
@@ -59,7 +62,7 @@ fun PantallaRecordatorios(onAtras: () -> Unit) {
         if (r.activo && !permiso && Build.VERSION.SDK_INT >= 33) pedir.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
-    Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
+    Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
         BarraSuperior("‹", onAtras, "Recordatorios")
         Column(Modifier.verticalScroll(rememberScrollState())) {
             Text("Solo te avisamos si a esa hora aún no has apuntado nada en esa comida. Toca la hora para cambiarla.", style = t.cuerpo, color = c.texto2)
@@ -69,7 +72,7 @@ fun PantallaRecordatorios(onAtras: () -> Unit) {
             }
             val forma = RoundedCornerShape(14.dp)
             listOf(lista.filter { it.clave != Recordatorios.PESO }, lista.filter { it.clave == Recordatorios.PESO }).forEach { grupo ->
-                Column(Modifier.padding(top = 14.dp).fillMaxWidth().clip(forma).background(c.fondo2).border(1.dp, c.borde, forma)) {
+                Column(Modifier.padding(top = 14.dp).fillMaxWidth().vidrio(forma)) {
                     grupo.forEachIndexed { i, r ->
                         if (i > 0) Box(Modifier.fillMaxWidth().height(1.dp).background(c.borde))
                         Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {

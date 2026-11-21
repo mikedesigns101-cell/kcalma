@@ -1,5 +1,8 @@
 package com.mikel.kcalma.ui.diario
 
+import com.mikel.kcalma.ui.componentes.vidrio
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -104,7 +107,7 @@ fun FichaAlimento(
         texto = decimal((cantidad + signo * paso).coerceAtLeast(paso))
     }
 
-    Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 16.dp)) {
+    Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 16.dp)) {
         BarraSuperior("‹", onAtras)
         Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(bottom = 14.dp)) {
@@ -120,7 +123,7 @@ fun FichaAlimento(
             Row(Modifier.fillMaxWidth().padding(bottom = 10.dp), verticalAlignment = Alignment.CenterVertically) {
                 val forma = RoundedCornerShape(14.dp)
                 Row(
-                    Modifier.weight(1f).clip(forma).background(c.fondo2).border(1.dp, c.borde, forma).padding(horizontal = 12.dp, vertical = 10.dp),
+                    Modifier.weight(1f).vidrio(forma).padding(horizontal = 12.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.Bottom,
                 ) {
                     BasicTextField(
@@ -165,7 +168,7 @@ fun FichaAlimento(
             // Resumen de kcal y macros
             val forma = RoundedCornerShape(16.dp)
             Row(
-                Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 10.dp).clip(forma).background(c.fondo2).border(1.dp, c.borde, forma).padding(12.dp),
+                Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 10.dp).vidrio(forma).padding(12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(end = 14.dp)) {
@@ -196,8 +199,7 @@ fun FichaAlimento(
             }
             Text(
                 aviso, style = t.pequeno, color = c.texto2,
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.fondo1)
-                    .border(1.dp, c.borde, RoundedCornerShape(12.dp)).padding(horizontal = 11.dp, vertical = 9.dp),
+                modifier = Modifier.fillMaxWidth().vidrio(RoundedCornerShape(12.dp)).padding(horizontal = 11.dp, vertical = 9.dp),
             )
 
             Column(Modifier.padding(top = 10.dp)) {

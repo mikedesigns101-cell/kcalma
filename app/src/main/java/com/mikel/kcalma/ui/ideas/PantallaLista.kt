@@ -1,5 +1,7 @@
 package com.mikel.kcalma.ui.ideas
 
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -34,7 +36,7 @@ import com.mikel.kcalma.ui.theme.KcalmaTheme
 fun PantallaLista(lista: EstadoLista, onAtras: () -> Unit, onMarcar: (String) -> Unit, onVaciar: () -> Unit, onCompartir: () -> Unit) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
-    Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
+    Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
         BarraSuperior("‹", onAtras, "Lista de la compra") {
             if (lista.items.isNotEmpty()) Text(
                 "Compartir", style = t.pequeno, color = c.acento,

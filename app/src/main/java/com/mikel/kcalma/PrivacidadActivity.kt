@@ -1,5 +1,7 @@
 package com.mikel.kcalma
 
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -20,7 +22,7 @@ class PrivacidadActivity : ComponentActivity() {
         setContent {
             KcalmaTheme {
                 val c = KcalmaTheme.colores
-                Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().padding(24.dp)) {
+                Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().padding(24.dp)) {
                     Text("Kcalma y tus pasos", style = KcalmaTheme.tipo.tituloPaso, color = c.texto)
                     Text(
                         "Kcalma lee solo los pasos de hoy para sumar a tu objetivo la mitad de lo que camines por encima de lo habitual. " +

@@ -1,5 +1,8 @@
 package com.mikel.kcalma.ui.foto
 
+import com.mikel.kcalma.ui.componentes.vidrio
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -110,7 +113,7 @@ fun PantallaClave(
     var error by remember { mutableStateOf(errorInicial) }
 
     Column(
-        Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().imePadding()
+        Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().imePadding()
             .padding(horizontal = 16.dp).verticalScroll(rememberScrollState()),
     ) {
         BarraSuperior("✕", onCerrar)
@@ -137,8 +140,7 @@ fun PantallaClave(
 
         val forma = RoundedCornerShape(14.dp)
         Row(
-            Modifier.fillMaxWidth().padding(top = 8.dp).clip(forma).background(c.fondo2)
-                .border(1.dp, if (error != null) c.rojo else c.borde, forma).padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
+            Modifier.fillMaxWidth().padding(top = 8.dp).vidrio(forma, resaltado = error == null).then(if (error != null) Modifier.border(1.dp, c.rojo, forma) else Modifier).padding(start = 14.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(Modifier.weight(1f)) {
@@ -383,7 +385,7 @@ fun PantallaAnalizando(foto: Bitmap?, avance: Int, error: String?, onCerrar: () 
     val paso = max(avance, visto)
 
     Column(
-        Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp),
+        Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp),
     ) {
         BarraSuperior("✕", onCerrar)
         Spacer(Modifier.height(10.dp))
@@ -447,13 +449,12 @@ fun PantallaResultado(
     val t = KcalmaTheme.tipo
     val total = items.fold(Nutrientes()) { s, i -> s + i.alimento.nutrientes(i.gramos) }
 
-    Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
+    Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
         BarraSuperior("‹", onAtras, "Tu plato") { SelectorComida(comida, onComida) }
 
         val forma = RoundedCornerShape(16.dp)
         Row(
-            Modifier.fillMaxWidth().padding(bottom = 12.dp).clip(forma).background(c.fondo2)
-                .border(BorderStroke(1.dp, c.degradado), forma).padding(14.dp),
+            Modifier.fillMaxWidth().padding(bottom = 12.dp).vidrio(forma, resaltado = true).padding(14.dp),
             verticalAlignment = Alignment.Bottom,
         ) {
             Column(Modifier.weight(1f)) {
@@ -500,7 +501,7 @@ private fun TarjetaItem(item: ItemFoto, onGramos: (Double) -> Unit, onQuitar: ()
     // Rango fijo por alimento para que el deslizador no salte mientras se mueve
     val maximo = remember(item.id, a) { (max(item.gramos * 2.5, 100.0) / 10).roundToInt() * 10f }
     val forma = RoundedCornerShape(14.dp)
-    Column(Modifier.fillMaxWidth().clip(forma).background(c.fondo2).border(1.dp, c.borde, forma).padding(start = 12.dp, end = 12.dp, top = 11.dp, bottom = 4.dp)) {
+    Column(Modifier.fillMaxWidth().vidrio(forma).padding(start = 12.dp, end = 12.dp, top = 11.dp, bottom = 4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconoAlimento(a.nombre, 34)
             Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {

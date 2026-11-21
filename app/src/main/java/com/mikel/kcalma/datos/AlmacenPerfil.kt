@@ -3,6 +3,7 @@ package com.mikel.kcalma.datos
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -47,6 +48,9 @@ class AlmacenPerfil(private val context: Context) {
         val ultimaPropuesta = stringPreferencesKey("ultima_propuesta")
         /** Historial de peso: «aaaa-mm-dd=kg;…», ordenado por fecha. */
         val pesos = stringPreferencesKey("pesos")
+        /** Apariencia: tema de color y animaciones. */
+        val tema = stringPreferencesKey("tema")
+        val animaciones = booleanPreferencesKey("animaciones")
     }
 
     val perfil: Flow<Perfil?> = context.almacen.data.map { p ->
@@ -78,6 +82,13 @@ class AlmacenPerfil(private val context: Context) {
     val pesos: Flow<List<Pesada>> = context.almacen.data.map { leerPesos(it[K.pesos]) }
 
     val ultimaPropuesta: Flow<String?> = context.almacen.data.map { it[K.ultimaPropuesta] }
+
+    /** Tema elegido en Apariencia (null = el de por defecto). */
+    val tema: Flow<String?> = context.almacen.data.map { it[K.tema] }
+    val animaciones: Flow<Boolean> = context.almacen.data.map { it[K.animaciones] ?: true }
+
+    suspend fun guardarTema(clave: String) { context.almacen.edit { it[K.tema] = clave } }
+    suspend fun guardarAnimaciones(si: Boolean) { context.almacen.edit { it[K.animaciones] = si } }
 
     /** Acepta (con [correccion]) o descarta (null) la propuesta de la semana. */
     suspend fun responderPropuesta(correccion: Int?) {

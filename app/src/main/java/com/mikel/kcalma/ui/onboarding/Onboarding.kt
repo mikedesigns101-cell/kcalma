@@ -1,5 +1,8 @@
 package com.mikel.kcalma.ui.onboarding
 
+import com.mikel.kcalma.ui.componentes.vidrio
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
@@ -96,7 +99,7 @@ fun Onboarding(onTerminar: (Perfil) -> Unit) {
             val dir = if (targetState > initialState) 1 else -1
             (slideInHorizontally { it * dir / 4 } + fadeIn()) togetherWith (slideOutHorizontally { -it * dir / 4 } + fadeOut())
         },
-        modifier = Modifier.fillMaxSize().background(c.fondo0),
+        modifier = Modifier.fillMaxSize().fondoKcalma(),
         label = "onboarding",
     ) { p ->
         when (p) {
@@ -193,7 +196,7 @@ internal fun Contador(etiqueta: String, valor: Int, onCambio: (Int) -> Unit) {
     val c = KcalmaTheme.colores
     val forma = RoundedCornerShape(14.dp)
     Row(
-        Modifier.fillMaxWidth().padding(bottom = 8.dp).clip(forma).background(c.fondo2).border(1.dp, c.borde, forma)
+        Modifier.fillMaxWidth().padding(bottom = 8.dp).vidrio(forma)
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -230,7 +233,7 @@ internal fun TuPlan(perfil: Perfil) {
         ).forEach { (v, n, col) ->
             val forma = RoundedCornerShape(13.dp)
             Column(
-                Modifier.weight(1f).clip(forma).background(c.fondo2).border(1.dp, c.borde, forma).padding(vertical = 10.dp),
+                Modifier.weight(1f).vidrio(forma).padding(vertical = 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Text(v, style = t.campo, color = c.texto)
@@ -242,7 +245,7 @@ internal fun TuPlan(perfil: Perfil) {
     Spacer(Modifier.height(12.dp))
     val forma = RoundedCornerShape(13.dp)
     Column(
-        Modifier.fillMaxWidth().clip(forma).background(c.fondo1).border(1.dp, c.borde, forma).padding(horizontal = 12.dp, vertical = 10.dp),
+        Modifier.fillMaxWidth().vidrio(forma).padding(horizontal = 12.dp, vertical = 10.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         LineaDesglose("Tu cuerpo en reposo", miles(plan.reposo))

@@ -1,5 +1,8 @@
 package com.mikel.kcalma.ui.diario
 
+import com.mikel.kcalma.ui.componentes.vidrio
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -80,14 +83,14 @@ fun PantallaComida(
 
     Box(Modifier.fillMaxSize()) {
 
-    Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
+    Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
         BarraSuperior("‹", onAtras, "${comida.icono} ${comida.nombre}") {
             if (entradas.isNotEmpty()) BotonIcono("⋯", { mover = entradas })
         }
 
         val forma = RoundedCornerShape(16.dp)
         Row(
-            Modifier.fillMaxWidth().padding(bottom = 12.dp).clip(forma).background(c.fondo2).border(1.dp, c.borde, forma).padding(14.dp),
+            Modifier.fillMaxWidth().padding(bottom = 12.dp).vidrio(forma).padding(14.dp),
             verticalAlignment = Alignment.Bottom,
         ) {
             Column(Modifier.weight(1f)) {
@@ -142,7 +145,7 @@ fun PantallaComida(
         ModalBottomSheet(
             onDismissRequest = { mover = null },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = c.fondo1,
+            containerColor = c.hoja,
         ) {
             Column(Modifier.padding(start = 16.dp, end = 16.dp, bottom = 24.dp)) {
                 Text(
@@ -166,7 +169,7 @@ fun PantallaComida(
         var nombre by rememberSaveable { mutableStateOf("") }
         AlertDialog(
             onDismissRequest = { dialogo = false },
-            containerColor = c.fondo2,
+            containerColor = c.hoja,
             title = { Text("Guardar comida habitual", style = t.titulo, color = c.texto) },
             text = {
                 Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(c.fondo3).padding(12.dp)) {
@@ -222,7 +225,7 @@ private fun FilaEntrada(e: Entrada, onEditar: () -> Unit, onBorrar: () -> Unit, 
         },
     ) {
         Row(
-            Modifier.fillMaxWidth().clip(forma).background(c.fondo2).border(1.dp, c.borde, forma)
+            Modifier.fillMaxWidth().vidrio(forma)
                 .clickable(onClick = onEditar).padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -248,7 +251,7 @@ private fun Accion(icono: String, texto: String, modifier: Modifier, onClick: ()
     val c = KcalmaTheme.colores
     val forma = RoundedCornerShape(13.dp)
     Column(
-        modifier.clip(forma).background(c.fondo2).border(1.dp, c.borde, forma).clickable(onClick = onClick).padding(vertical = 12.dp),
+        modifier.vidrio(forma).clickable(onClick = onClick).padding(vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(icono, style = KcalmaTheme.tipo.titulo, color = c.texto)

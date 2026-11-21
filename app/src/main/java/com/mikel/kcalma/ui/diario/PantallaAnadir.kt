@@ -1,5 +1,14 @@
 package com.mikel.kcalma.ui.diario
 
+import androidx.compose.foundation.shape.CircleShape
+
+import com.mikel.kcalma.ui.componentes.Ic
+
+import com.mikel.kcalma.ui.componentes.Icono
+
+import com.mikel.kcalma.ui.componentes.vidrio
+import com.mikel.kcalma.ui.componentes.fondoKcalma
+
 import android.content.Intent
 import android.speech.RecognizerIntent
 import android.widget.Toast
@@ -89,6 +98,8 @@ fun PantallaAnadir(
     accionesPlatos: AccionesPlatos? = null,
     /** Abrir la ficha empezando con una cantidad (la dictada o la de la última vez). */
     onAbrirCon: ((Alimento, Pair<String, Entrada>) -> Unit)? = null,
+    /** Abre el dictado nada más entrar (botón del micrófono de Hoy). */
+    empezarPorVoz: Boolean = false,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -129,6 +140,18 @@ fun PantallaAnadir(
         )
     }
 
+    fun dictarAhora() {
+        val i = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es-ES")
+            .putExtra(RecognizerIntent.EXTRA_PROMPT, "Di el alimento y la cantidad")
+        runCatching { dictar.launch(i) }.onFailure {
+            Toast.makeText(contexto, "Este móvil no tiene dictado por voz", Toast.LENGTH_SHORT).show()
+        }
+    }
+    var vozLanzada by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) { if (empezarPorVoz && !vozLanzada) { vozLanzada = true; dictarAhora() } }
+
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             recientes = repo.diario.recientes(); habituales = repo.diario.habituales()
@@ -158,17 +181,17 @@ fun PantallaAnadir(
         val a = Alimento(nombre = nombre, racion = "1 ración", racionG = 100.0, kcal = kcal, proteinas = prot)
         onAnadirEntrada(Entrada(0, "", comida, a, 100.0, Unidad.RACION, 1.0))
     }
-    Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 16.dp)) {
+    Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().imePadding().padding(horizontal = 16.dp)) {
         BarraSuperior("✕", onCerrar, titulo) { if (selectorComida) SelectorComida(comida, onCambiarComida) }
 
         // Buscador con borde degradado y botón de escáner
-        val forma = RoundedCornerShape(14.dp)
+        val forma = RoundedCornerShape(26.dp)
         Row(
-            Modifier.fillMaxWidth().clip(forma).background(c.fondo2).border(BorderStroke(1.5.dp, c.degradado), forma)
+            Modifier.fillMaxWidth().vidrio(forma, resaltado = true)
                 .padding(start = 12.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("🔍", style = t.cuerpo)
+            Icono(Ic.BUSCAR, tamano = 18.dp, color = c.texto2)
             Box(Modifier.weight(1f).padding(horizontal = 8.dp)) {
                 if (consulta.isEmpty()) Text("Busca un alimento o marca", style = t.titulo, color = c.texto3)
                 BasicTextField(
@@ -182,21 +205,13 @@ fun PantallaAnadir(
                 Text("✕", style = t.cuerpo, color = c.texto3, modifier = Modifier.clickable { consulta = ""; voz = null }.padding(8.dp))
             }
             Box(
-                Modifier.padding(end = 6.dp).size(34.dp).clip(RoundedCornerShape(9.dp)).background(c.fondo4).clickable {
-                    val i = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
-                        .putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-                        .putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es-ES")
-                        .putExtra(RecognizerIntent.EXTRA_PROMPT, "Di el alimento y la cantidad")
-                    runCatching { dictar.launch(i) }.onFailure {
-                        Toast.makeText(contexto, "Este móvil no tiene dictado por voz", Toast.LENGTH_SHORT).show()
-                    }
-                },
+                Modifier.padding(end = 4.dp).size(36.dp).clip(CircleShape).clickable { dictarAhora() },
                 contentAlignment = Alignment.Center,
-            ) { Text("🎤", style = t.cuerpo) }
+            ) { Icono(Ic.VOZ, tamano = 19.dp, color = c.texto2) }
             if (onEscanear != null) Box(
-                Modifier.size(34.dp).clip(RoundedCornerShape(9.dp)).background(c.fondo4).clickable(onClick = onEscanear),
+                Modifier.size(36.dp).clip(CircleShape).clickable(onClick = onEscanear),
                 contentAlignment = Alignment.Center,
-            ) { Text("▥", style = t.titulo, color = c.texto) }
+            ) { Icono(Ic.ESCANER, tamano = 19.dp, color = c.texto2) }
         }
 
         val filtros = listOf(TODOS) + supermercados + listOf(GENERICOS, MIS_COMIDAS)
@@ -274,7 +289,7 @@ fun SelectorComida(comida: ComidaDia, onCambiar: (ComidaDia) -> Unit) {
             modifier = Modifier.clip(RoundedCornerShape(10.dp)).background(c.acento.copy(alpha = .1f))
                 .clickable { abierto = true }.padding(horizontal = 10.dp, vertical = 7.dp),
         )
-        DropdownMenu(abierto, { abierto = false }, containerColor = c.fondo3) {
+        DropdownMenu(abierto, { abierto = false }, containerColor = c.hoja) {
             ComidaDia.entries.forEach { cd ->
                 DropdownMenuItem(
                     text = { Text("${cd.icono}  ${cd.nombre}", style = KcalmaTheme.tipo.cuerpo, color = if (cd == comida) c.acento else c.texto) },
@@ -303,8 +318,7 @@ private fun FilaHabitual(h: Habitual, emoji: String = "⭐", onAnadir: () -> Uni
     val t = KcalmaTheme.tipo
     val kcal = h.entradas.sumOf { it.nutrientes.kcal }.roundToInt()
     Row(
-        Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(13.dp)).background(c.fondo2)
-            .border(1.dp, c.borde, RoundedCornerShape(13.dp)).clickable(onClick = onAnadir).padding(12.dp),
+        Modifier.fillMaxWidth().padding(vertical = 4.dp).vidrio(RoundedCornerShape(13.dp)).clickable(onClick = onAnadir).padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(emoji, style = t.titulo, color = c.acento)
@@ -332,8 +346,7 @@ private fun FilaAtajo(emoji: String, titulo: String, detalle: String, onClick: (
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     Row(
-        Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(13.dp)).background(c.fondo2)
-            .border(1.dp, c.borde, RoundedCornerShape(13.dp)).clickable(onClick = onClick).padding(12.dp),
+        Modifier.fillMaxWidth().padding(vertical = 4.dp).vidrio(RoundedCornerShape(13.dp)).clickable(onClick = onClick).padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(emoji, style = t.titulo)
@@ -370,7 +383,7 @@ private fun DialogoKcal(onCerrar: () -> Unit, onAnadir: (String, Double, Double)
     val k = kcal.toDoubleOrNull()?.takeIf { it > 0 }
     androidx.compose.material3.AlertDialog(
         onDismissRequest = onCerrar,
-        containerColor = c.fondo2,
+        containerColor = c.hoja,
         title = { Text("Añadir solo calorías", style = t.titulo, color = c.texto) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
