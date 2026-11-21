@@ -115,6 +115,17 @@ Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caser
 
 ---
 
+### Entrenamientos (21/11/2026, Mikel; pendiente de maqueta)
+- Apartado de gimnasio para usar Kcalma también como app de entreno: hacer y registrar sesiones, rutinas hechas y editables, rutinas propias.
+- **Progresión:** cada serie sale rellenada con lo de la última vez (80 kg × 8 → la próxima vez 80 × 8). Doble progresión calculada por código, no por la IA: con todas las series en lo alto del rango propone +2,5 kg; en kettlebell, la siguiente pesa que tenga el usuario o más series y reps.
+- **Mapa del cuerpo** (frente y espalda) al ver o crear una rutina y en cada ejercicio, con los músculos que trabajan iluminados. Dibujado por nosotros con el estilo Kcalma.
+- **Kettlebell como apartado propio:** rutinas hechas y propias; series, EMOM, AMRAP e intervalos; solo las pesas que tenga el usuario.
+- **Ficha de ejercicio:** figura animada propia (un maniquí estilizado dibujado en código, en bucle y con los músculos iluminados), pasos, errores típicos, historial y récord. Unos 150 ejercicios bien hechos, no miles.
+- **Navegación:** la barra pasa a ser Hoy, Ideas, +, Entreno, Progreso. A Perfil se llega con un botón arriba en Hoy, que ocupa el sitio del botón de peso.
+- **Entrenador IA** (Gemini, con la clave del usuario): cada semana **propone** cambios en una tarjeta y el usuario los acepta o descarta. Tiene además un chat para dudas de técnica, ejercicios y dieta.
+- No se suman kcal del gimnasio: los días de pesas ya cuentan en el factor de actividad.
+- **Fases:** la 0.8.0 trae biblioteca, rutinas, registro, progresión, mapa y kettlebell; la 0.9.0, el entrenador IA y el chat.
+
 ## 1. Qué hace la app
 
 1. **Haces una foto** del plato (o de varios platos).
