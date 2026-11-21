@@ -87,6 +87,12 @@ Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caser
 - **Health Connect:** se suma la mitad de las calorías activas de más que diga el móvil o el reloj (suelen exagerar).
 - **Foto de la etiqueta:** la lee Gemini con la clave del usuario.
 - **Publicación:** todo junto en la 0.5.0.
+- **Detalles provisionales (los decidió Claude el 21/11/2026 sin ti, porque estabas fuera; revísalos):**
+  - Ajuste: mira los últimos 28 días. Necesita 14 días apuntados (al menos la mitad del plan) y 3 pesadas separadas 10 días o más. Solo propone si la diferencia pasa de 100 kcal, con un tope de ±300 por propuesta y una propuesta por semana. Se guarda como corrección del gasto y no se aplica con kcal a mano.
+  - Health Connect lee **pasos**, no calorías activas, porque los entrenamientos ya están en el plan. Suma la mitad de lo que camines por encima de lo que dijiste en el onboarding (4.000 / 6.500 / 10.000 / 13.500), a unas 0,5 kcal por kg cada 1.000 pasos.
+  - Recordatorios por defecto: desayuno 10:30, comida 16:00, cena 22:30 y peso los lunes a las 9:00. Media mañana y merienda van apagadas. Solo avisa si esa comida está sin apuntar, y no se programa nada hasta que abres la pantalla.
+  - Widget de 4×2: anillo, kcal restantes y botones de foto y añadir.
+  - Los platos caseros salen en «Mis comidas» y en la búsqueda. Entran en la copia de seguridad; la lista de la compra no.
 
 **Arquitectura sin servidor (confirmada el 20/11/2026):** no hay Supabase ni ningún backend. La app funciona entera en el móvil: base de datos local, la clave de cada usuario guardada cifrada (Android Keystore) y la llamada a la IA directamente desde la app. Cada amigo saca su propia clave gratis de Gemini en Google AI Studio, con una guía dentro de la app. La clave de Mikel nunca va en el APK. Sin sincronización: botón de exportar e importar copia de seguridad. Esto sustituye al "servidor intermedio" y a Supabase de las secciones 3 y 5.
 

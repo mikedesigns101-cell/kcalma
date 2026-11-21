@@ -42,8 +42,13 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 - `dominio/Gustos.kt`: categorías con raíces de palabra; las usan el recomendador y la petición a la IA. Pantalla en `BloqueGustos`.
 - Añadir: repetir la última comida, «Sueles tomar» (`Diario.frecuentes`) y «Añadir solo calorías».
 
+## Versión 0.5.0
+- Ajuste semanal (`dominio/Ajuste.kt`, `ui/hoy/TarjetaAjuste.kt`), platos caseros (`dominio/Plato.kt`, `ui/diario/PantallaPlato.kt`, tablas `platos` y `plato_items` en `diario.db` v3), lista de la compra (`datos/ListaCompra.kt`, `ui/ideas/PantallaLista.kt`), foto de la etiqueta (`ui/diario/PantallaEtiqueta.kt`, `Gemini.etiqueta`), recordatorios (`avisos/Recordatorios.kt`), widget (`widget/WidgetHoy.kt`) y pasos de Health Connect (`datos/Salud.kt`, `dominio/Actividad.kt`).
+- Probado en el emulador: Perfil, Recordatorios (permiso y alarmas), permiso de pasos («Conectado»), lista desde una idea, crear un plato, añadir una ración y verlo en Hoy. Ningún cierre inesperado.
+- Sin probar en el emulador: el widget colocado en la pantalla de inicio, la foto de la etiqueta (necesita un código desconocido y la cámara) y la tarjeta de ajuste (necesita semanas de datos; la cubren los tests).
+
 ## Pendiente
 1. Probar en el móvil: lectura real de un código de barras.
 2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.
 3. Hecho en v0.4.1: `datos/scripts/07_correcciones.py` corrige 15 genéricos de BEDCA (arroz, lenteja, garbanzo y judía cocidos, etc.) y quita 48 productos con kcal incoherentes; la base sube a la versión 2 y `Diario` (v2) corrige lo ya apuntado. Las bebidas alcohólicas no cuadran con sus macros por el alcohol, pero son correctas.
-4. Siguiente función, a elegir con Mikel: Health Connect, otros proveedores de IA, más recetas.
+4. Mikel tiene que revisar los detalles provisionales de la 0.5.0 (PLAN.md §0) y probar el widget y la foto de la etiqueta en su móvil.
