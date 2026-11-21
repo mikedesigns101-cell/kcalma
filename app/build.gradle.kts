@@ -22,8 +22,8 @@ android {
         applicationId = "com.mikel.kcalma"
         minSdk = 26
         targetSdk = 36
-        versionCode = 7
-        versionName = "0.4.2"
+        versionCode = 8
+        versionName = "0.5.0"
     }
 
     signingConfigs {
@@ -71,6 +71,10 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:$camerax")
     implementation("androidx.camera:camera-view:$camerax")
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    // Pasos del móvil (solo lectura)
+    implementation("androidx.health.connect:connect-client:1.1.0")
+    // CameraX necesita ListenableFuture; Health Connect trae la versión vacía y la tapa
+    implementation("com.google.guava:guava:33.3.1-android")
     debugImplementation("androidx.compose.ui:ui-tooling")
     testImplementation("junit:junit:4.13.2")
 }

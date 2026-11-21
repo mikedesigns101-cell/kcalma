@@ -214,6 +214,8 @@ fun PantallaCamara(
     onNota: (String) -> Unit,
     onComida: (ComidaDia) -> Unit,
     onCerrar: () -> Unit,
+    /** Texto de ayuda propio (foto de etiqueta): sin selector de comida ni nota. */
+    guia: String? = null,
     onFoto: (Bitmap, ByteArray) -> Unit,
 ) {
     val c = KcalmaTheme.colores
@@ -285,11 +287,11 @@ fun PantallaCamara(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BotonIcono("✕", onCerrar)
                 Spacer(Modifier.weight(1f))
-                SelectorComida(comida, onComida)
+                if (guia == null) SelectorComida(comida, onComida)
             }
             if (permiso) Box(Modifier.fillMaxWidth().padding(top = 12.dp), contentAlignment = Alignment.Center) {
                 Text(
-                    "Encuadra todo el plato desde arriba", style = t.cuerpo, color = c.texto,
+                    guia ?: "Encuadra todo el plato desde arriba", style = t.cuerpo, color = c.texto,
                     modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(c.fondo0.copy(alpha = .7f)).padding(horizontal = 14.dp, vertical = 7.dp),
                 )
             }
@@ -307,7 +309,7 @@ fun PantallaCamara(
             }
 
             val forma = RoundedCornerShape(14.dp)
-            Row(
+            if (guia == null) Row(
                 Modifier.fillMaxWidth().clip(forma).background(c.fondo0.copy(alpha = .78f)).border(1.dp, c.borde, forma).padding(horizontal = 12.dp, vertical = 11.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {

@@ -70,7 +70,7 @@ fun IconoAlimento(nombre: String, tamano: Int = 38) {
 
 /** Fila de resultado: icono, nombre con supermercado, ración, kcal y botón + para añadir sin abrir la ficha. */
 @Composable
-fun FilaAlimento(a: Alimento, onAbrir: () -> Unit, onAnadir: () -> Unit, habitual: Entrada? = null) {
+fun FilaAlimento(a: Alimento, onAbrir: () -> Unit, onAnadir: () -> Unit, habitual: Entrada? = null, onEditar: (() -> Unit)? = null) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     // Con [habitual], el + añade la cantidad de siempre
@@ -99,6 +99,13 @@ fun FilaAlimento(a: Alimento, onAbrir: () -> Unit, onAnadir: () -> Unit, habitua
             Column(horizontalAlignment = Alignment.End) {
                 Text("${(a.kcal * gramos / 100).roundToInt()}", style = t.tituloTarjeta, color = c.texto)
                 Text("kcal", style = t.diminuto, color = c.texto3)
+            }
+            if (onEditar != null) {
+                Spacer(Modifier.width(8.dp))
+                Box(
+                    Modifier.size(30.dp).clip(RoundedCornerShape(9.dp)).background(c.fondo4).clickable(onClick = onEditar),
+                    contentAlignment = Alignment.Center,
+                ) { Text("✎", style = t.cuerpo, color = c.texto2) }
             }
             Spacer(Modifier.width(10.dp))
             Box(

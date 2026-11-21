@@ -42,6 +42,9 @@ class AlmacenPerfil(private val context: Context) {
         val meEncanta = stringSetPreferencesKey("me_encanta")
         val supers = stringSetPreferencesKey("supermercados")
         val kcalManual = intPreferencesKey("kcal_manual")
+        val correccion = intPreferencesKey("correccion_gasto")
+        /** Fecha de la última propuesta de ajuste (aceptada o no): se propone como mucho una vez por semana. */
+        val ultimaPropuesta = stringPreferencesKey("ultima_propuesta")
         /** Historial de peso: «aaaa-mm-dd=kg;…», ordenado por fecha. */
         val pesos = stringPreferencesKey("pesos")
     }
@@ -68,10 +71,21 @@ class AlmacenPerfil(private val context: Context) {
             meEncanta = p[K.meEncanta] ?: emptySet(),
             supermercados = p[K.supers] ?: emptySet(),
             kcalManual = p[K.kcalManual],
+            correccionGasto = p[K.correccion] ?: 0,
         )
     }
 
     val pesos: Flow<List<Pesada>> = context.almacen.data.map { leerPesos(it[K.pesos]) }
+
+    val ultimaPropuesta: Flow<String?> = context.almacen.data.map { it[K.ultimaPropuesta] }
+
+    /** Acepta (con [correccion]) o descarta (null) la propuesta de la semana. */
+    suspend fun responderPropuesta(correccion: Int?) {
+        context.almacen.edit { p ->
+            p[K.ultimaPropuesta] = LocalDate.now().toString()
+            if (correccion != null) p[K.correccion] = correccion
+        }
+    }
 
     /**
      * Guarda el perfil. Si el peso ha cambiado respecto a la última pesada (o es la primera vez),
@@ -85,6 +99,7 @@ class AlmacenPerfil(private val context: Context) {
                 p[K.pesos] = escribirPesos(pesos.filter { it.fecha != hoy } + Pesada(hoy, perfil.pesoKg))
             }
             perfil.kcalManual?.let { p[K.kcalManual] = it } ?: p.remove(K.kcalManual)
+            p[K.correccion] = perfil.correccionGasto
             p[K.sexo] = perfil.sexo.name
             p[K.edad] = perfil.edad
             p[K.altura] = perfil.alturaCm

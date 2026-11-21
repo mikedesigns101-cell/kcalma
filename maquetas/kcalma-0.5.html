@@ -1,0 +1,188 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kcalma · 0.5.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><style>
+:root{--f0:#070c10;--f1:#0c141a;--f2:#101a21;--f3:#16232b;--f4:#1d2d36;--borde:#1a2a33;--t:#e9f2f6;--t2:#9db2bd;--t3:#657c88;--a:#3ad6f0;--a2:#e05cc0;--verde:#35d987;--ambar:#f2bf4b;--rojo:#f05a63;--deg:linear-gradient(135deg,var(--a),var(--a2))}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#03060a;font-family:Inter,system-ui,sans-serif;color:var(--t);padding:28px 16px}
+h1{font:700 22px Outfit,sans-serif;text-align:center;margin-bottom:6px}
+.sub{text-align:center;color:var(--t2);font-size:13px;margin-bottom:24px}
+.lienzo{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;max-width:1600px;margin:0 auto}
+.paso{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:340px}
+.etq{font:600 13px Outfit,sans-serif;color:var(--t2);text-align:center} .etq b{color:var(--a)}
+.nota{font-size:11.5px;color:var(--t3);text-align:center;line-height:1.45}
+.movil{width:340px;height:720px;background:var(--f0);border-radius:38px;border:9px solid #1b2228;overflow:hidden;position:relative;display:flex;flex-direction:column;padding:16px 16px 0}
+.top{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.ib{width:32px;height:32px;border-radius:10px;background:var(--f2);border:1px solid var(--borde);display:grid;place-items:center;color:var(--t2);font-size:14px;flex:none}
+.top h2{font:600 18px Outfit,sans-serif;flex:1}
+.card{background:var(--f2);border:1px solid var(--borde);border-radius:14px;padding:12px;margin-bottom:10px}
+.card.deg{border:1.5px solid transparent;background:linear-gradient(var(--f2),var(--f2)) padding-box,var(--deg) border-box}
+.mt{font:600 10.5px Inter;letter-spacing:.08em;color:var(--t3);margin:12px 2px 6px;text-transform:uppercase}
+.fila{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--borde);font-size:13px}
+.fila:first-child{border-top:none}
+.fila .ic{width:28px;height:28px;border-radius:9px;background:var(--f4);display:grid;place-items:center;font-size:14px;flex:none}
+.fila span{flex:1} .fila em{font-style:normal;font-size:12px;color:var(--t2)}
+.tt{font:600 14px Outfit,sans-serif} .pq{font-size:11.5px;color:var(--t2);line-height:1.45} .t3{color:var(--t3)}
+.big{font:700 28px Outfit,sans-serif}
+.btn{background:var(--deg);color:#06141a;font:600 14px Outfit,sans-serif;text-align:center;border-radius:13px;padding:12px;margin-top:8px}
+.btn2{border:1px solid var(--borde);color:var(--t2);font:600 13px Outfit,sans-serif;text-align:center;border-radius:13px;padding:10px;margin-top:8px}
+.dos{display:flex;gap:8px}.dos>*{flex:1}
+.sw{width:34px;height:20px;border-radius:10px;background:var(--a);position:relative;flex:none}.sw:after{content:"";position:absolute;right:2px;top:2px;width:16px;height:16px;border-radius:50%;background:#fff}
+.sw.off{background:var(--f4)}.sw.off:after{left:2px;right:auto;background:var(--t3)}
+.chip{display:inline-block;font-size:11px;padding:3px 7px;border-radius:8px;background:var(--f4);color:var(--t2);margin:2px 2px 0 0}
+.chip.v{background:rgba(53,217,135,.13);color:var(--verde)} .chip.a{background:rgba(58,214,240,.12);color:var(--a)}
+.check{width:18px;height:18px;border-radius:6px;border:1.5px solid var(--t3);flex:none}.check.on{background:var(--verde);border-color:var(--verde)}
+.tachado{text-decoration:line-through;color:var(--t3)}
+.barra{position:absolute;left:0;right:0;bottom:0;height:62px;background:var(--f1);border-top:1px solid var(--borde);display:flex;justify-content:space-around;align-items:center;font-size:10px;color:var(--t3)}
+.barra .on{color:var(--a)}
+.anillo{width:150px;height:150px;border-radius:50%;margin:6px auto 4px;background:conic-gradient(var(--a) 0 55%,var(--f3) 55% 100%);display:grid;place-items:center}
+.anillo div{width:126px;height:126px;border-radius:50%;background:var(--f0);display:grid;place-items:center;text-align:center}
+.tres{display:flex;justify-content:space-around;text-align:center;font-size:11px;color:var(--t2);margin:6px 0 10px}.tres b{display:block;font:600 16px Outfit;color:var(--t)}
+.escritorio{width:340px;height:720px;border-radius:38px;border:9px solid #1b2228;overflow:hidden;background:linear-gradient(160deg,#1c3550,#3a1f45);padding:60px 18px}
+.widget{background:rgba(7,12,16,.92);border-radius:24px;padding:14px;display:flex;align-items:center;gap:14px}
+.widget .ani{width:78px;height:78px;border-radius:50%;background:conic-gradient(var(--a) 0 62%,var(--f3) 62% 100%);display:grid;place-items:center;flex:none}
+.widget .ani div{width:64px;height:64px;border-radius:50%;background:var(--f0);display:grid;place-items:center;font:700 16px Outfit;text-align:center;line-height:1}
+.widget .ani small{font:500 8px Inter;color:var(--t3)}
+.wb{display:flex;gap:6px;margin-top:8px}.wb div{flex:1;background:var(--f3);border-radius:12px;padding:8px 0;text-align:center;font-size:12px}
+.wb .f{background:var(--deg);color:#06141a;font-weight:600}
+.iconos{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:40px}.iconos div{aspect-ratio:1;border-radius:16px;background:rgba(255,255,255,.12)}
+.etiqueta{height:150px;border-radius:14px;background:repeating-linear-gradient(0deg,#e8e2d6 0 16px,#d9d2c4 16px 17px);margin-bottom:10px;position:relative;color:#222;font:600 11px Inter;padding:10px}
+.etiqueta:after{content:"";position:absolute;inset:8px;border:2px solid var(--a);border-radius:10px}
+.tabla .fila{padding:7px 0}
+</style></head><body>
+<h1>Kcalma 0.5.0 · funciones nuevas</h1>
+<p class="sub">Ajuste automático, recordatorios, mis platos, widget, ejercicio (Health Connect), foto de la etiqueta y lista de la compra</p>
+<div class="lienzo">
+
+<!-- 1 Hoy con ejercicio y ajuste -->
+<div class="paso"><div class="etq"><b>1</b> · Hoy: ejercicio y ajuste semanal</div>
+<div class="movil">
+  <div class="anillo"><div><div><div class="big" style="font-size:30px">1.286</div><div class="pq">kcal restantes</div></div></div></div>
+  <div class="tres"><div>Objetivo<b>2.040</b></div><div>Comido<b>934</b></div><div>Ejercicio<b style="color:var(--verde)">+180</b></div></div>
+  <div class="pq t3" style="text-align:center;margin:-4px 0 10px">🚶 9.840 pasos · 360 kcal de más según tu móvil (sumamos la mitad)</div>
+  <div class="card deg">
+    <div class="tt">📊 Tu gasto real es algo menor</div>
+    <div class="pq" style="margin-top:4px">En 3 semanas has comido una media de <b style="color:var(--t)">2.010 kcal</b> y has bajado <b style="color:var(--t)">0,9 kg</b>. Tu gasto real ronda las <b style="color:var(--t)">2.350 kcal</b>, no 2.540.</div>
+    <div class="pq" style="margin-top:6px">Para seguir a tu ritmo: <b style="color:var(--a)">1.850 kcal/día</b> (ahora 2.040).</div>
+    <div class="dos"><div class="btn">Cambiar a 1.850</div><div class="btn2">Ahora no</div></div>
+  </div>
+  <div class="card"><div class="fila"><div class="ic">☕</div><span>Desayuno</span><em>420</em></div></div>
+  <div class="barra"><span class="on">Hoy</span><span>Progreso</span><span>📷</span><span>Ideas</span><span>Perfil</span></div>
+</div>
+<div class="nota">La tarjeta sale una vez por semana, solo con al menos 14 días apuntados y 3 pesadas, y nunca cambia nada sin que aceptes. Si el gasto real cuadra (±100 kcal), no sale.</div></div>
+
+<!-- 2 Recordatorios -->
+<div class="paso"><div class="etq"><b>2</b> · Perfil → Recordatorios</div>
+<div class="movil">
+  <div class="top"><div class="ib">‹</div><h2>Recordatorios</h2></div>
+  <div class="pq" style="margin-bottom:10px">Solo te avisamos si a esa hora aún no has apuntado nada en esa comida.</div>
+  <div class="card">
+    <div class="fila"><div class="ic">☕</div><span>Desayuno</span><em>10:30</em><div class="sw"></div></div>
+    <div class="fila"><div class="ic">🍽️</div><span>Comida</span><em>16:00</em><div class="sw"></div></div>
+    <div class="fila"><div class="ic">🌙</div><span>Cena</span><em>22:30</em><div class="sw"></div></div>
+    <div class="fila"><div class="ic">🍎</div><span>Media mañana y merienda</span><div class="sw off"></div></div>
+  </div>
+  <div class="card">
+    <div class="fila"><div class="ic">⚖️</div><span>Pesarte</span><em>lunes 9:00</em><div class="sw"></div></div>
+  </div>
+  <div class="mt">Así se ve</div>
+  <div class="card" style="background:var(--f3)"><div class="pq"><b style="color:var(--t)">Kcalma</b> · ahora</div><div class="tt" style="margin-top:3px">¿Qué has cenado?</div><div class="pq">Te quedan 640 kcal. Toca para apuntarlo o hacer una foto.</div></div>
+  <div class="barra"><span>Hoy</span><span>Progreso</span><span>📷</span><span>Ideas</span><span class="on">Perfil</span></div>
+</div>
+<div class="nota">Horas por defecto pensadas para España; se cambian tocando la hora.</div></div>
+
+<!-- 3 Mis platos: crear -->
+<div class="paso"><div class="etq"><b>3</b> · Mis platos: crear un plato casero</div>
+<div class="movil">
+  <div class="top"><div class="ib">‹</div><h2>Nuevo plato</h2></div>
+  <div class="card"><div class="pq">Nombre</div><div class="tt" style="margin-top:3px">Lentejas de casa</div></div>
+  <div class="mt">Ingredientes (la olla entera)</div>
+  <div class="card">
+    <div class="fila"><span>Lenteja, seca, cruda</span><em>500 g</em></div>
+    <div class="fila"><span>Chorizo</span><em>150 g</em></div>
+    <div class="fila"><span>Patata, cruda</span><em>400 g</em></div>
+    <div class="fila"><span>Zanahoria</span><em>150 g</em></div>
+    <div class="fila"><span>Aceite de oliva virgen extra</span><em>30 g</em></div>
+    <div class="fila" style="color:var(--a)"><span>+ Añadir ingrediente (buscar, escanear o foto)</span></div>
+  </div>
+  <div class="card"><div class="fila"><span>¿Para cuántas raciones da?</span><em style="font:600 16px Outfit;color:var(--t)">− 5 +</em></div></div>
+  <div class="pq" style="text-align:center">Cada ración: <b style="color:var(--t)">612 kcal</b> · P 34 · H 70 · G 20</div>
+  <div class="btn">Guardar plato</div>
+</div>
+<div class="nota">Se crea desde Añadir → «Mis comidas» → «Nuevo plato». También se puede crear desde una comida ya apuntada.</div></div>
+
+<!-- 4 Mis platos: añadir ración -->
+<div class="paso"><div class="etq"><b>4</b> · Añadir: tus platos como un alimento más</div>
+<div class="movil">
+  <div class="top"><div class="ib">✕</div><h2>Añadir</h2><span class="chip a">🍽️ Comida ▾</span></div>
+  <div class="card deg" style="padding:9px 12px"><span class="t3">🔍 lentejas</span></div>
+  <div class="mt">Mis platos</div>
+  <div class="card"><div class="fila"><div class="ic">🍲</div><span><b>Lentejas de casa</b><br><span class="pq">1 ración · de 5</span></span><em style="color:var(--t)">612</em><span class="chip a">+</span></div></div>
+  <div class="mt">Resultados</div>
+  <div class="card">
+    <div class="fila"><div class="ic">🫘</div><span>Lenteja, hervida<br><span class="pq">Genérico · 100 g</span></span><em>116</em></div>
+    <div class="fila"><div class="ic">🫘</div><span>Lentejas cocidas<br><span class="pq">Hacendado · 1 ración</span></span><em>190</em></div>
+  </div>
+  <div class="mt">Ficha del plato</div>
+  <div class="card"><div class="tt">Lentejas de casa</div><div class="pq">Cantidad</div>
+    <div style="display:flex;gap:6px;margin-top:6px"><span class="chip">½ ración</span><span class="chip v">1 ración</span><span class="chip">1½</span><span class="chip">2</span><span class="chip">gramos</span></div></div>
+</div>
+<div class="nota">Los platos salen primero al buscar y en «Mis comidas». Se pueden editar o borrar.</div></div>
+
+<!-- 5 Widget -->
+<div class="paso"><div class="etq"><b>5</b> · Widget en la pantalla de inicio</div>
+<div class="escritorio">
+  <div class="widget">
+    <div class="ani"><div><div>1.286<br><small>kcal</small></div></div></div>
+    <div style="flex:1">
+      <div class="tt" style="font-size:13px">Te quedan hoy</div>
+      <div class="pq">P 83 · H 137 · G 26 g</div>
+      <div class="wb"><div class="f">📷 Foto</div><div>＋ Añadir</div></div>
+    </div>
+  </div>
+  <div class="iconos"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+</div>
+<div class="nota">Tamaño 4×2. «Foto» abre la cámara directamente; «Añadir», el buscador de la comida que toca por la hora. Se actualiza al apuntar algo.</div></div>
+
+<!-- 6 Foto etiqueta -->
+<div class="paso"><div class="etq"><b>6</b> · Foto de la etiqueta</div>
+<div class="movil">
+  <div class="top"><div class="ib">‹</div><h2>Producto nuevo</h2></div>
+  <div class="etiqueta">Información nutricional · por 100 g</div>
+  <div class="pq" style="margin-bottom:8px">Leído con Gemini. Revisa que cuadre con la etiqueta.</div>
+  <div class="card"><div class="pq">Nombre</div><div class="tt">Hummus clásico</div><div class="pq" style="margin-top:6px">Marca</div><div class="tt">Mercadona</div></div>
+  <div class="card tabla">
+    <div class="fila"><span>Energía</span><em style="color:var(--t)">281 kcal</em></div>
+    <div class="fila"><span>Proteínas</span><em>6,8 g</em></div>
+    <div class="fila"><span>Hidratos</span><em>9,9 g</em></div>
+    <div class="fila"><span>Grasas</span><em>22 g</em></div>
+    <div class="fila"><span>Ración del envase</span><em>30 g</em></div>
+  </div>
+  <div class="btn">Guardar y añadir</div>
+</div>
+<div class="nota">Sale cuando un código de barras no se encuentra («¿Le haces una foto a la etiqueta?») y en Añadir → escáner. Queda guardado para la próxima vez que lo escanees.</div></div>
+
+<!-- 7 Lista de la compra -->
+<div class="paso"><div class="etq"><b>7</b> · Lista de la compra</div>
+<div class="movil">
+  <div class="top"><div class="ib">‹</div><h2>Lista de la compra</h2><span class="chip">Compartir</span></div>
+  <div class="pq" style="margin-bottom:8px">De 3 recetas: Merluza al horno, Pollo con arroz, Lentejas de casa</div>
+  <div class="mt">Pescado y carne</div>
+  <div class="card">
+    <div class="fila"><div class="check"></div><span>Merluza</span><em>200 g</em></div>
+    <div class="fila"><div class="check on"></div><span class="tachado">Pechuga de pollo</span><em>180 g</em></div>
+  </div>
+  <div class="mt">Verdura y fruta</div>
+  <div class="card">
+    <div class="fila"><div class="check"></div><span>Patata</span><em>650 g</em></div>
+    <div class="fila"><div class="check"></div><span>Pimiento rojo</span><em>100 g</em></div>
+    <div class="fila"><div class="check"></div><span>Cebolla</span><em>60 g</em></div>
+  </div>
+  <div class="mt">Despensa</div>
+  <div class="card">
+    <div class="fila"><div class="check"></div><span>Arroz</span><em>80 g</em></div>
+    <div class="fila"><div class="check"></div><span>Lenteja seca</span><em>500 g</em></div>
+  </div>
+  <div class="barra"><span>Hoy</span><span>Progreso</span><span>📷</span><span class="on">Ideas</span><span>Perfil</span></div>
+</div>
+<div class="nota">En el detalle de una idea: botón «🛒 A la lista». Se suman las cantidades de lo repetido; «Compartir» la manda por WhatsApp como texto.</div></div>
+
+</div></body></html>

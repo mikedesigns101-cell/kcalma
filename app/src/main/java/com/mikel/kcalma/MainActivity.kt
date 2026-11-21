@@ -29,8 +29,21 @@ private sealed interface Inicio {
     data class Listo(val perfil: Perfil?) : Inicio
 }
 
+/** Pantalla que piden el widget o una notificación («foto», «anadir:CENA», «peso»). La app la consume. */
+object Lanzador {
+    val accion = kotlinx.coroutines.flow.MutableStateFlow<String?>(null)
+}
+
 class MainActivity : ComponentActivity() {
+    companion object { const val ACCION = "accion" }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        intent.getStringExtra(ACCION)?.let { Lanzador.accion.value = it }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (savedInstanceState == null) intent?.getStringExtra(ACCION)?.let { Lanzador.accion.value = it }
         // App siempre oscura: iconos claros en las barras del sistema
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
@@ -38,6 +51,7 @@ class MainActivity : ComponentActivity() {
         )
         super.onCreate(savedInstanceState)
         com.mikel.kcalma.datos.Registro.iniciar(applicationContext)
+        com.mikel.kcalma.avisos.Recordatorios.programarTodos(applicationContext)
         val almacen = AlmacenPerfil(applicationContext)
         val repo = Repositorio(applicationContext)
         setContent {

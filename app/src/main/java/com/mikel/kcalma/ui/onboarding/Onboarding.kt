@@ -248,6 +248,7 @@ internal fun TuPlan(perfil: Perfil) {
         LineaDesglose("Tu cuerpo en reposo", miles(plan.reposo))
         LineaDesglose("Trabajo y pasos", "+${miles(plan.actividad)}")
         if (plan.ejercicio > 0) LineaDesglose("Ejercicio (media diaria)", "+${miles(plan.ejercicio)}")
+        if (plan.correccion != 0) LineaDesglose("Ajuste por tu progreso real", (if (plan.correccion > 0) "+" else "−") + miles(kotlin.math.abs(plan.correccion)))
         Box(Modifier.fillMaxWidth().height(1.dp).background(c.borde))
         LineaDesglose("Gastas al día", miles(plan.gasto), fuerte = true)
         val nombreAjuste = when (perfil.objetivo) {

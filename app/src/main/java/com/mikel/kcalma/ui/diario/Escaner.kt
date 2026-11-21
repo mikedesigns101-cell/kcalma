@@ -71,6 +71,7 @@ fun Escaner(
     onCerrar: () -> Unit,
     onVer: (Alimento) -> Unit,
     onBuscarAMano: () -> Unit,
+    onEtiqueta: ((String) -> Unit)? = null,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -132,6 +133,7 @@ fun Escaner(
                 onReintentar = { val cod = codigo!!; codigo = null; consultar(cod) },
                 onOtro = { codigo = null; resultado = null },
                 onBuscarAMano = onBuscarAMano,
+                onEtiqueta = onEtiqueta,
             ) else Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Text(
                     "¿No lo lee? Escribir el código", style = t.cuerpo, color = c.acento,
@@ -168,6 +170,7 @@ fun Escaner(
 private fun HojaResultado(
     codigo: String, resultado: Busqueda?, onVer: (Alimento) -> Unit,
     onReintentar: () -> Unit, onOtro: () -> Unit, onBuscarAMano: () -> Unit,
+    onEtiqueta: ((String) -> Unit)? = null,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -196,8 +199,17 @@ private fun HojaResultado(
             }
             Busqueda.NoExiste -> {
                 Text("No conocemos este producto ($codigo)", style = t.tituloTarjeta, color = c.texto)
-                Text("Búscalo por su nombre o usa un genérico parecido.", style = t.pequeno, color = c.texto3, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
-                BotonPrincipal("Buscar a mano", onClick = onBuscarAMano)
+                if (onEtiqueta != null) {
+                    Text("¿Le haces una foto a la etiqueta? La IA lee la tabla nutricional y queda guardado para la próxima vez.", style = t.pequeno, color = c.texto3, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
+                    BotonPrincipal("📷 Foto a la etiqueta", onClick = { onEtiqueta(codigo) })
+                    Text(
+                        "Buscar a mano", style = t.cuerpo, color = c.acento, textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp).clickable(onClick = onBuscarAMano).padding(6.dp),
+                    )
+                } else {
+                    Text("Búscalo por su nombre o usa un genérico parecido.", style = t.pequeno, color = c.texto3, modifier = Modifier.padding(top = 4.dp, bottom = 12.dp))
+                    BotonPrincipal("Buscar a mano", onClick = onBuscarAMano)
+                }
             }
             Busqueda.SinConexion -> {
                 Text("No está en el móvil y no hay conexión", style = t.tituloTarjeta, color = c.texto)

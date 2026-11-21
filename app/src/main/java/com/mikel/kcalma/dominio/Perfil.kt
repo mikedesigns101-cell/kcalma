@@ -45,6 +45,8 @@ data class Perfil(
     val supermercados: Set<String> = emptySet(),
     /** Calorías puestas a mano por el usuario; null = las calculadas. */
     val kcalManual: Int? = null,
+    /** Corrección del gasto aceptada en el ajuste semanal (kcal/día, puede ser negativa). */
+    val correccionGasto: Int = 0,
 )
 
 /** Una pesada con su fecha (aaaa-mm-dd). */

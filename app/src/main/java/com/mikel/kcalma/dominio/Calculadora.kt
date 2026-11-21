@@ -12,6 +12,8 @@ data class Plan(
     val reposo: Int,
     val actividad: Int,
     val ejercicio: Int,
+    /** Corrección aceptada en el ajuste semanal según el progreso real. */
+    val correccion: Int,
     val gasto: Int,
     /** Negativo = déficit, positivo = superávit. */
     val ajuste: Int,
@@ -61,7 +63,7 @@ object Calculadora {
         val reposo = reposo(p)
         val conActividad = reposo * (p.trabajo.factor + p.pasos.extra)
         val ejercicio = ejercicioDiario(p)
-        val gasto = conActividad + ejercicio
+        val gasto = conActividad + ejercicio + p.correccionGasto
 
         val kgSemana = kgSemana(p)
         val ajuste = when (p.objetivo) {
@@ -89,11 +91,12 @@ object Calculadora {
         val reposoR = reposo.roundToInt()
         val actividadR = (conActividad - reposo).roundToInt()
         val ejercicioR = ejercicio.roundToInt()
-        val gastoR = reposoR + actividadR + ejercicioR
+        val gastoR = reposoR + actividadR + ejercicioR + p.correccionGasto
         return Plan(
             reposo = reposoR,
             actividad = actividadR,
             ejercicio = ejercicioR,
+            correccion = p.correccionGasto,
             gasto = gastoR,
             ajuste = kcal - gastoR,
             kcal = kcal,

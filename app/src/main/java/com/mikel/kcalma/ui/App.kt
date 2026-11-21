@@ -61,13 +61,33 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
+import androidx.health.connect.client.PermissionController
+import com.mikel.kcalma.Lanzador
+import com.mikel.kcalma.datos.ListaCompra
+import com.mikel.kcalma.datos.Salud
+import com.mikel.kcalma.dominio.Actividad
+import com.mikel.kcalma.dominio.Ajuste
+import com.mikel.kcalma.dominio.Ingrediente
+import com.mikel.kcalma.ui.diario.AccionesPlatos
+import com.mikel.kcalma.ui.diario.EdicionPlato
+import com.mikel.kcalma.ui.diario.FlujoEtiqueta
+import com.mikel.kcalma.ui.diario.PantallaPlato
+import com.mikel.kcalma.ui.hoy.TarjetaAjuste
+import com.mikel.kcalma.ui.ideas.PantallaLista
+import com.mikel.kcalma.ui.perfil.PantallaRecordatorios
+import com.mikel.kcalma.widget.WidgetHoy
 
 /** Pantallas que se apilan encima de «Hoy». */
 private sealed interface Destino {
     data class Comida(val comida: ComidaDia) : Destino
-    data class Anadir(val comida: ComidaDia) : Destino
-    data class Ficha(val alimento: Alimento, val comida: ComidaDia, val entrada: Entrada? = null) : Destino
-    data class Escaner(val comida: ComidaDia) : Destino
+    /** [paraPlato]: se eligen ingredientes de un plato casero en vez de apuntar en el diario. */
+    data class Anadir(val comida: ComidaDia, val paraPlato: Boolean = false) : Destino
+    data class Ficha(val alimento: Alimento, val comida: ComidaDia, val entrada: Entrada? = null, val paraPlato: Boolean = false) : Destino
+    data class Escaner(val comida: ComidaDia, val paraPlato: Boolean = false) : Destino
+    data class Etiqueta(val comida: ComidaDia, val codigo: String?, val paraPlato: Boolean) : Destino
+    data object Plato : Destino
+    data object Lista : Destino
+    data object Recordatorios : Destino
     data class Foto(val comida: ComidaDia) : Destino
     data class Editar(val bloque: Bloque) : Destino
     data object Clave : Destino
@@ -83,7 +103,12 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
     val entradas by remember(fecha) { repo.diario.entradasDe(fecha) }.collectAsState(initial = emptyList())
     val plan = remember(perfil) { Calculadora.calcular(perfil) }
     val comido = entradas.fold(Nutrientes()) { s, e -> s + e.nutrientes }
-    val restante = Nutrientes(plan.kcal - comido.kcal, plan.proteinaG - comido.proteinas, plan.hidratosG - comido.hidratos, plan.grasasG - comido.grasas)
+    // Pasos de Health Connect: la mitad de lo caminado de más se suma al objetivo de hoy
+    val salud = remember { Salud(contexto.applicationContext) }
+    var estadoSalud by remember { mutableStateOf<Salud.Estado?>(null) }
+    var pasosHoy by remember { mutableStateOf<Long?>(null) }
+    val ejercicio = pasosHoy?.let { Actividad.suma(perfil, it) } ?: 0
+    val restante = Nutrientes(plan.kcal + ejercicio - comido.kcal, plan.proteinaG - comido.proteinas, plan.hidratosG - comido.hidratos, plan.grasasG - comido.grasas)
     // Filtros del buscador: los supermercados del usuario o, si no eligió, los dos con más productos
     val supermercados = perfil.supermercados.sortedBy { SUPERMERCADOS.indexOf(it) }.ifEmpty { listOf("Mercadona", "Lidl") }
 
@@ -101,6 +126,47 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
     // La clave también se guarda desde la foto: se vuelve a mirar al cambiar de pantalla
     LaunchedEffect(pestana, pila.size) { claveGuardada = claves.gemini() != null }
     val aviso: (String) -> Unit = { Toast.makeText(contexto, it, Toast.LENGTH_SHORT).show() }
+    LaunchedEffect(pestana, pila.size) {
+        estadoSalud = salud.estado()
+        if (estadoSalud == Salud.Estado.CONECTADO) {
+            pasosHoy = salud.pasosHoy()
+            pasosHoy?.let { WidgetHoy.guardarEjercicio(contexto, Actividad.suma(perfil, it)); WidgetHoy.refrescar(contexto) }
+        }
+    }
+    val pedirSalud = rememberLauncherForActivityResult(PermissionController.createRequestPermissionResultContract()) { concedidos ->
+        if (concedidos.containsAll(salud.permisos)) { estadoSalud = Salud.Estado.CONECTADO; aviso("Pasos conectados") }
+    }
+
+    // Ajuste semanal del plan (propone; nunca cambia nada solo)
+    val ultimaPropuesta by almacen.ultimaPropuesta.collectAsState(initial = "")
+    val propuesta = remember(perfil, pesos, dias, ultimaPropuesta) {
+        val u = ultimaPropuesta
+        val reciente = u != null && runCatching { LocalDate.parse(u).plusDays(7) > LocalDate.now() }.getOrDefault(false)
+        if (u == "" || reciente) null else Ajuste.proponer(perfil, pesos, dias)
+    }
+
+    // Platos caseros y lista de la compra
+    var edicion by remember { mutableStateOf<EdicionPlato?>(null) }
+    val lista = remember { ListaCompra(contexto.applicationContext) }
+    val estadoLista by lista.estado.collectAsState()
+    fun volverAPlato() { while (pila.isNotEmpty() && pila.last() != Destino.Plato) pila.removeAt(pila.lastIndex) }
+    fun anadirIngrediente(a: Alimento, gramos: Double) {
+        edicion?.ingredientes?.add(Ingrediente(a, gramos))
+        volverAPlato()
+    }
+
+    // Widget y notificaciones abren directamente una pantalla
+    val accion by Lanzador.accion.collectAsState()
+    LaunchedEffect(accion) {
+        val a = accion ?: return@LaunchedEffect
+        Lanzador.accion.value = null
+        pila.clear()
+        when {
+            a == "foto" -> pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour)))
+            a == "peso" -> pestana = Pestana.PERFIL
+            a.startsWith("anadir:") -> ComidaDia.entries.firstOrNull { it.name == a.removePrefix("anadir:") }?.let { pila.add(Destino.Anadir(it)) }
+        }
+    }
     val cambiarPestana: (Pestana) -> Unit = { pestana = it }
 
     // ---- Ideas: recetas propias + las que pida a la IA ----
@@ -186,6 +252,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             onMasIa = { pedirIa() },
             onPestana = cambiarPestana,
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
+            enLista = estadoLista.items.count { !it.hecho },
+            onLista = { pila.add(Destino.Lista) },
         ) else if (pestana == Pestana.PROGRESO) com.mikel.kcalma.ui.progreso.PantallaProgreso(
             perfil = perfil, pesos = pesos, dias = dias, onPestana = cambiarPestana,
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
@@ -193,7 +261,24 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             perfil = perfil,
             pesos = pesos,
             claveGuardada = claveGuardada,
+            actividad = when (estadoSalud) {
+                Salud.Estado.CONECTADO -> pasosHoy?.let { "%,d pasos hoy".format(java.util.Locale.US, it).replace(',', '.') } ?: "Conectado"
+                Salud.Estado.SIN_PERMISO -> "Sin conectar"
+                Salud.Estado.HAY_QUE_INSTALAR -> "Instala Health Connect"
+                else -> "No disponible"
+            },
             acciones = AccionesPerfil(
+                onRecordatorios = { pila.add(Destino.Recordatorios) },
+                onActividad = {
+                    when (estadoSalud) {
+                        Salud.Estado.CONECTADO -> aviso("Conectado con Health Connect. Se suma la mitad de lo que camines de más.")
+                        Salud.Estado.SIN_PERMISO -> runCatching { pedirSalud.launch(salud.permisos) }.onFailure { aviso("No se pudo abrir Health Connect") }
+                        Salud.Estado.HAY_QUE_INSTALAR -> runCatching {
+                            contexto.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.google.android.apps.healthdata")))
+                        }.onFailure { aviso("Instala Health Connect desde Google Play") }
+                        else -> aviso("Este móvil no tiene Health Connect")
+                    }
+                },
                 onEditar = { pila.add(Destino.Editar(it)) },
                 onGuardarPeso = { kg -> alcance.launch { almacen.guardar(perfil.copy(pesoKg = kg), forzarPesada = true) }; aviso("Peso guardado") },
                 onClave = { pila.add(Destino.Clave) },
@@ -230,6 +315,19 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             tituloIdeas = "Ideas para ${if (proxima == ComidaDia.MEDIA_MANANA) "" else "la "}${proxima.nombre.lowercase()}",
             onIdea = { pila.add(Destino.VerIdea(it, proxima)) },
             onVerIdeas = { comidaIdeas = null; pestana = Pestana.IDEAS },
+            ejercicio = ejercicio,
+            detalleEjercicio = pasosHoy?.takeIf { ejercicio > 0 }?.let { p ->
+                "👟 ${"%,d".format(java.util.Locale.US, p).replace(',', '.')} pasos · sumamos la mitad de lo que caminas de más"
+            },
+            tarjeta = propuesta?.let { p ->
+                {
+                    TarjetaAjuste(
+                        p,
+                        onAceptar = { alcance.launch { almacen.responderPropuesta(p.nuevaCorreccion) }; aviso("Plan cambiado a ${p.kcalNueva} kcal/día") },
+                        onAhoraNo = { alcance.launch { almacen.responderPropuesta(null) } },
+                    )
+                }
+            },
             aviso = nueva?.let { v ->
                 {
                     TarjetaActualizacion(
@@ -262,7 +360,19 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             },
             onFoto = { pila.add(Destino.Foto(d.comida)) },
         )
-        is Destino.Anadir -> PantallaAnadir(
+        is Destino.Anadir -> if (d.paraPlato) PantallaAnadir(
+            comida = d.comida,
+            supermercados = supermercados,
+            repo = repo,
+            onCambiarComida = {},
+            onCerrar = { pila.removeAt(pila.lastIndex) },
+            onAbrir = { a -> pila.add(Destino.Ficha(a, d.comida, paraPlato = true)) },
+            onAnadirRapido = { a -> anadirIngrediente(a, a.gramosRapidos) },
+            onHabitual = { h -> h.entradas.forEach { e -> edicion?.ingredientes?.add(Ingrediente(e.alimento, e.gramos)) }; volverAPlato() },
+            onEscanear = { pila.add(Destino.Escaner(d.comida, paraPlato = true)) },
+            titulo = "Ingrediente",
+            selectorComida = false,
+        ) else PantallaAnadir(
             comida = d.comida,
             supermercados = supermercados,
             repo = repo,
@@ -285,6 +395,11 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
                 alcance.launch(Dispatchers.IO) { repo.diario.anadir(fecha, d.comida, e.alimento, e.gramos, e.unidad, e.cantidad) }
                 aviso("Añadido a ${d.comida.nombre} · ${e.nutrientes.kcalInt} kcal")
             },
+            accionesPlatos = AccionesPlatos(
+                onAbrir = { p -> pila.add(Destino.Ficha(p.alimento, d.comida)) },
+                onAnadir = { p -> anadirRapido(p.alimento, d.comida) },
+                onEditar = { p -> edicion = p?.let { EdicionPlato.de(it) } ?: EdicionPlato(); pila.add(Destino.Plato) },
+            ),
         )
         is Destino.Ficha -> FichaAlimento(
             alimento = d.alimento,
@@ -293,17 +408,57 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             restante = if (d.entrada != null) restante + d.entrada.nutrientes else restante,
             inicial = d.entrada,
             onAtras = { pila.removeAt(pila.lastIndex) },
-            onGuardar = { g, u, c -> guardar(d, g, u, c) },
+            onGuardar = { g, u, c -> if (d.paraPlato) anadirIngrediente(d.alimento, g) else guardar(d, g, u, c) },
         )
         is Destino.Escaner -> Escaner(
             buscar = { repo.porCodigo(it) },
             onCerrar = { pila.removeAt(pila.lastIndex) },
-            onVer = { a -> pila.add(Destino.Ficha(a, d.comida)) },
+            onVer = { a -> pila.add(Destino.Ficha(a, d.comida, paraPlato = d.paraPlato)) },
             onBuscarAMano = {
                 pila.removeAt(pila.lastIndex)
-                if (pila.lastOrNull() != Destino.Anadir(d.comida)) pila.add(Destino.Anadir(d.comida))
+                if (pila.lastOrNull() != Destino.Anadir(d.comida, d.paraPlato)) pila.add(Destino.Anadir(d.comida, d.paraPlato))
+            },
+            onEtiqueta = { codigo -> pila[pila.lastIndex] = Destino.Etiqueta(d.comida, codigo, d.paraPlato) },
+        )
+        is Destino.Etiqueta -> FlujoEtiqueta(
+            codigo = d.codigo,
+            onCerrar = { pila.removeAt(pila.lastIndex) },
+            onSinClave = { pila.add(Destino.Clave) },
+            onGuardado = { a ->
+                alcance.launch(Dispatchers.IO) { if (a.codigoBarras != null) repo.diario.guardarProducto(a) }
+                aviso("Guardado: lo reconocerá la próxima vez que lo escanees")
+                pila[pila.lastIndex] = Destino.Ficha(a, d.comida, paraPlato = d.paraPlato)
             },
         )
+        Destino.Plato -> edicion?.let { e ->
+            PantallaPlato(
+                e,
+                onAtras = { pila.removeAt(pila.lastIndex) },
+                onAnadirIngrediente = { pila.add(Destino.Anadir(ComidaDia.COMIDA, paraPlato = true)) },
+                onGuardar = {
+                    val p = e.plato()
+                    alcance.launch(Dispatchers.IO) { repo.diario.guardarPlato(p) }
+                    aviso("«${p.nombre}» guardado en Mis platos")
+                    pila.removeAt(pila.lastIndex)
+                },
+                onBorrar = if (e.id > 0) ({
+                    alcance.launch(Dispatchers.IO) { repo.diario.borrarPlato(e.id) }
+                    aviso("Plato borrado")
+                    pila.removeAt(pila.lastIndex)
+                }) else null,
+            )
+        }
+        Destino.Lista -> PantallaLista(
+            estadoLista,
+            onAtras = { pila.removeAt(pila.lastIndex) },
+            onMarcar = { lista.marcar(it) },
+            onVaciar = { lista.vaciar() },
+            onCompartir = {
+                val i = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, lista.texto())
+                contexto.startActivity(Intent.createChooser(i, "Compartir lista"))
+            },
+        )
+        Destino.Recordatorios -> PantallaRecordatorios(onAtras = { pila.removeAt(pila.lastIndex) })
         is Destino.Foto -> FlujoFoto(
             comidaInicial = d.comida,
             repo = repo,
@@ -333,6 +488,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             restante = restante,
             planKcal = plan.kcal,
             onAtras = { pila.removeAt(pila.lastIndex) },
+            onLista = { lista.anadir(d.idea.receta); aviso("Ingredientes añadidos a la lista de la compra") },
             onAnadir = {
                 alcance.launch(Dispatchers.IO) {
                     d.idea.receta.ingredientes.forEach { i -> repo.diario.anadir(fecha, d.comida, i.alimento, i.gramos, Unidad.GRAMOS, i.gramos) }

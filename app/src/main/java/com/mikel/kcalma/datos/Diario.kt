@@ -23,26 +23,35 @@ data class Habitual(val id: Long, val nombre: String, val entradas: List<Entrada
  * Datos del usuario (diario.db): lo que come, sus comidas habituales y los productos
  * traídos de Open Food Facts. Cada fila guarda una copia completa del alimento.
  */
-class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 2) {
+class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 3) {
 
     /** Sube cada vez que algo cambia, para que las pantallas vuelvan a leer. */
     private val cambios = MutableStateFlow(0)
 
+    private val alimento = "nombre TEXT NOT NULL, marca TEXT, supermercado TEXT, codigo_barras TEXT, generico INTEGER, " +
+        "racion TEXT, racion_g REAL, envase_g REAL, kcal REAL, proteinas REAL, hidratos REAL, grasas REAL, " +
+        "azucares REAL, saturadas REAL, fibra REAL, sal REAL"
+
     override fun onCreate(bd: SQLiteDatabase) {
-        val alimento = "nombre TEXT NOT NULL, marca TEXT, supermercado TEXT, codigo_barras TEXT, generico INTEGER, " +
-            "racion TEXT, racion_g REAL, envase_g REAL, kcal REAL, proteinas REAL, hidratos REAL, grasas REAL, " +
-            "azucares REAL, saturadas REAL, fibra REAL, sal REAL"
         bd.execSQL("CREATE TABLE entradas (id INTEGER PRIMARY KEY, fecha TEXT NOT NULL, comida INTEGER NOT NULL, gramos REAL, unidad TEXT, cantidad REAL, creado INTEGER, $alimento)")
         bd.execSQL("CREATE INDEX idx_fecha ON entradas(fecha)")
         bd.execSQL("CREATE TABLE productos (id INTEGER PRIMARY KEY, busca TEXT, $alimento)")
         bd.execSQL("CREATE UNIQUE INDEX idx_producto_codigo ON productos(codigo_barras)")
         bd.execSQL("CREATE TABLE habituales (id INTEGER PRIMARY KEY, nombre TEXT NOT NULL, creado INTEGER)")
         bd.execSQL("CREATE TABLE habitual_items (id INTEGER PRIMARY KEY, habitual_id INTEGER, gramos REAL, unidad TEXT, cantidad REAL, $alimento)")
+        crearPlatos(bd)
+    }
+
+    /** v3: platos caseros (la olla entera y sus raciones). */
+    private fun crearPlatos(bd: SQLiteDatabase) {
+        bd.execSQL("CREATE TABLE IF NOT EXISTS platos (id INTEGER PRIMARY KEY, nombre TEXT NOT NULL, raciones INTEGER, creado INTEGER)")
+        bd.execSQL("CREATE TABLE IF NOT EXISTS plato_items (id INTEGER PRIMARY KEY, plato_id INTEGER, gramos REAL, $alimento)")
     }
 
     override fun onUpgrade(bd: SQLiteDatabase, antes: Int, ahora: Int) {
         // Migraciones siempre sin borrar datos del usuario.
         if (antes < 2) corregirGenericos(bd)
+        if (antes < 3) crearPlatos(bd)
     }
 
     /** v2: lo ya apuntado con genéricos de BEDCA que tenían datos erróneos (ver datos/scripts/07_correcciones.py). */
@@ -57,7 +66,7 @@ class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 
 
     // ---------- Copia de seguridad ----------
 
-    private val TABLAS = listOf("entradas", "productos", "habituales", "habitual_items")
+    private val TABLAS = listOf("entradas", "productos", "habituales", "habitual_items", "platos", "plato_items")
 
     /** Todas las tablas en JSON (fila = objeto columna → valor). */
     fun exportar(): org.json.JSONObject {
@@ -104,7 +113,7 @@ class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 
             }
             bd.setTransactionSuccessful()
         } finally { bd.endTransaction() }
-        cambios.value++
+        avisar()
     }
 
     // ---------- Diario ----------
@@ -125,18 +134,24 @@ class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 
             put("unidad", unidad.name); put("cantidad", cantidad); put("creado", System.currentTimeMillis())
         }
         writableDatabase.insert("entradas", null, v)
+        avisar()
+    }
+
+    /** Pantallas y widget vuelven a leer. */
+    private fun avisar() {
         cambios.value++
+        com.mikel.kcalma.widget.WidgetHoy.refrescar(contexto)
     }
 
     fun actualizar(id: Long, gramos: Double, unidad: Unidad, cantidad: Double) {
         val v = ContentValues().apply { put("gramos", gramos); put("unidad", unidad.name); put("cantidad", cantidad) }
         writableDatabase.update("entradas", v, "id = ?", arrayOf(id.toString()))
-        cambios.value++
+        avisar()
     }
 
     fun borrar(id: Long) {
         writableDatabase.delete("entradas", "id = ?", arrayOf(id.toString()))
-        cambios.value++
+        avisar()
     }
 
     /** Últimos alimentos distintos que se han apuntado. */
@@ -205,6 +220,44 @@ class Diario(contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 
     fun borrarHabitual(id: Long) {
         writableDatabase.delete("habitual_items", "habitual_id = ?", arrayOf(id.toString()))
         writableDatabase.delete("habituales", "id = ?", arrayOf(id.toString()))
+        cambios.value++
+    }
+
+    // ---------- Platos caseros ----------
+
+    fun platos(): List<com.mikel.kcalma.dominio.Plato> {
+        val bd = readableDatabase
+        val cabeceras = bd.query("platos", arrayOf("id", "nombre", "raciones"), null, null, null, null, "nombre COLLATE NOCASE").use { c ->
+            generateSequence { if (c.moveToNext()) Triple(c.getLong(0), c.getString(1), c.getInt(2)) else null }.toList()
+        }
+        return cabeceras.map { (id, nombre, raciones) ->
+            val items = bd.query("plato_items", null, "plato_id = ?", arrayOf(id.toString()), null, null, "id").use { c ->
+                generateSequence { if (c.moveToNext()) com.mikel.kcalma.dominio.Ingrediente(c.alimento(), c.d("gramos") ?: 0.0) else null }.toList()
+            }
+            com.mikel.kcalma.dominio.Plato(id, nombre, raciones, items)
+        }
+    }
+
+    /** Crea ([Plato.id] = 0) o sustituye un plato. */
+    fun guardarPlato(p: com.mikel.kcalma.dominio.Plato) {
+        val bd = writableDatabase
+        bd.beginTransaction()
+        try {
+            val v = ContentValues().apply { put("nombre", p.nombre); put("raciones", p.raciones); put("creado", System.currentTimeMillis()) }
+            val id = if (p.id > 0) {
+                bd.update("platos", v, "id = ?", arrayOf(p.id.toString()))
+                bd.delete("plato_items", "plato_id = ?", arrayOf(p.id.toString()))
+                p.id
+            } else bd.insert("platos", null, v)
+            p.ingredientes.forEach { i -> bd.insert("plato_items", null, valores(i.alimento).apply { put("plato_id", id); put("gramos", i.gramos) }) }
+            bd.setTransactionSuccessful()
+        } finally { bd.endTransaction() }
+        cambios.value++
+    }
+
+    fun borrarPlato(id: Long) {
+        writableDatabase.delete("plato_items", "plato_id = ?", arrayOf(id.toString()))
+        writableDatabase.delete("platos", "id = ?", arrayOf(id.toString()))
         cambios.value++
     }
 

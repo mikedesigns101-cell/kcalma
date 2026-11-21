@@ -84,6 +84,11 @@ fun PantallaHoy(
     onIdea: (Idea) -> Unit = {},
     onVerIdeas: () -> Unit = {},
     aviso: (@Composable () -> Unit)? = null,
+    /** Kcal de ejercicio extra que se suman hoy (la mitad de lo que se mueve de más). */
+    ejercicio: Int = 0,
+    detalleEjercicio: String? = null,
+    /** Propuesta semanal de ajuste del plan. */
+    tarjeta: (@Composable () -> Unit)? = null,
 ) {
     val c = KcalmaTheme.colores
     val plan = remember(perfil) { Calculadora.calcular(perfil) }
@@ -101,8 +106,16 @@ fun PantallaHoy(
         ) {
             if (aviso != null) item { Box(lateral) { aviso() } }
             item { Column(lateral) { Cabecera(perfil.pesoKg) } }
-            item { Column(lateral) { Anillo(objetivo = plan.kcal, comido = comido.kcalInt, ejercicio = 0) } }
+            item { Column(lateral) { Anillo(objetivo = plan.kcal, comido = comido.kcalInt, ejercicio = ejercicio) } }
+            if (detalleEjercicio != null) item {
+                Text(
+                    detalleEjercicio, style = KcalmaTheme.tipo.pequeno, color = c.texto3,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = MARGEN).padding(bottom = 12.dp),
+                )
+            }
             item { Box(lateral) { FilaMacros(macros) } }
+            if (tarjeta != null) item { Box(lateral) { tarjeta() } }
             if (ideas.isNotEmpty()) {
                 item { Box(lateral) { TituloSeccion(tituloIdeas, "Ver más", onVerIdeas) } }
                 item { FilaSugerencias(ideas.take(5), onIdea) }
@@ -180,16 +193,16 @@ private fun Anillo(objetivo: Int, comido: Int, ejercicio: Int) {
     Row(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 14.dp), horizontalArrangement = Arrangement.SpaceAround) {
         DatoResumen("Objetivo", miles(objetivo))
         DatoResumen("Comido", miles(comido))
-        DatoResumen("Ejercicio", "+$ejercicio")
+        DatoResumen("Ejercicio", "+$ejercicio", if (ejercicio > 0) c.verde else c.texto)
     }
 }
 
 @Composable
-private fun DatoResumen(etiqueta: String, valor: String) {
+private fun DatoResumen(etiqueta: String, valor: String, color: Color = KcalmaTheme.colores.texto) {
     val c = KcalmaTheme.colores
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(etiqueta, style = KcalmaTheme.tipo.pequeno, color = c.texto3)
-        Text(valor, style = KcalmaTheme.tipo.numero, color = c.texto)
+        Text(valor, style = KcalmaTheme.tipo.numero, color = color)
     }
 }
 

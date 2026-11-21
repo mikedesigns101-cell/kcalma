@@ -160,6 +160,47 @@ object Gemini {
         }) { l -> l.joinToString { it.optString("nombre") } }
     }
 
+    // ---------- Etiqueta nutricional ----------
+
+    private val INSTRUCCIONES_ETIQUETA = """
+        Lee la tabla de información nutricional de la foto de un envase español. Devuelve los valores POR 100 g
+        (o 100 ml); si la tabla solo da valores por ración, conviértelos a 100 g. Usa null en lo que no se lea.
+        nombre: nombre corto del producto en español si se ve (si no, describe el producto en 2-4 palabras).
+        marca: la marca si se ve. racion_g: gramos de la ración que indique el envase, si la indica.
+        No inventes valores que no estén en la etiqueta.
+    """.trimIndent()
+
+    private val ESQUEMA_ETIQUETA = JSONObject(
+        """
+        {"type":"OBJECT","properties":{"nombre":{"type":"STRING"},"marca":{"type":"STRING","nullable":true},
+          "kcal":{"type":"NUMBER"},"proteinas":{"type":"NUMBER"},"hidratos":{"type":"NUMBER"},"grasas":{"type":"NUMBER"},
+          "azucares":{"type":"NUMBER","nullable":true},"saturadas":{"type":"NUMBER","nullable":true},
+          "fibra":{"type":"NUMBER","nullable":true},"sal":{"type":"NUMBER","nullable":true},"racion_g":{"type":"NUMBER","nullable":true}},
+         "required":["nombre","kcal","proteinas","hidratos","grasas"]}
+        """
+    )
+
+    /** Campos leídos de la etiqueta como texto para el formulario (clave → «6,8»). */
+    suspend fun etiqueta(clave: String, jpeg: ByteArray): Respuesta<Map<String, String>> {
+        val contenido = JSONArray().put(JSONObject().put("parts", JSONArray()
+            .put(JSONObject().put("text", "Lee esta etiqueta."))
+            .put(JSONObject().put("inline_data", JSONObject()
+                .put("mime_type", "image/jpeg").put("data", Base64.encodeToString(jpeg, Base64.NO_WRAP))))))
+        return withContext(Dispatchers.IO) {
+            cadena(MODELOS, clave, contenido, INSTRUCCIONES_ETIQUETA, ESQUEMA_ETIQUETA, 0.1, { r ->
+                val o = JSONObject(texto(r))
+                fun n(k: String) = if (o.isNull(k)) null else o.optDouble(k).takeIf { !it.isNaN() && it >= 0 }
+                fun f(x: Double) = if (x == Math.floor(x)) x.toLong().toString() else "%.1f".format(java.util.Locale.US, x).replace('.', ',')
+                buildMap {
+                    put("nombre", o.optString("nombre"))
+                    if (!o.isNull("marca")) put("marca", o.optString("marca"))
+                    listOf("kcal", "proteinas", "hidratos", "grasas", "azucares", "saturadas", "fibra", "sal").forEach { k -> n(k)?.let { put(k, f(it)) } }
+                    n("racion_g")?.let { put("racion", f(it)) }
+                }
+            }) { m -> "${m["nombre"]} ${m["kcal"]} kcal" }
+        }
+    }
+
     /** Junta el texto de todas las partes que no son razonamiento y quita un posible ```json. */
     private fun texto(respuesta: JSONObject): String {
         val partes = respuesta.getJSONArray("candidates").getJSONObject(0).getJSONObject("content").getJSONArray("parts")

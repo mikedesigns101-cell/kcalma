@@ -89,6 +89,8 @@ class AccionesPerfil(
     val onImportar: () -> Unit,
     val onInforme: () -> Unit,
     val onActualizar: () -> Unit,
+    val onRecordatorios: () -> Unit = {},
+    val onActividad: () -> Unit = {},
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,6 +100,8 @@ fun PantallaPerfil(
     pesos: List<Pesada>,
     claveGuardada: Boolean,
     acciones: AccionesPerfil,
+    /** Estado de Health Connect para la fila de Actividad del móvil. */
+    actividad: String = "",
     onPestana: (Pestana) -> Unit,
     onCamara: () -> Unit,
 ) {
@@ -156,6 +160,10 @@ fun PantallaPerfil(
                 Fila("🛒", "Supermercados", perfil.supermercados.sortedBy { SUPERMERCADOS.indexOf(it) }.joinToString().ifEmpty { "Todos" }) {
                     acciones.onEditar(Bloque.SUPERMERCADOS)
                 }
+            }
+            Grupo("Avisos y móvil") {
+                Fila("🔔", "Recordatorios", "Comidas y peso", onClick = acciones.onRecordatorios)
+                Fila("👟", "Pasos y ejercicio", actividad, onClick = acciones.onActividad)
             }
             Grupo("Foto con IA") {
                 Fila("🔑", "Clave de Gemini", if (claveGuardada) "Guardada" else "Sin clave", valorColor = if (claveGuardada) c.verde else c.aviso) {

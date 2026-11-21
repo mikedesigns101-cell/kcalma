@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Solo para el widget (RemoteViews no puede usar el tema de Compose). Mismos valores que ui/theme/Colores.kt. -->
+<resources>
+    <color name="widget_fondo">#EB070C10</color>
+    <color name="widget_borde">#FF1A2A33</color>
+    <color name="widget_boton">#FF16232B</color>
+    <color name="widget_texto">#FFE9F2F6</color>
+    <color name="widget_texto2">#FF9DB2BD</color>
+    <color name="widget_sobre_acento">#FF06141A</color>
+    <color name="widget_acento">#FF3AD6F0</color>
+    <color name="widget_acento2">#FFE05CC0</color>
+</resources>

@@ -81,6 +81,13 @@
 - **Gustos por categorías:** la app ofrece 26 categorías (Setas, Pescado, Marisco, Cerdo…); un toque = no me gusta, dos = me encanta. Cada categoría lleva sus palabras (Setas → champiñón, boletus, níscalo…), que filtran las recetas y se mandan a la IA. Lo que se escribe a mano solo bloquea esa palabra («nata» no quita la leche).
 - **Atajos en Añadir:** «Repetir tu comida de ayer» (lo último que apuntaste en esa comida, de un toque), «Sueles tomar» (lo que más repites en esa comida en 45 días, con la cantidad de siempre) y «Añadir solo calorías» (kcal y proteína opcional, para comer fuera).
 
+### Funciones de la 0.5.0 (21/11/2026)
+Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caseros, widget, Health Connect, foto de la etiqueta y lista de la compra. Descartado: calorías por semana.
+- **Ajuste automático:** la app propone y Mikel acepta. Una vez por semana, si el gasto real calculado con el peso y lo comido difiere, sale una tarjeta con el cambio; nunca se aplica solo.
+- **Health Connect:** se suma la mitad de las calorías activas de más que diga el móvil o el reloj (suelen exagerar).
+- **Foto de la etiqueta:** la lee Gemini con la clave del usuario.
+- **Publicación:** todo junto en la 0.5.0.
+
 **Arquitectura sin servidor (confirmada el 20/11/2026):** no hay Supabase ni ningún backend. La app funciona entera en el móvil: base de datos local, la clave de cada usuario guardada cifrada (Android Keystore) y la llamada a la IA directamente desde la app. Cada amigo saca su propia clave gratis de Gemini en Google AI Studio, con una guía dentro de la app. La clave de Mikel nunca va en el APK. Sin sincronización: botón de exportar e importar copia de seguridad. Esto sustituye al "servidor intermedio" y a Supabase de las secciones 3 y 5.
 
 ---

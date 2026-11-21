@@ -47,6 +47,8 @@ import com.mikel.kcalma.datos.Repositorio
 import com.mikel.kcalma.dominio.Alimento
 import com.mikel.kcalma.dominio.ComidaDia
 import com.mikel.kcalma.dominio.Entrada
+import com.mikel.kcalma.dominio.Plato
+import com.mikel.kcalma.dominio.normalizar
 import com.mikel.kcalma.dominio.Unidad
 import java.time.LocalDate
 import androidx.compose.ui.text.input.KeyboardType
@@ -75,6 +77,8 @@ fun PantallaAnadir(
     selectorComida: Boolean = true,
     /** Atajos del diario (repetir, lo de siempre, solo calorías); null en la foto. */
     onAnadirEntrada: ((Entrada) -> Unit)? = null,
+    /** Mis platos caseros; null donde no se ofrecen (foto, ingredientes de un plato). */
+    accionesPlatos: AccionesPlatos? = null,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -87,10 +91,14 @@ fun PantallaAnadir(
     var ultima by remember { mutableStateOf<List<Entrada>>(emptyList()) }
     var frecuentes by remember { mutableStateOf<List<Entrada>>(emptyList()) }
     var dialogoKcal by remember { mutableStateOf(false) }
+    var platos by remember { mutableStateOf<List<Plato>>(emptyList()) }
     val foco = remember { FocusRequester() }
 
     LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) { recientes = repo.diario.recientes(); habituales = repo.diario.habituales() }
+        withContext(Dispatchers.IO) {
+            recientes = repo.diario.recientes(); habituales = repo.diario.habituales()
+            if (accionesPlatos != null) platos = repo.diario.platos()
+        }
     }
     LaunchedEffect(comida) {
         if (onAnadirEntrada == null) return@LaunchedEffect
@@ -151,7 +159,12 @@ fun PantallaAnadir(
         LazyColumn(Modifier.fillMaxWidth().weight(1f), contentPadding = PaddingValues(bottom = 16.dp)) {
             when {
                 filtro == MIS_COMIDAS -> {
-                    item { MiniTitulo("Comidas habituales") }
+                    if (accionesPlatos != null) {
+                        item { MiniTitulo("Mis platos") }
+                        items(platos) { p -> FilaPlato(p, accionesPlatos) }
+                        item { FilaAtajo("🍲", "Nuevo plato casero", "Lentejas, cocido…: la olla entera y sus raciones") { accionesPlatos.onEditar(null) } }
+                    }
+                    item { MiniTitulo("Comidas habituales", Modifier.padding(top = 6.dp)) }
                     if (habituales.isEmpty()) item {
                         Text(
                             "Aún no tienes ninguna. Desde una comida del día, pulsa «Guardar como comida habitual».",
@@ -184,6 +197,12 @@ fun PantallaAnadir(
                     }
                 }
                 else -> {
+                    val q = normalizar(consulta)
+                    val mios = platos.filter { normalizar(it.nombre).contains(q) }
+                    if (accionesPlatos != null && mios.isNotEmpty()) {
+                        item { MiniTitulo("Mis platos") }
+                        items(mios) { p -> FilaPlato(p, accionesPlatos) }
+                    }
                     item { MiniTitulo("Resultados") }
                     if (resultados.isEmpty() && !buscando) item {
                         Text("Sin resultados. Prueba con menos palabras o escanea el código de barras.",
@@ -249,6 +268,15 @@ private fun FilaHabitual(h: Habitual, emoji: String = "⭐", onAnadir: () -> Uni
         Spacer(Modifier.width(10.dp))
         Text("+", style = t.numero, color = c.acento)
     }
+}
+
+/** Acciones de «Mis platos» en Añadir. onEditar(null) = nuevo. */
+class AccionesPlatos(val onAbrir: (Plato) -> Unit, val onAnadir: (Plato) -> Unit, val onEditar: (Plato?) -> Unit)
+
+@Composable
+private fun FilaPlato(p: Plato, acciones: AccionesPlatos) {
+    val a = p.alimento
+    FilaAlimento(a.copy(marca = "${Plato.MARCA} · de ${p.raciones}"), { acciones.onAbrir(p) }, { acciones.onAnadir(p) }, onEditar = { acciones.onEditar(p) })
 }
 
 @Composable

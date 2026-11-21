@@ -63,6 +63,9 @@ fun PantallaIdeas(
     onMasIa: () -> Unit,
     onPestana: (Pestana) -> Unit,
     onCamara: () -> Unit,
+    /** Cosas pendientes en la lista de la compra. */
+    enLista: Int = 0,
+    onLista: () -> Unit = {},
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -71,7 +74,13 @@ fun PantallaIdeas(
             Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp).padding(top = 14.dp, bottom = 130.dp),
         ) {
-            Text("Ideas para ${articulo(comida)}${comida.nombre.lowercase()}", style = t.marca, color = c.texto)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Ideas para ${articulo(comida)}${comida.nombre.lowercase()}", style = t.marca, color = c.texto, modifier = Modifier.weight(1f))
+                Text(
+                    if (enLista > 0) "🛒 $enLista" else "🛒", style = t.cuerpo, color = c.texto,
+                    modifier = Modifier.tarjeta().clickable(onClick = onLista).padding(horizontal = 12.dp, vertical = 7.dp),
+                )
+            }
             Spacer(Modifier.height(12.dp))
             Column(Modifier.fillMaxWidth().tarjeta().padding(14.dp)) {
                 Text("Te quedan hoy", style = t.pequeno, color = c.texto2)
@@ -181,7 +190,7 @@ private fun detalle(r: Receta) = listOfNotNull(
 
 /** Detalle de una idea: ingredientes con cantidades, pasos y cómo queda el día si se añade. */
 @Composable
-fun DetalleIdea(idea: Idea, comida: ComidaDia, restante: Nutrientes, planKcal: Int, onAtras: () -> Unit, onAnadir: () -> Unit) {
+fun DetalleIdea(idea: Idea, comida: ComidaDia, restante: Nutrientes, planKcal: Int, onAtras: () -> Unit, onAnadir: () -> Unit, onLista: () -> Unit = {}) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     val r = idea.receta
@@ -233,7 +242,14 @@ fun DetalleIdea(idea: Idea, comida: ComidaDia, restante: Nutrientes, planKcal: I
                 withStyle(SpanStyle(color = if (final > planKcal * 1.05) c.aviso else c.verde)) { append("${miles(final.roundToInt())} kcal") }
                 append(" de ${miles(planKcal)}")
             }, style = t.cuerpo, color = c.texto2, modifier = Modifier.padding(bottom = 10.dp))
-            BotonPrincipal("Añadir a ${articulo(comida)}${comida.nombre.lowercase()}", onAnadir, Modifier.fillMaxWidth())
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val f = RoundedCornerShape(13.dp)
+                Text(
+                    "🛒 A la lista", style = t.titulo, color = c.texto2,
+                    modifier = Modifier.padding(end = 8.dp).clip(f).border(1.dp, c.borde, f).clickable(onClick = onLista).padding(horizontal = 14.dp, vertical = 13.dp),
+                )
+                BotonPrincipal("Añadir a ${articulo(comida)}${comida.nombre.lowercase()}", onAnadir, Modifier.weight(1f))
+            }
         }
     }
 }
