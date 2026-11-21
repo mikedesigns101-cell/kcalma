@@ -61,7 +61,7 @@ fun rutinaDeHoy(rutinas: List<Rutina>, sesiones: List<Sesion>, hoy: LocalDate = 
 internal fun minutos(m: Int) = if (m < 60) "$m min" else "${m / 60} h${if (m % 60 > 0) " ${m % 60} min" else ""}"
 
 internal fun detalleRutina(r: Rutina): String = when (r.formato) {
-    Formato.SERIES -> "${r.bloques.size} ejercicios · ${r.totalSeries} series · ${minutos(r.duracion())}"
+    Formato.SERIES -> "${r.bloques.size} ${if (r.bloques.size == 1) "ejercicio" else "ejercicios"} · ${r.totalSeries} series · ${minutos(r.duracion())}"
     else -> "${r.formato.nombre} · ${minutos(r.minutos)}"
 }
 

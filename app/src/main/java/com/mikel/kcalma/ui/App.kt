@@ -428,6 +428,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
                 onEditar = { pila.add(Destino.EditarRutina(r)) },
                 onBorrar = {
                     enBd { entrenos.borrarRutina(r.id) }
+                    if (!r.predefinida) sesionesE.filter { !it.terminada && it.rutinaId == r.id }.forEach { x -> enBd { entrenos.terminar(x.id) } }
                     if (!r.predefinida) { pila.removeAt(pila.lastIndex); aviso("Rutina borrada") } else aviso("Rutina como la original")
                 },
                 onDias = { dias -> enBd { entrenos.guardarRutina(r.copy(dias = dias)) } },
@@ -458,6 +459,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
                 LaunchedEffect(d, sesionesE, rutinas) {
                     kotlinx.coroutines.delay(400)
                     val x = sesionesE.firstOrNull { it.id == d.id }
+                    // Sin su rutina (borrada o no está en una copia) se cierra guardando lo marcado; si no, quedaría a medias para siempre
+                    if (x != null && !x.terminada && r == null) enBd { entrenos.terminar(x.id) }
                     if (x == null || x.terminada || r == null) pila.remove(d)
                 }
             } else com.mikel.kcalma.ui.entreno.PantallaSesion(
