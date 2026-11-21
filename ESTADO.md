@@ -62,6 +62,11 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 - Probado en el emulador: buscar «espaguetis» y «macarrones», Cocido en un macarrón de Mercadona (250 g cocidos = 104 g en seco), añadir, borrar y deshacer. Sin cierres.
 - Sin probar en el emulador: el dictado con «cocidos» (lo cubren los tests).
 
+## Versión 0.6.2
+- La comprobación de actualizaciones pasa de `LaunchedEffect(Unit)` a `LifecycleResumeEffect` en `ui/App.kt`: también al volver a la app desde segundo plano. Antes solo se veía la tarjeta si Android había cerrado la app.
+- versionCode 16 (el 15 se usó en una versión de prueba del emulador).
+- Probado en el emulador con una versión de prueba temporal: la tarjeta sale al abrir y al volver a la app, sin cierres.
+
 ## Pendiente
 1. Probar en el móvil: lectura real de un código de barras.
 2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.

@@ -58,6 +58,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.LocalTime
@@ -119,7 +120,11 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
     val actualizador = remember { Actualizador(contexto.applicationContext) }
     var nueva by remember { mutableStateOf<VersionNueva?>(null) }
     var descarga by remember { mutableStateOf<Float?>(null) }
-    LaunchedEffect(Unit) { nueva = actualizador.comprobar() }
+    // Cada vez que se vuelve a la app (no solo al arrancarla), como mucho una consulta cada 10 minutos
+    LifecycleResumeEffect(Unit) {
+        val trabajo = alcance.launch { val v = actualizador.comprobar(); if (descarga == null) nueva = v }
+        onPauseOrDispose { trabajo.cancel() }
+    }
 
     var pestana by rememberSaveable { mutableStateOf(Pestana.HOY) }
     val pesos by almacen.pesos.collectAsState(initial = emptyList())
