@@ -2,6 +2,7 @@ package com.mikel.kcalma.ui
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import kotlinx.coroutines.asCoroutineDispatcher
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,6 +60,8 @@ import com.mikel.kcalma.ui.diario.PantallaComida
 import com.mikel.kcalma.ui.hoy.PantallaHoy
 import com.mikel.kcalma.ui.hoy.TarjetaActualizacion
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.foundation.layout.fillMaxSize
+import com.mikel.kcalma.ui.componentes.fondoKcalma
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.Dispatchers
@@ -102,6 +105,10 @@ private sealed interface Destino {
     data class Editar(val bloque: Bloque) : Destino
     data object Clave : Destino
     data class VerIdea(val idea: Idea, val comida: ComidaDia) : Destino
+    data class Rutina(val id: String) : Destino
+    data class Sesion(val id: Long) : Destino
+    data class Ejercicio(val id: String) : Destino
+    data class EditarRutina(val rutina: com.mikel.kcalma.dominio.Rutina) : Destino
 }
 
 @Composable
@@ -183,6 +190,25 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     }
     val cambiarPestana: (Pestana) -> Unit = { pestana = it }
 
+    // ---- Entreno: las escrituras van en orden por un solo hilo (una serie corregida dos veces no se pisa) ----
+    val entrenos = repo.entrenos
+    val rutinas by remember { entrenos.rutinas() }.collectAsState(initial = emptyList())
+    val sesionesE by remember { entrenos.sesiones() }.collectAsState(initial = emptyList())
+    val ajustesE by remember { entrenos.ajustes() }.collectAsState(initial = com.mikel.kcalma.datos.AjustesEntreno())
+    val hiloEntreno = remember { java.util.concurrent.Executors.newSingleThreadExecutor().asCoroutineDispatcher() }
+    var seccion by rememberSaveable { mutableStateOf(com.mikel.kcalma.dominio.Seccion.GIMNASIO) }
+    fun enBd(f: () -> Unit) { alcance.launch(hiloEntreno) { f() } }
+    fun empezar(r: com.mikel.kcalma.dominio.Rutina) {
+        val enCurso = sesionesE.firstOrNull { !it.terminada }
+        if (enCurso != null) { aviso("Termina antes el entreno a medias"); pila.add(Destino.Sesion(enCurso.id)); return }
+        alcance.launch {
+            val id = withContext(hiloEntreno) { entrenos.empezar(r) }
+            pila.add(Destino.Sesion(id))
+        }
+    }
+    val abrirRutina: (com.mikel.kcalma.dominio.Rutina) -> Unit = { pila.add(Destino.Rutina(it.id)) }
+    val continuar: (com.mikel.kcalma.dominio.Sesion) -> Unit = { pila.add(Destino.Sesion(it.id)) }
+
     // ---- Ideas: recetas propias + las que pida a la IA ----
     val recetas by produceState(emptyList<Receta>()) { value = runCatching { Recetas.todas(contexto.applicationContext) }.getOrDefault(emptyList()) }
     // Próxima comida sin apuntar a partir de la hora actual (la cena si ya va todo apuntado)
@@ -220,14 +246,14 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     }
     val exportar = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
         if (uri != null) alcance.launch {
-            runCatching { Copia.exportar(contexto, uri, almacen, repo.diario) }
+            runCatching { Copia.exportar(contexto, uri, almacen, repo.diario, repo.entrenos) }
                 .onSuccess { aviso("Copia guardada") }
                 .onFailure { com.mikel.kcalma.datos.Registro.error("Exportar copia", it); aviso("No se pudo guardar la copia") }
         }
     }
     val importar = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri != null) alcance.launch {
-            runCatching { Copia.importar(contexto, uri, almacen, repo.diario) }
+            runCatching { Copia.importar(contexto, uri, almacen, repo.diario, repo.entrenos) }
                 .onSuccess { ok -> aviso(if (ok) "Copia importada" else "Ese archivo no es una copia de Kcalma") }
                 .onFailure { com.mikel.kcalma.datos.Registro.error("Importar copia", it); aviso("No se pudo leer la copia") }
         }
@@ -286,6 +312,16 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         ) else if (pestana == Pestana.PROGRESO) com.mikel.kcalma.ui.progreso.PantallaProgreso(
             perfil = perfil, pesos = pesos, dias = dias, onPestana = cambiarPestana,
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
+        ) else if (pestana == Pestana.ENTRENO) com.mikel.kcalma.ui.entreno.PantallaEntreno(
+            seccion = seccion, rutinas = rutinas, sesiones = sesionesE, ajustes = ajustesE,
+            onSeccion = { seccion = it },
+            onAbrir = abrirRutina,
+            onEmpezar = { empezar(it) },
+            onContinuar = continuar,
+            onCrear = { pila.add(Destino.EditarRutina(com.mikel.kcalma.dominio.Rutina("", "", seccion, emptyList()))) },
+            onKettlebells = { kg -> enBd { entrenos.guardarKettlebells(kg) } },
+            onPestana = cambiarPestana,
+            onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
         ) else if (pestana == Pestana.PERFIL) PantallaPerfil(
             perfil = perfil,
             pesos = pesos,
@@ -342,8 +378,11 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             onAnadir = { c -> pila.add(Destino.Anadir(c)) },
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
             onPestana = cambiarPestana,
-            onPeso = { pestana = Pestana.PERFIL },
+            onPerfil = { pestana = Pestana.PERFIL },
             onAvisos = { pila.add(Destino.Recordatorios) },
+            entreno = if (com.mikel.kcalma.ui.entreno.hayEntrenoHoy(rutinas, sesionesE)) {
+                { com.mikel.kcalma.ui.entreno.TarjetaEntrenoHoy(rutinas, sesionesE, abrirRutina, { empezar(it) }, continuar, mapa = false) }
+            } else null,
             ideas = if (pendiente == null) emptyList() else ideasDe(proxima, FiltrosIdeas()),
             tituloIdeas = "Ideas para ${if (proxima == ComidaDia.MEDIA_MANANA) "" else "la "}${proxima.nombre.lowercase()}",
             onIdea = { pila.add(Destino.VerIdea(it, proxima)) },
@@ -379,6 +418,57 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
                 }
             },
         )
+        is Destino.Rutina -> {
+            val r = rutinas.firstOrNull { it.id == d.id }
+            if (r == null) LaunchedEffect(d) { if (rutinas.isNotEmpty()) pila.remove(d) }
+            else com.mikel.kcalma.ui.entreno.PantallaRutina(
+                r = r, sesiones = sesionesE,
+                onAtras = { pila.removeAt(pila.lastIndex) },
+                onEmpezar = { empezar(r) },
+                onEditar = { pila.add(Destino.EditarRutina(r)) },
+                onBorrar = {
+                    enBd { entrenos.borrarRutina(r.id) }
+                    if (!r.predefinida) { pila.removeAt(pila.lastIndex); aviso("Rutina borrada") } else aviso("Rutina como la original")
+                },
+                onDias = { dias -> enBd { entrenos.guardarRutina(r.copy(dias = dias)) } },
+                onEjercicio = { pila.add(Destino.Ejercicio(it.id)) },
+            )
+        }
+        is Destino.EditarRutina -> com.mikel.kcalma.ui.entreno.PantallaEditorRutina(
+            inicial = d.rutina,
+            onAtras = { pila.removeAt(pila.lastIndex) },
+            onGuardar = { nueva ->
+                alcance.launch {
+                    val id = withContext(hiloEntreno) { entrenos.guardarRutina(nueva) }
+                    pila.remove(d)
+                    if (d.rutina.id.isEmpty()) pila.add(Destino.Rutina(id))
+                    aviso("Rutina guardada")
+                }
+            },
+        )
+        is Destino.Ejercicio -> com.mikel.kcalma.dominio.Ejercicios.porId(d.id)?.let { ej ->
+            com.mikel.kcalma.ui.entreno.PantallaFichaEjercicio(ej, sesionesE) { pila.removeAt(pila.lastIndex) }
+        } ?: LaunchedEffect(d) { pila.remove(d) }
+        is Destino.Sesion -> {
+            val s = sesionesE.firstOrNull { it.id == d.id }
+            val r = s?.let { x -> rutinas.firstOrNull { it.id == x.rutinaId } ?: com.mikel.kcalma.dominio.Rutinas.predefinidas.firstOrNull { it.id == x.rutinaId } }
+            if (s == null || r == null || s.terminada) {
+                androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.fillMaxSize().then(androidx.compose.ui.Modifier.fondoKcalma()))
+                // La sesión tarda un instante en llegar de la base de datos; si no existe o ya terminó, se cierra
+                LaunchedEffect(d, sesionesE, rutinas) {
+                    kotlinx.coroutines.delay(400)
+                    val x = sesionesE.firstOrNull { it.id == d.id }
+                    if (x == null || x.terminada || r == null) pila.remove(d)
+                }
+            } else com.mikel.kcalma.ui.entreno.PantallaSesion(
+                sesion = s, rutina = r, sesiones = sesionesE, ajustes = ajustesE,
+                onSerie = { serie -> enBd { entrenos.guardarSerie(s.id, serie) } },
+                onTerminar = { enBd { entrenos.terminar(s.id) }; pila.remove(d); aviso("Entreno guardado") },
+                onDescartar = { enBd { entrenos.descartar(s.id) }; pila.remove(d) },
+                onSalir = { pila.remove(d) },
+                onFicha = { pila.add(Destino.Ejercicio(it.id)) },
+            )
+        }
         is Destino.Comida -> PantallaComida(
             comida = d.comida,
             entradas = entradas.filter { it.comida == d.comida },

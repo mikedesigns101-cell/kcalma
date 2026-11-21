@@ -115,7 +115,7 @@ Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caser
 
 ---
 
-### Entrenamientos (21/11/2026, Mikel; pendiente de maqueta)
+### Entrenamientos (21/11/2026, Mikel; maqueta `maquetas/kcalma-entreno.html` aprobada)
 - Apartado de gimnasio para usar Kcalma también como app de entreno: hacer y registrar sesiones, rutinas hechas y editables, rutinas propias.
 - **Progresión:** cada serie sale rellenada con lo de la última vez (80 kg × 8 → la próxima vez 80 × 8). Doble progresión calculada por código, no por la IA: con todas las series en lo alto del rango propone +2,5 kg; en kettlebell, la siguiente pesa que tenga el usuario o más series y reps.
 - **Mapa del cuerpo** (frente y espalda) al ver o crear una rutina y en cada ejercicio, con los músculos que trabajan iluminados. Dibujado por nosotros con el estilo Kcalma.
@@ -125,6 +125,14 @@ Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caser
 - **Entrenador IA** (Gemini, con la clave del usuario): cada semana **propone** cambios en una tarjeta y el usuario los acepta o descarta. Tiene además un chat para dudas de técnica, ejercicios y dieta.
 - No se suman kcal del gimnasio: los días de pesas ya cuentan en el factor de actividad.
 - **Fases:** la 0.8.0 trae biblioteca, rutinas, registro, progresión, mapa y kettlebell; la 0.9.0, el entrenador IA y el chat.
+- **Hecho en la 0.8.0 (decisiones de implementación, pendientes de que Mikel las revise):**
+  - "Anterior" es por ejercicio: lo último que hiciste en ese ejercicio, en cualquier rutina.
+  - Las rutinas hechas vienen sin días; la tarjeta "Hoy toca" solo sale si pones días o tienes un entreno a medias.
+  - Los entrenos van en `entreno.db`, aparte del diario, y entran en la copia de seguridad.
+  - Editar una rutina hecha guarda tu copia con el mismo id ("Volver a la original" la deshace).
+  - Orden de ejercicios en el editor con flechas ↑ ↓, no arrastrando.
+  - Catálogo inicial: 31 ejercicios (9 de kettlebell) y 10 rutinas hechas (3 gimnasio, 5 kettlebell con EMOM y AMRAP, 2 casa). Faltan ejercicios hasta los ~150 y el modo intervalos.
+  - EMOM apunta solo cada minuto; AMRAP cuenta rondas con + y −.
 
 ## 1. Qué hace la app
 

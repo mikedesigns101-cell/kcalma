@@ -23,8 +23,8 @@ android {
         minSdk = 26
         targetSdk = 36
         // -PcodigoPrueba y -PetiquetaPrueba solo para probar actualizaciones en el emulador
-        versionCode = (findProperty("codigoPrueba") as String?)?.toInt() ?: 17
-        versionName = "0.7.0"
+        versionCode = (findProperty("codigoPrueba") as String?)?.toInt() ?: 18
+        versionName = "0.8.0"
         buildConfigField("String", "ETIQUETA_PRUEBA", "\"${findProperty("etiquetaPrueba") ?: ""}\"")
     }
 

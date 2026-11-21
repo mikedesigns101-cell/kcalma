@@ -75,6 +75,13 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 - Solo heredan el estilo cristal (sin maqueta propia): Etiqueta, Plato, Recordatorios, Lista, Privacidad, tarjetas de actualización y de ajuste, pasos del onboarding.
 - Sin probar en el emulador: el onboarding (haría falta borrar los datos), Escáner con cámara real, Receta, Lista y la hoja de peso.
 
+## Versión 0.8.0 (Entreno)
+- Barra: Hoy, Ideas, +, Entreno, Progreso. Perfil, con el botón de arriba a la izquierda en Hoy.
+- `dominio/Entreno.kt`, `Ejercicios.kt` (catálogo y rutinas hechas), `Progresion.kt` (doble progresión, récords; 11 tests).
+- `datos/Entrenos.kt` (`entreno.db`, cada serie se guarda al marcarla; la sesión a medias se sigue desde "Continuar").
+- `ui/entreno/`: pestaña Entreno, rutina, ficha con figura animada, sesión (series con descanso, EMOM, AMRAP) y editor.
+- Probado en el emulador instalando encima de la 0.7.0 (los datos siguen): 80 × 8 en press de banca → la siguiente vez propone 80 × 8; EMOM apunta el minuto solo; sesión a medias sobrevive a reiniciar.
+
 ## Pendiente
 1. Probar en el móvil: lectura real de un código de barras.
 2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.

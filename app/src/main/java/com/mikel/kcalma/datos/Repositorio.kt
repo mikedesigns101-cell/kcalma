@@ -9,6 +9,7 @@ import kotlinx.coroutines.withContext
 class Repositorio(contexto: Context) {
     val catalogo = Catalogo(contexto)
     val diario = Diario(contexto)
+    val entrenos = Entrenos(contexto)
 
     /** [supermercado]: null = todos, "" = solo genéricos. */
     suspend fun buscar(consulta: String, supermercado: String?): List<Alimento> = withContext(Dispatchers.IO) {

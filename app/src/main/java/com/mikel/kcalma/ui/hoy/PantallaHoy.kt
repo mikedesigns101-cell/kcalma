@@ -114,8 +114,10 @@ fun PantallaHoy(
     detalleEjercicio: String? = null,
     /** Propuesta semanal de ajuste del plan. */
     tarjeta: (@Composable () -> Unit)? = null,
-    onPeso: () -> Unit = {},
+    onPerfil: () -> Unit = {},
     onAvisos: () -> Unit = {},
+    /** Tarjeta del entreno de hoy (solo si toca o hay uno a medias). */
+    entreno: (@Composable () -> Unit)? = null,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -136,7 +138,7 @@ fun PantallaHoy(
             contentPadding = PaddingValues(top = 8.dp, bottom = 130.dp),
         ) {
             if (aviso != null) item { Box(lateral) { aviso() } }
-            item { Box(lateral) { Cabecera(onPeso, onAvisos) } }
+            item { Box(lateral) { Cabecera(onPerfil, onAvisos) } }
             item {
                 Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Pompa(restantes = total - comido.kcalInt, progreso = progreso)
@@ -164,6 +166,7 @@ fun PantallaHoy(
                 }
             }
             item { Box(lateral.entrada(2)) { FilaMacros(macros) } }
+            if (entreno != null) item { Box(lateral.padding(bottom = 9.dp)) { entreno() } }
             if (tarjeta != null) item { Box(lateral) { tarjeta() } }
             itemsIndexed(ComidaDia.entries.chunked(2)) { i, par ->
                 Row(lateral.entrada(3 + i).padding(bottom = 9.dp), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
@@ -183,10 +186,10 @@ fun PantallaHoy(
 }
 
 @Composable
-private fun Cabecera(onPeso: () -> Unit, onAvisos: () -> Unit) {
+private fun Cabecera(onPerfil: () -> Unit, onAvisos: () -> Unit) {
     val c = KcalmaTheme.colores
     Row(Modifier.fillMaxWidth().padding(top = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-        BotonCristal(Ic.PESO, onPeso)
+        BotonCristal(Ic.PERFIL, onPerfil)
         Text("Kcalma", style = KcalmaTheme.tipo.marca, color = c.texto, textAlign = TextAlign.Center, modifier = Modifier.weight(1f))
         BotonCristal(Ic.AVISOS, onAvisos)
     }
@@ -346,7 +349,8 @@ private fun TarjetaComida(comida: ComidaDia, entradas: List<Entrada>, onAbrir: (
 // ---------- Barra inferior ----------
 
 /** Pestañas de la barra de abajo. */
-enum class Pestana { HOY, PROGRESO, IDEAS, PERFIL }
+/** PERFIL ya no está en la barra: se abre desde el botón de arriba de Hoy. */
+enum class Pestana { HOY, IDEAS, ENTRENO, PROGRESO, PERFIL }
 
 /** Dónde estaba la burbuja de la barra, para que al cambiar de pestaña se deslice desde ahí. */
 private object MemoriaBarra { var hueco = 0f }
@@ -359,8 +363,10 @@ fun BarraInferior(modifier: Modifier, actual: Pestana, onPestana: (Pestana) -> U
     val mov = KcalmaTheme.movimiento
     val acciones = LocalAccionesMas.current
     var hoja by remember { mutableStateOf(false) }
-    val huecos = listOf(Pestana.HOY to 0, Pestana.PROGRESO to 1, Pestana.IDEAS to 3, Pestana.PERFIL to 4)
-    val destino = huecos.first { it.first == actual }.second.toFloat()
+    val huecos = listOf(Pestana.HOY to 0, Pestana.IDEAS to 1, Pestana.ENTRENO to 3, Pestana.PROGRESO to 4)
+    // Sin hueco (Perfil): la burbuja se esconde y se queda donde estaba
+    val hay = huecos.firstOrNull { it.first == actual }
+    val destino = hay?.second?.toFloat() ?: MemoriaBarra.hueco
     val burbuja = remember { Animatable(MemoriaBarra.hueco) }
     LaunchedEffect(destino) {
         MemoriaBarra.hueco = destino
@@ -380,17 +386,17 @@ fun BarraInferior(modifier: Modifier, actual: Pestana, onPestana: (Pestana) -> U
         ) {
             val hueco = maxWidth / 5
             // Burbuja de cristal bajo la pestaña elegida
-            Box(
+            if (hay != null) Box(
                 Modifier.offset(x = hueco * burbuja.value + 5.dp, y = 7.dp).width(hueco - 10.dp).height(54.dp)
                     .vidrio(RoundedCornerShape(22.dp))
                     .drawBehind { drawRect(c.luz1.copy(alpha = c.luz1.alpha * .5f)) }
             )
             Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
                 ElementoBarra(Ic.HOY, "Hoy", actual == Pestana.HOY, Modifier.weight(1f)) { onPestana(Pestana.HOY) }
-                ElementoBarra(Ic.PROGRESO, "Progreso", actual == Pestana.PROGRESO, Modifier.weight(1f)) { onPestana(Pestana.PROGRESO) }
-                Spacer(Modifier.weight(1f))
                 ElementoBarra(Ic.IDEAS, "Ideas", actual == Pestana.IDEAS, Modifier.weight(1f)) { onPestana(Pestana.IDEAS) }
-                ElementoBarra(Ic.PERFIL, "Perfil", actual == Pestana.PERFIL, Modifier.weight(1f)) { onPestana(Pestana.PERFIL) }
+                Spacer(Modifier.weight(1f))
+                ElementoBarra(Ic.PESA, "Entreno", actual == Pestana.ENTRENO, Modifier.weight(1f)) { onPestana(Pestana.ENTRENO) }
+                ElementoBarra(Ic.PROGRESO, "Progreso", actual == Pestana.PROGRESO, Modifier.weight(1f)) { onPestana(Pestana.PROGRESO) }
             }
         }
         val pulsado = remember { MutableInteractionSource() }
