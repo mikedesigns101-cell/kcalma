@@ -134,6 +134,12 @@ Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caser
   - Catálogo inicial: 31 ejercicios (9 de kettlebell) y 10 rutinas hechas (3 gimnasio, 5 kettlebell con EMOM y AMRAP, 2 casa). Faltan ejercicios hasta los ~150 y el modo intervalos.
   - EMOM apunta solo cada minuto; AMRAP cuenta rondas con + y −.
 
+### Informes de fallos y 0.9.0 (22/11/2026, Mikel; maqueta `maquetas/kcalma-0.9.html`, pendiente de aprobar)
+- **Envío directo a GitHub, sin cuenta:** la APK lleva una clave de GitHub que solo puede crear incidencias en el repo de Kcalma (fine-grained, *Issues: write*). La crea Mikel; se guarda fuera del repo, en `C:\Users\Mikel\.kcalma\`. Si alguien la saca y manda spam, se revoca.
+- **Botón pequeño de reportar en todas las pantallas** (un bicho de cristal en la esquina). Abre una hoja: "¿Qué ha pasado?" + pantalla, versión, móvil y registro de errores (sin datos personales).
+- **"Arregla los errores":** Claude lee las incidencias con la etiqueta `informe`, enseña a Mikel la lista y lo que cambiaría en cada una, arregla solo lo aprobado y enseña capturas antes de publicar.
+- **0.9.0 incluye:** entrenador IA (propuesta semanal en tarjeta) y chat, unos 150 ejercicios con biblioteca, e intervalos de kettlebell (trabajo/descanso por rondas).
+
 ## 1. Qué hace la app
 
 1. **Haces una foto** del plato (o de varios platos).

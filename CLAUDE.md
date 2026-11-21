@@ -8,6 +8,7 @@ Lee primero la **sección 0 de `PLAN.md`**: recoge las decisiones de Mikel y man
 - **Apuntar cada decisión nueva** en la sección 0 de `PLAN.md` para no volver a preguntarla.
 - **Enseñar una maqueta o captura antes de implementar cualquier pantalla.** Las maquetas van en `maquetas/`.
 - Gastar poco uso: respuestas concisas y trabajo eficiente.
+- **"Arregla los errores/bugs":** `gh issue list --label informe --state open`. Enseñar a Mikel cada informe y el arreglo propuesto, arreglar solo lo que apruebe, enseñar capturas y esperar su OK antes de publicar. Cerrar cada incidencia arreglada citando la versión.
 
 ## Datos técnicos clave
 - Solo Android: Kotlin + Jetpack Compose. Sin servidor. Distribución como APK en GitHub, nunca en Google Play.
