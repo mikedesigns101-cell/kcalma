@@ -1,0 +1,68 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Kcalma · 0.6.1</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"><style>
+:root{--f0:#070c10;--f1:#0c141a;--f2:#101a21;--f3:#16232b;--f4:#1d2d36;--borde:#1a2a33;--t:#e9f2f6;--t2:#9db2bd;--t3:#657c88;--a:#3ad6f0;--a2:#e05cc0;--verde:#35d987;--deg:linear-gradient(135deg,var(--a),var(--a2))}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#03060a;font-family:Inter,system-ui,sans-serif;color:var(--t);padding:28px 16px}
+h1{font:700 22px Outfit,sans-serif;text-align:center;margin-bottom:6px}
+.sub{text-align:center;color:var(--t2);font-size:13px;margin-bottom:24px}
+.lienzo{display:flex;flex-wrap:wrap;gap:28px;justify-content:center;max-width:1600px;margin:0 auto}
+.paso{display:flex;flex-direction:column;align-items:center;gap:10px;max-width:340px}
+.etq{font:600 13px Outfit,sans-serif;color:var(--t2);text-align:center} .etq b{color:var(--a)}
+.nota{font-size:11.5px;color:var(--t3);text-align:center;line-height:1.45}
+.movil{width:340px;height:720px;background:var(--f0);border-radius:38px;border:9px solid #1b2228;overflow:hidden;position:relative;display:flex;flex-direction:column;padding:16px 16px 0}
+.top{display:flex;align-items:center;gap:10px;margin:6px 0 12px}
+.ib{width:32px;height:32px;border-radius:10px;background:var(--f2);border:1px solid var(--borde);display:grid;place-items:center;color:var(--t2);font-size:14px;flex:none}
+.top h2{font:600 18px Outfit,sans-serif;flex:1}
+.card{background:var(--f2);border:1px solid var(--borde);border-radius:14px;padding:12px;margin-bottom:10px}
+.mt{font:600 10.5px Inter,sans-serif;letter-spacing:.08em;color:var(--t3);margin:12px 2px 6px;text-transform:uppercase}
+.fila{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--borde);font-size:13px}
+.fila:first-child{border-top:none}
+.fila .ic{width:28px;height:28px;border-radius:9px;background:var(--f4);display:grid;place-items:center;font-size:14px;flex:none}
+.fila span{flex:1} .fila em{font-style:normal;font-size:12px;color:var(--t2)}
+.pq{font-size:11.5px;color:var(--t2);line-height:1.45}
+.btn{background:var(--deg);color:#06141a;font:600 14px Outfit,sans-serif;text-align:center;border-radius:13px;padding:12px;margin-top:8px}
+.mas{width:26px;height:26px;border-radius:8px;background:var(--f4);display:grid;place-items:center;color:var(--t2);font-size:14px;flex:none}
+.velo{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.hoja{position:absolute;left:0;right:0;bottom:0;background:var(--f1);border-radius:22px 22px 0 0;border-top:1px solid var(--borde);padding:10px 16px 18px}
+.asa{width:36px;height:4px;border-radius:2px;background:var(--f4);margin:0 auto 12px}
+.hoja .fila.on{color:var(--a)} .hoja .fila.on em{color:var(--a)}
+.chip{display:inline-block;font-size:11px;padding:3px 8px;border-radius:8px;background:var(--f4);color:var(--t2);margin:2px 2px 0 0}
+.chip.a{background:rgba(58,214,240,.12);color:var(--a)}
+.buscar{display:flex;align-items:center;gap:8px;border:1.5px solid transparent;background:linear-gradient(var(--f2),var(--f2)) padding-box,var(--deg) border-box;border-radius:13px;padding:10px 12px;font-size:13px;color:var(--t3)}
+.buscar span{flex:1}
+.mic{width:30px;height:30px;border-radius:9px;background:var(--f4);display:grid;place-items:center;font-size:14px}
+.mic.on{background:var(--deg)}
+.ondas{display:flex;gap:4px;justify-content:center;align-items:center;height:40px;margin:8px 0}
+.ondas i{width:5px;border-radius:3px;background:var(--a)}
+.cant{display:flex;align-items:center;justify-content:space-between;background:var(--f3);border-radius:12px;padding:10px 12px}
+.cant b{font:700 24px Outfit,sans-serif}
+.res{display:flex;justify-content:space-around;text-align:center;font-size:11px;color:var(--t2);margin:10px 0}.res b{display:block;font:600 16px Outfit;color:var(--t)}
+
+.seg{display:flex;background:var(--f2);border:1px solid var(--borde);border-radius:12px;padding:3px;margin-top:10px}
+.seg div{flex:1;text-align:center;font-size:12.5px;padding:8px 0;border-radius:9px;color:var(--t2)}
+.seg .on{background:var(--f4);color:var(--t);font-weight:600}
+.num{display:flex;align-items:flex-end;gap:6px;margin-top:14px}.num b{font:700 40px Outfit,sans-serif}.num i{font-style:normal;color:var(--t3);font-size:13px;padding-bottom:7px}
+.pasos{display:flex;gap:10px;margin-top:10px}.pasos div{flex:1;background:var(--f2);border:1px solid var(--borde);border-radius:12px;text-align:center;padding:9px;font-size:18px;color:var(--t2)}
+.kc{display:flex;justify-content:space-between;margin-top:14px;font-size:12px;color:var(--t2)}.kc b{font:700 22px Outfit,sans-serif;color:var(--t)}
+.snack{position:absolute;left:14px;right:14px;bottom:22px;background:var(--f4);border-radius:12px;padding:12px 14px;display:flex;font-size:13px}.snack span{flex:1}.snack b{color:var(--a)}
+</style></head><body><h1>Kcalma 0.6.1</h1><div class="sub">Cocido, buscador y dos extras</div><div class="lienzo"><div class="paso"><div class="etq"><b>1</b> · Ficha: interruptor Cocido</div><div class="movil"><div class="top"><div class="ib">‹</div><h2></h2></div>
+<div style="font:600 18px Outfit,sans-serif">Espaguetis n.º 3</div><div class="pq">Gallo · Mercadona</div>
+<div class="seg"><div>Ración</div><div>Gramos</div><div class="on">Cocido</div></div>
+<div class="num"><b>250</b><i>g cocidos · 104 g en crudo</i></div>
+<div class="pasos"><div>−</div><div>+</div></div>
+<div class="pq" style="margin-top:10px">Pesa la pasta ya hecha: Kcalma calcula la seca (×2,4).</div>
+<div class="kc"><div><b>366</b> kcal</div><div>P 13 · H 74 · G 2</div></div>
+<div class="btn" style="margin-top:auto;margin-bottom:22px">Añadir a la comida</div></div><div class="nota">Sale en pasta, arroz, legumbres, cuscús y quinoa secos. Se recuerda: la próxima vez empieza en Cocido.</div></div><div class="paso"><div class="etq"><b>2</b> · Buscar «espaguetis»</div><div class="movil"><div class="top"><div class="ib">‹</div><h2>Añadir</h2></div>
+<div class="buscar"><span style="color:var(--t)">espaguetis</span><div class="mic">🎤</div></div>
+<div class="mt">Genéricos</div><div class="card">
+<div class="fila"><div class="ic">🍝</div><span>Pasta, hervida<br><em>125 kcal / 100 g</em></span><div class="mas">+</div></div>
+<div class="fila"><div class="ic">🍝</div><span>Pasta alimenticia<br><em>352 kcal / 100 g · seca</em></span><div class="mas">+</div></div></div>
+<div class="mt">Productos</div><div class="card">
+<div class="fila"><div class="ic">🛒</div><span>Espaguetis n.º 3<br><em>Gallo · 359 kcal</em></span><div class="mas">+</div></div>
+<div class="fila"><div class="ic">🛒</div><span>Spaghetti<br><em>Hacendado · 355 kcal</em></span><div class="mas">+</div></div></div></div><div class="nota">La pasta genérica cocida aparece arriba. Los plurales también encuentran el singular («macarrones», «lentejas»).</div></div><div class="paso"><div class="etq"><b>3</b> · Extra: voz con «cocidos»</div><div class="movil"><div class="top"><div class="ib">‹</div><h2>Añadir</h2></div>
+<div class="buscar"><span style="color:var(--t)">espaguetis</span><div class="mic">🎤</div></div>
+<div class="mt">Resultados · 250 g cocidos</div><div class="card">
+<div class="fila"><div class="ic">🛒</div><span>Espaguetis n.º 3<br><em>🎤 250 g cocido · 366 kcal</em></span><div class="mas">+</div></div></div></div><div class="nota">«250 gramos de espaguetis cocidos» abre la ficha ya en Cocido.</div></div><div class="paso"><div class="etq"><b>4</b> · Extra: deshacer al borrar</div><div class="movil"><div class="top"><div class="ib">‹</div><h2>🌙 Cena</h2></div>
+<div class="card"><b style="font:700 26px Outfit,sans-serif">540</b> <span class="pq">kcal</span></div>
+<div class="card"><div class="fila"><div class="ic">🥗</div><span>Ensalada mixta<br><em>1 ración</em></span></div></div>
+<div class="snack"><span>Borrado: Espaguetis</span><b>DESHACER</b></div></div><div class="nota">Al deslizar para borrar sale «Deshacer» unos segundos. Además: «1 ud» pasa a «1 ración» y el tomate frito va a Despensa en la lista.</div></div></div></body></html>

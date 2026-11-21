@@ -364,6 +364,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil) {
             onEscanear = { pila.add(Destino.Escaner(d.comida)) },
             onEditar = { e -> pila.add(Destino.Ficha(e.alimento, d.comida, e)) },
             onBorrar = { e -> alcance.launch(Dispatchers.IO) { repo.diario.borrar(e.id) } },
+            onDeshacer = { e -> alcance.launch(Dispatchers.IO) { repo.diario.anadir(e.fecha, e.comida, e.alimento, e.gramos, e.unidad, e.cantidad) } },
             onGuardarHabitual = { nombre ->
                 val lista = entradas.filter { it.comida == d.comida }
                 alcance.launch(Dispatchers.IO) { repo.diario.guardarHabitual(nombre, lista) }

@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +47,7 @@ import com.mikel.kcalma.dominio.ComidaDia
 import com.mikel.kcalma.dominio.Entrada
 import com.mikel.kcalma.dominio.Nutrientes
 import com.mikel.kcalma.ui.theme.KcalmaTheme
+import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -61,6 +63,7 @@ fun PantallaComida(
     onGuardarHabitual: (String) -> Unit,
     onFoto: () -> Unit,
     onMover: (List<Entrada>, ComidaDia) -> Unit,
+    onDeshacer: (Entrada) -> Unit,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -69,6 +72,13 @@ fun PantallaComida(
     var dialogo by rememberSaveable { mutableStateOf(false) }
     // Lo que se va a mover: una entrada o la comida entera
     var mover by remember { mutableStateOf<List<Entrada>?>(null) }
+    // Lo último borrado, para poder deshacerlo durante unos segundos
+    var borrada by remember { mutableStateOf<Entrada?>(null) }
+    // SQLite puede devolver el mismo id a la entrada restaurada: la clave cambia para que la fila no siga deslizada
+    var restauradas by remember { mutableStateOf(0) }
+    LaunchedEffect(borrada) { if (borrada != null) { delay(5000); borrada = null } }
+
+    Box(Modifier.fillMaxSize()) {
 
     Column(Modifier.fillMaxSize().background(c.fondo0).statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
         BarraSuperior("‹", onAtras, "${comida.icono} ${comida.nombre}") {
@@ -94,7 +104,7 @@ fun PantallaComida(
             if (entradas.isEmpty()) item {
                 Text("Todavía no has apuntado nada en esta comida.", style = t.cuerpo, color = c.texto3, modifier = Modifier.padding(vertical = 10.dp))
             }
-            items(entradas, key = { it.id }) { e -> FilaEntrada(e, { onEditar(e) }, { onBorrar(e) }, { mover = listOf(e) }) }
+            items(entradas, key = { "${it.id}/$restauradas" }) { e -> FilaEntrada(e, { onEditar(e) }, { onBorrar(e); borrada = e }, { mover = listOf(e) }) }
             item {
                 Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Accion("🔍", "Buscar", Modifier.weight(1f), onBuscar)
@@ -111,6 +121,20 @@ fun PantallaComida(
                     textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
             }
         }
+    }
+
+    borrada?.let { e ->
+        val forma = RoundedCornerShape(12.dp)
+        Row(
+            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(16.dp).fillMaxWidth()
+                .clip(forma).background(c.fondo4).padding(start = 14.dp, end = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("Borrado: ${e.alimento.nombre}", style = t.cuerpo, color = c.texto, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f))
+            TextButton({ onDeshacer(e); restauradas++; borrada = null }) { Text("DESHACER", style = t.cuerpo, color = c.acento) }
+        }
+    }
     }
 
     mover?.let { lista ->

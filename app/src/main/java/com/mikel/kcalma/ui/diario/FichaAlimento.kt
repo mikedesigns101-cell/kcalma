@@ -28,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -45,6 +46,7 @@ import com.mikel.kcalma.dominio.Alimento
 import com.mikel.kcalma.dominio.ComidaDia
 import com.mikel.kcalma.dominio.Entrada
 import com.mikel.kcalma.dominio.Nutrientes
+import com.mikel.kcalma.dominio.Coccion
 import com.mikel.kcalma.dominio.Unidad
 import com.mikel.kcalma.dominio.decimal
 import com.mikel.kcalma.ui.componentes.BotonPrincipal
@@ -69,12 +71,18 @@ fun FichaAlimento(
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
+    val factorCocido = remember(alimento) { Coccion.factor(alimento) }
     val unidades = buildList {
         if (alimento.racionValida != null) add(Unidad.RACION)
         add(Unidad.GRAMOS)
         if (alimento.envaseG != null) add(Unidad.ENVASE)
+        if (factorCocido != null) add(Unidad.COCIDO)
     }
-    fun base(u: Unidad) = when (u) { Unidad.GRAMOS -> 1.0; Unidad.RACION -> alimento.racionValida ?: 100.0; Unidad.ENVASE -> alimento.envaseG ?: 100.0 }
+    fun base(u: Unidad) = when (u) {
+        Unidad.GRAMOS -> 1.0; Unidad.RACION -> alimento.racionValida ?: 100.0; Unidad.ENVASE -> alimento.envaseG ?: 100.0
+        Unidad.COCIDO -> 1 / (factorCocido ?: 1.0)
+    }
+    fun enGramos(u: Unidad) = u == Unidad.GRAMOS || u == Unidad.COCIDO
 
     val inicio = inicial ?: sugerida?.second?.takeIf { it.unidad in unidades }
     var unidad by rememberSaveable { mutableStateOf(inicio?.unidad ?: unidades.first()) }
@@ -88,11 +96,11 @@ fun FichaAlimento(
     fun cambiarUnidad(u: Unidad) {
         if (u == unidad) return
         val nueva = gramos / base(u)
-        texto = if (u == Unidad.GRAMOS) decimal(nueva.roundToInt().toDouble()) else decimal(((nueva * 2).roundToInt() / 2.0).coerceAtLeast(.5))
+        texto = if (enGramos(u)) decimal(nueva.roundToInt().toDouble()) else decimal(((nueva * 2).roundToInt() / 2.0).coerceAtLeast(.5))
         unidad = u
     }
     fun sumar(signo: Int) {
-        val paso = if (unidad == Unidad.GRAMOS) 10.0 else 0.5
+        val paso = if (enGramos(unidad)) 10.0 else 0.5
         texto = decimal((cantidad + signo * paso).coerceAtLeast(paso))
     }
 
@@ -125,6 +133,7 @@ fun FichaAlimento(
                         Unidad.GRAMOS -> " g"
                         Unidad.RACION -> " ración · ${decimal(gramos)} g"
                         Unidad.ENVASE -> " envase · ${decimal(gramos)} g"
+                        Unidad.COCIDO -> " g cocidos · ${decimal(gramos.roundToInt().toDouble())} g en seco"
                     }
                     Text(detalle, style = t.cuerpo, color = c.texto3, modifier = Modifier.padding(bottom = 3.dp))
                 }
@@ -142,9 +151,16 @@ fun FichaAlimento(
                 )
             }
             if (unidades.size > 1) {
-                val nombres = unidades.map { when (it) { Unidad.RACION -> "Ración"; Unidad.GRAMOS -> "Gramos"; Unidad.ENVASE -> "Envase" } }
+                val nombres = unidades.map { when (it) { Unidad.RACION -> "Ración"; Unidad.GRAMOS -> "Gramos"; Unidad.ENVASE -> "Envase"; Unidad.COCIDO -> "Cocido" } }
                 Segmentado(nombres, unidades.indexOf(unidad)) { cambiarUnidad(unidades[it]) }
             }
+            if (unidad == Unidad.COCIDO) Text(
+                "Pesa la comida ya hecha: Kcalma calcula el peso en seco (÷${decimal(factorCocido ?: 1.0)}), que es el de la etiqueta.",
+                style = t.pequeno, color = c.texto3, modifier = Modifier.padding(top = 8.dp),
+            ) else if (Unidad.COCIDO in unidades) Text(
+                "¿Ya cocinado? Elige Cocido y pon lo que pesa hecho.",
+                style = t.pequeno, color = c.texto3, modifier = Modifier.padding(top = 8.dp),
+            )
 
             // Resumen de kcal y macros
             val forma = RoundedCornerShape(16.dp)

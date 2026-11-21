@@ -18,6 +18,7 @@ class ActividadTest {
     fun listaPorSecciones() {
         assertEquals("Pescado y carne", ListaCompra.seccion("Pechuga de pollo"))
         assertEquals("Verdura y fruta", ListaCompra.seccion("Pimiento rojo"))
+        assertEquals("Despensa", ListaCompra.seccion("Tomate frito"))
         assertEquals("Lácteos y huevos", ListaCompra.seccion("Huevo"))
         assertEquals("Despensa", ListaCompra.seccion("Arroz"))
         assertEquals("Lenteja", ListaCompra.nombreCorto("Lenteja, seca, cruda"))

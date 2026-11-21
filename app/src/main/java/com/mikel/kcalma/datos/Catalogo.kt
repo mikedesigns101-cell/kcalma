@@ -43,9 +43,21 @@ class Catalogo(private val contexto: Context) {
      * Busca por palabras (cada una como principio de palabra en nombre, marca o supermercado).
      * [supermercado] = null para todos; "" para solo genéricos.
      */
+    /**
+     * Busca por palabras (en plural también encuentra el singular). Si se busca un tipo de pasta, añade delante
+     * la pasta genérica (seca y cocida), que no se llama «espaguetis» ni «macarrones».
+     */
     fun buscar(consulta: String, supermercado: String? = null, limite: Int = 40): List<Alimento> {
-        val palabras = normalizar(consulta).split(' ').filter { it.isNotEmpty() }.take(5)
+        val palabras = normalizar(consulta).split(' ').filter { it.isNotEmpty() }.take(5).map(::singular)
         if (palabras.isEmpty()) return emptyList()
+        val pasta = palabras.indexOfFirst { w -> PASTAS.any { w.startsWith(it) } }
+        if (pasta < 0 || (supermercado != null && supermercado != "")) return consultar(palabras, supermercado, limite)
+        val genericas = consultar(palabras.toMutableList().apply { set(pasta, "pasta"); add("alimenticia") }, "", 8)
+            .sortedWith(compareBy({ "rellena" in it.nombre || "vegetales" in it.nombre }, { it.nombre.length })).take(6)
+        return (genericas + consultar(palabras, supermercado, limite)).distinctBy { it.nombre + "|" + it.marca }.take(limite)
+    }
+
+    private fun consultar(palabras: List<String>, supermercado: String?, limite: Int): List<Alimento> {
         val condiciones = palabras.map { "busca LIKE ?" }.toMutableList()
         val argumentos = palabras.map { "% $it%" }.toMutableList()
         when (supermercado) {
@@ -57,6 +69,17 @@ class Catalogo(private val contexto: Context) {
         val sql = "SELECT * FROM alimentos WHERE ${condiciones.joinToString(" AND ")} " +
             "ORDER BY (busca LIKE ?) DESC, popularidad DESC LIMIT $limite"
         return abrir().rawQuery(sql, argumentos.toTypedArray()).use { c -> generateSequence { if (c.moveToNext()) c.alimento() else null }.toList() }
+    }
+
+    companion object {
+        private val PASTAS = listOf("espagueti", "spaghetti", "macarron", "tallarin", "fideo", "penne", "fusil", "tagliatelle", "linguine", "lacito")
+
+        /** «macarrones» → «macarron», «lentejas» → «lenteja». Como se busca por inicio de palabra, solo amplía. */
+        fun singular(w: String): String = when {
+            w.length > 5 && w.endsWith("es") && w[w.length - 3] !in "aeiou" -> w.dropLast(2)
+            w.length > 3 && w.endsWith("s") -> w.dropLast(1)
+            else -> w
+        }
     }
 
     fun porCodigo(codigo: String): Alimento? =

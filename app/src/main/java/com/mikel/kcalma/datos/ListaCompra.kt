@@ -84,8 +84,12 @@ class ListaCompra(contexto: Context) {
             ),
         )
 
+        /** Conservas y salsas de verdura van a la despensa, no a la fruta y verdura fresca. */
+        private val DESPENSA = listOf("tomate frito", "tomate triturado", "tomate natural triturado", "conserva", "bote", "salsa", "ketchup", "pure")
+
         fun seccion(nombre: String): String {
             val n = " " + normalizar(nombre) + " "
+            if (DESPENSA.any { n.contains(" $it") }) return "Despensa"
             return RAICES.entries.firstOrNull { (_, l) -> l.any { n.contains(" $it") } }?.key ?: "Despensa"
         }
 

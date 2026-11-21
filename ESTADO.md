@@ -55,6 +55,13 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 - Guía de avisos en el README y texto para la apelación a Play Protect en `docs/apelacion-play-protect.md`.
 - Sin probar en el emulador: el dictado real (no hay micrófono); la lectura del texto la cubren los tests.
 
+## Versión 0.6.1
+- Unidad `COCIDO` (`dominio/Coccion.kt` detecta los secos que se cuecen; `Entrada.cantidad` guarda los gramos cocidos y `gramos` el equivalente en seco). Las versiones antiguas lo leerían como gramos en seco.
+- Buscador: `Catalogo.singular` para plurales y pasta genérica delante al buscar tipos de pasta.
+- `Voz` entiende «cocidos/cocinados/hervidos»; «Deshacer» al borrar en la pantalla de la comida; etiquetas «1 ración»; tomate frito y conservas a Despensa.
+- Probado en el emulador: buscar «espaguetis» y «macarrones», Cocido en un macarrón de Mercadona (250 g cocidos = 104 g en seco), añadir, borrar y deshacer. Sin cierres.
+- Sin probar en el emulador: el dictado con «cocidos» (lo cubren los tests).
+
 ## Pendiente
 1. Probar en el móvil: lectura real de un código de barras.
 2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.

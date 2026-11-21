@@ -65,7 +65,8 @@ data class Nutrientes(val kcal: Double = 0.0, val proteinas: Double = 0.0, val h
 }
 
 /** Cómo se eligió la cantidad en la ficha. */
-enum class Unidad { GRAMOS, RACION, ENVASE }
+/** COCIDO: [Entrada.cantidad] son gramos ya cocinados y [Entrada.gramos] su equivalente en seco (ver [Coccion]). */
+enum class Unidad { GRAMOS, RACION, ENVASE, COCIDO }
 
 /** Un alimento apuntado en el diario. */
 data class Entrada(
@@ -83,8 +84,9 @@ data class Entrada(
     val etiquetaCantidad: String
         get() = when (unidad) {
             Unidad.GRAMOS -> "${decimal(gramos)} g"
-            Unidad.RACION -> "${decimal(cantidad)} ud"
-            Unidad.ENVASE -> "${decimal(cantidad)} env"
+            Unidad.RACION -> if (cantidad == 1.0) "1 ración" else "${decimal(cantidad)} raciones"
+            Unidad.ENVASE -> if (cantidad == 1.0) "1 envase" else "${decimal(cantidad)} envases"
+            Unidad.COCIDO -> "${decimal(cantidad)} g cocido"
         }
 }
 
