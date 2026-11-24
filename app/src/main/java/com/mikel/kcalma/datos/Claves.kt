@@ -17,6 +17,9 @@ import javax.crypto.spec.GCMParameterSpec
 class Claves(contexto: Context) {
     private val prefs = contexto.getSharedPreferences("claves", Context.MODE_PRIVATE)
 
+    /** Si hay clave guardada, sin descifrarla (descifrar pasa por el Keystore y es lento para el hilo de la pantalla). */
+    fun hayGemini(): Boolean = prefs.contains("gemini")
+
     fun gemini(): String? = prefs.getString("gemini", null)?.let { runCatching { descifrar(it) }.getOrNull() }
 
     fun guardarGemini(clave: String) = prefs.edit().putString("gemini", cifrar(clave.trim())).apply()

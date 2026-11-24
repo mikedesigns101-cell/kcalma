@@ -62,7 +62,7 @@ fun FlujoFoto(
     val contexto = LocalContext.current
     val alcance = rememberCoroutineScope()
     val claves = remember { Claves(contexto.applicationContext) }
-    var paso by remember { mutableStateOf(if (dictar) Paso.DICTAR else if (claves.gemini() == null) Paso.CLAVE else Paso.CAMARA) }
+    var paso by remember { mutableStateOf(if (dictar) Paso.DICTAR else if (!claves.hayGemini()) Paso.CLAVE else Paso.CAMARA) }
     var frase by remember { mutableStateOf("") }
     var ocupado by remember { mutableStateOf(false) }
     var comida by remember { mutableStateOf(comidaInicial) }
@@ -157,7 +157,7 @@ fun FlujoFoto(
             onFoto = { bitmap, jpeg -> foto = bitmap; analizar(jpeg) },
         )
         Paso.DICTAR -> PantallaDictar(
-            comida = comida, frase = frase, ocupado = ocupado, error = error, conIa = claves.gemini() != null,
+            comida = comida, frase = frase, ocupado = ocupado, error = error, conIa = claves.hayGemini(),
             onFrase = { frase = it }, onComida = { comida = it }, onReconocer = ::reconocer, onCerrar = onCerrar,
         )
         Paso.ANALIZANDO -> PantallaAnalizando(

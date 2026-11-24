@@ -163,11 +163,16 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     val pesos by almacen.pesos.collectAsState(initial = emptyList())
     val dias by remember(hoy) { repo.diario.totalesDesde(LocalDate.parse(hoy).minusDays(com.mikel.kcalma.ui.progreso.DIAS_HISTORIAL).toString()) }.collectAsState(initial = emptyMap())
     val claves = remember { Claves(contexto.applicationContext) }
-    var claveGuardada by remember { mutableStateOf(claves.gemini() != null) }
-    // La clave también se guarda desde la foto: se vuelve a mirar al cambiar de pantalla
-    LaunchedEffect(pestana, pila.size) { claveGuardada = claves.gemini() != null }
+    var claveGuardada by remember { mutableStateOf(claves.hayGemini()) }
+    // La clave también se guarda desde la foto: se vuelve a mirar al cambiar de pantalla (sin descifrarla: sería lento)
+    LaunchedEffect(pestana, pila.size) { claveGuardada = claves.hayGemini() }
     val aviso: (String) -> Unit = { Toast.makeText(contexto, it, Toast.LENGTH_SHORT).show() }
+    // Health Connect y el widget: como mucho cada 30 s, no en cada cambio de pestaña
+    var ultimaSalud by remember { mutableStateOf(0L) }
     LaunchedEffect(pestana, pila.size) {
+        val ahoraMs = System.currentTimeMillis()
+        if (estadoSalud == Salud.Estado.CONECTADO && ahoraMs - ultimaSalud < 30_000) return@LaunchedEffect
+        ultimaSalud = ahoraMs
         estadoSalud = salud.estado()
         if (estadoSalud == Salud.Estado.CONECTADO) {
             pasosHoy = salud.pasosHoy()
@@ -324,6 +329,11 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     val ideasDe: (ComidaDia, FiltrosIdeas) -> List<Idea> = { cd, f ->
         Recomendador.recomendar(recetas + deIa.filter { cd in it.comidas }, perfil, cd, plan.kcal, restante, f)
     }
+    // Recomendar recorre todas las recetas: se calcula solo cuando cambia algo, no en cada redibujado
+    val ideasHoy = remember(recetas, deIa.size, perfil, proxima, pendiente, plan.kcal, restante) {
+        if (pendiente == null) emptyList() else ideasDe(proxima, FiltrosIdeas())
+    }
+    val ideasPestana = remember(recetas, deIa.size, perfil, comidaIdea, filtros, plan.kcal, restante) { ideasDe(comidaIdea, filtros) }
     fun pedirIa() {
         val clave = claves.gemini() ?: run { pila.add(Destino.Clave); return }
         estadoIa = EstadoIa.Cargando
@@ -435,7 +445,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         null -> if (pestana == Pestana.IDEAS) PantallaIdeas(
             comida = comidaIdea,
             restante = restante,
-            ideas = ideasDe(comidaIdea, filtros),
+            ideas = ideasPestana,
             filtros = filtros,
             estadoIa = estadoIa,
             onComida = { comidaIdeas = it },
@@ -531,7 +541,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             entreno = if (com.mikel.kcalma.ui.entreno.hayEntrenoHoy(rutinas, sesionesE)) {
                 { com.mikel.kcalma.ui.entreno.TarjetaEntrenoHoy(rutinas, sesionesE, abrirRutina, { empezar(it) }, continuar, mapa = false) }
             } else null,
-            ideas = if (pendiente == null) emptyList() else ideasDe(proxima, FiltrosIdeas()),
+            ideas = ideasHoy,
             tituloIdeas = "Ideas para ${if (proxima == ComidaDia.MEDIA_MANANA) "" else "la "}${proxima.nombre.lowercase()}",
             onIdea = { pila.add(Destino.VerIdea(it, proxima)) },
             onVerIdeas = { comidaIdeas = null; pestana = Pestana.IDEAS },
