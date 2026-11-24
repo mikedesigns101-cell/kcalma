@@ -525,6 +525,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
                 onInforme = { informePerfil = true },
                 onActualizar = {
                     aviso("Buscando actualizaciones…")
+                    // De paso se baja ya la lista de alimentos de la comunidad, sin esperar al día siguiente
+                    alcance.launch { com.mikel.kcalma.datos.Comunidad.sincronizar(contexto.applicationContext, repo.diario, forzar = true) }
                     alcance.launch {
                         val v = actualizador.comprobar(forzar = true)
                         if (v == null) aviso("Tienes la última versión (${com.mikel.kcalma.BuildConfig.VERSION_NAME})")
