@@ -1,1 +1,17 @@
-[]
+[
+ {
+  "nombre": "Zzprueba galletas de avena",
+  "marca": "Kcalma",
+  "codigo": "96385074",
+  "kcal": 450.0,
+  "proteinas": 8.0,
+  "hidratos": 62.0,
+  "grasas": 18.0,
+  "azucares": 20.0,
+  "saturadas": 6.0,
+  "sal": 0.6,
+  "racion_g": 30.0,
+  "fecha": "2026-11-24",
+  "incidencia": 4
+ }
+]
