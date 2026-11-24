@@ -148,7 +148,7 @@ Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caser
   - *Intervalos:* 5 s de cuenta atrás al empezar, sin descanso tras la última ronda, cada ronda toca el siguiente ejercicio y se apunta sola (sin repeticiones). Rutina hecha nueva: "Tabata de kettlebell" (swing y goblet, 20/10 × 8).
   - *Catálogo:* 152 ejercicios; los 121 nuevos reutilizan los movimientos de la figura que había más 5 nuevos (elevación, fondos, extensión de pierna, escalador y salto), así que algunas animaciones son aproximadas.
 
-### Segunda tanda de la 0.9.0 (24/11/2026, Mikel; nota «Ideas para KCalma» de Obsidian; maqueta `maquetas/kcalma-0.9b.html`, pendiente de aprobar)
+### Segunda tanda de la 0.9.0 (24/11/2026, Mikel; nota «Ideas para KCalma» de Obsidian; maqueta `maquetas/kcalma-0.9b.html`, aprobada)
 Las ideas de Mikel están en `C:\Users\Mikel\Documents\Obsidian Vault\Ideas Vibecoding\KCalma\Ideas para KCalma.md`. Entran todas en la 0.9.0, que sigue sin publicar.
 - **Gramos a mano y deslizador a la vez** en el resultado de la foto y del dictado: se desliza o se escribe la cifra.
 - **Dictar lo que has comido** (no es el dictado del buscador): «he comido 100 g de arroz cocido con 300 g de pollo a la plancha» se convierte en alimentos con sus gramos en la misma pantalla «Tu plato» de la foto, editable antes de añadir. *Elegido por Claude, pendiente de revisar:* con clave de Gemini lo interpreta Gemini; sin clave, un intérprete local que entiende cantidades dichas.
@@ -161,6 +161,16 @@ Las ideas de Mikel están en `C:\Users\Mikel\Documents\Obsidian Vault\Ideas Vibe
 - **Fluidez:** al cambiar de pestaña a veces se queda pillada; hay que medirlo y arreglarlo.
 - **Historial (Mikel: «Ver y editar»):** lista de días con kcal y peso; al abrir un día se ven sus comidas y se pueden añadir, cambiar o borrar.
 - **Alimentos compartidos (Mikel: «GitHub automático»):** un alimento nuevo que registre un usuario se manda al repo con el token de los informes; una GitHub Action valida los números y lo añade a un archivo que todas las apps descargan una vez al día. Sin servidor. Si alguien cuela alimentos falsos, se borran y se revoca el token.
+- **Frenos de los alimentos compartidos (Mikel: «Hazlo así», 24/11/2026):** todos menos la confirmación por un segundo usuario. Validación automática (kcal coherentes con los macros, valores posibles, código de barras con dígito de control, sin enlaces ni insultos); nunca pisan los datos del catálogo ni de Open Food Facts; tope de 20 altas y 20 retiradas al día (el resto espera revisión); etiqueta «Comunidad» y aviso «¿Está mal?» que lo retira para todos; un código retirado no vuelve a entrar solo; repaso con Mikel cuando diga «revisa los alimentos» (`gh issue list --label revisar --state open`).
+- **Segunda tanda implementada y probada en el emulador (24/11/2026), código subido a GitHub pero SIN publicar release.** Mikel dio el visto bueno con «Hazlo así, me parece bien» tras ver las maquetas. *Elegido por Claude al implementar, pendiente de que Mikel lo revise:*
+  - *Cocinado:* el aceite se apunta como alimento aparte («Aceite de oliva (plancha)»). Si el alimento de la base ya dice que está frito, a la plancha o rebozado, o es una estimación de la IA, no se suma aceite.
+  - *Dictado:* sustituye al dictado del menú + y del micrófono de Hoy; el micrófono del buscador sigue buscando un solo alimento.
+  - *Complex:* formato nuevo en el editor (rondas y descanso entre rondas); un solo peso para todo el complex; la rutina hecha «Complejo de una kettlebell» pasa a 5 rondas de 5 reps con 90 s.
+  - *Historial:* se ven 100 días; se abre desde «Historial ›» en Progreso y tocando la fecha en Hoy; el peso de un día pasado se apunta sin cambiar el del perfil.
+  - *Entrenador:* la rutina nueva va en un campo propio de la respuesta de la IA; el código arregla lo arreglable (nombres por ids, números al rango) y descarta lo que no existe.
+  - *Foto:* rápido por defecto y botón «Analizar con más precisión» (modelo grande, hasta un minuto). Al usar «Cambiar», la app recuerda esa corrección y la aplica la próxima vez.
+  - *Informes:* además de los últimos 15 minutos se manda el último error anterior, si lo hubo.
+  - *Compartidos:* solo los productos con código de barras creados leyendo la etiqueta; «Actualizar Kcalma» baja también la lista de la comunidad.
 
 ## 1. Qué hace la app
 

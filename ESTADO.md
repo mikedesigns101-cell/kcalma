@@ -93,3 +93,16 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 - Intervalos (`Formato.INTERVALOS`, `Rutina.fase`), Tabata hecha, 152 ejercicios (`dominio/EjerciciosMas.kt`), Biblioteca (`ui/entreno/Biblioteca.kt`).
 - Entrenador IA: `dominio/Entrenador.kt` (estadísticas y validación de cambios), `datos/Coach.kt`, `Gemini.propuesta` y `Gemini.chat`, pantallas en `ui/entreno/PantallasEntrenador.kt`. Probado con Gemini real: propuesta aceptada (días de Pierna) y chat con tarjeta de cambio.
 - 55 tests pasan. Mikel quiere comentar cambios antes de publicar.
+
+## 0.9.0, segunda tanda (24/11/2026): hecha, probada en el emulador y subida a GitHub; release SIN publicar
+Ideas de la nota de Obsidian de Mikel (ver PLAN.md §0). Lo nuevo:
+- Burbujas 💡 y 🐞 (`ui/componentes/Informe.kt`, `datos/GitHub.kt`); informes con los últimos 15 minutos (`Registro.recientes`).
+- Dictar lo que has comido (`ui/foto/PantallaDictar.kt`, `Gemini.dictado`, `Voz.separar` sin clave). Probado con Gemini real escribiendo la frase; el micrófono no se puede probar en el emulador.
+- Tarjeta de alimento con nombre entero, gramos a mano y cocinado (`dominio/Cocinado.kt`).
+- Complex (`ui/entreno/SesionComplejo.kt`, `Formato.COMPLEJO`).
+- Historial y días pasados editables (`ui/progreso/Historial.kt`, `diaPasado` en `ui/App.kt`).
+- Entrenador que crea rutinas (`Cambio.Crear`, campo `rutina_nueva`). Probado con Gemini real: rutina guardada.
+- Foto: instrucciones nuevas, modo preciso y tabla `preferidos` con las correcciones. Sin probar con fotos reales.
+- Fluidez: fuera del hilo de pantalla el descifrado de la clave y Health Connect; ideas calculadas una vez. En el emulador no se nota diferencia (4-5 % de fotogramas lentos antes y después); hay que verlo en un móvil.
+- Alimentos compartidos: `datos/Comunidad.kt`, `dominio/Compartidos.kt`, `comunidad/robot.py` y `.github/workflows/alimentos.yml`. Robot probado en GitHub real (publicar, dejar en revisión, retirar) y descarga probada en la app. El envío desde la app necesita el token, que aún no existe.
+- `diario.db` pasa a la versión 5 (tablas `preferidos` y `comunidad`). 65 tests y las pruebas del robot pasan.
