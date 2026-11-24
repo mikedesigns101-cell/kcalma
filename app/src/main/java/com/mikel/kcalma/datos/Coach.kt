@@ -1,6 +1,8 @@
 package com.mikel.kcalma.datos
 
+import com.mikel.kcalma.dominio.BloqueRutina
 import com.mikel.kcalma.dominio.Cambio
+import com.mikel.kcalma.dominio.Seccion
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -24,6 +26,18 @@ object Coach {
             "anadir" -> Cambio.Anadir(r, t("nuevo"), o.optInt("series", 3).takeIf { it > 0 } ?: 3, o.optInt("min", 8).takeIf { it > 0 } ?: 8, o.optInt("max", 12).takeIf { it > 0 } ?: 12, m)
             "quitar" -> Cambio.Quitar(r, t("ejercicio"), m)
             "dias" -> o.getJSONArray("dias").let { d -> Cambio.Dias(r, (0 until d.length()).map { d.getInt(it) }.toSet(), m) }
+            "crear" -> {
+                val b = o.getJSONArray("bloques")
+                val d = o.optJSONArray("dias") ?: JSONArray()
+                Cambio.Crear(
+                    t("nombre").take(30), Seccion.entries.first { it.name == o.optString("seccion", "GIMNASIO") },
+                    (0 until d.length()).map { d.getInt(it) }.toSet(),
+                    (0 until b.length()).map { b.getJSONObject(it) }.map {
+                        BloqueRutina(it.getString("ejercicio"), it.optInt("series", 3), it.optInt("min", 8), it.optInt("max", 12), it.optInt("descanso", 90))
+                    },
+                    m,
+                )
+            }
             else -> null
         }
     }.getOrNull()
@@ -37,6 +51,10 @@ object Coach {
             is Cambio.Anadir -> put("tipo", "anadir").put("nuevo", c.ejercicio).put("series", c.series).put("min", c.min).put("max", c.max)
             is Cambio.Quitar -> put("tipo", "quitar").put("ejercicio", c.ejercicio)
             is Cambio.Dias -> put("tipo", "dias").put("dias", JSONArray(c.dias.sorted()))
+            is Cambio.Crear -> put("tipo", "crear").put("nombre", c.nombre).put("seccion", c.seccion.name).put("dias", JSONArray(c.dias.sorted()))
+                .put("bloques", JSONArray(c.bloques.map {
+                    JSONObject().put("ejercicio", it.ejercicio).put("series", it.series).put("min", it.repsMin).put("max", it.repsMax).put("descanso", it.descanso)
+                }))
         }
     }
 

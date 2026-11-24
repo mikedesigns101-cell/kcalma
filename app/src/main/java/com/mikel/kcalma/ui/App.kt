@@ -238,8 +238,18 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     var pensando by remember { mutableStateOf(false) }
     var errorChat by remember { mutableStateOf<String?>(null) }
     fun datosEntrenador(): String {
-        val nutricion = "Nutrición de hoy: plan de ${plan.kcal + ejercicio} kcal y ${plan.proteinaG} g de proteína; " +
-            "lleva ${comido.kcalInt} kcal y ${comido.proteinas.toInt()} g de proteína. Pesa ${perfil.pesoKg} kg."
+        // Todo calculado aquí: la IA solo lo lee
+        val semana = (1..7).mapNotNull { dias[LocalDate.parse(hoy).minusDays(it.toLong()).toString()] }
+        val hace4 = pesos.lastOrNull { it.fecha <= LocalDate.parse(hoy).minusDays(28).toString() } ?: pesos.firstOrNull()
+        val nutricion = buildString {
+            append("Nutrición de hoy: plan de ${plan.kcal + ejercicio} kcal y ${plan.proteinaG} g de proteína; ")
+            append("lleva ${comido.kcalInt} kcal y ${comido.proteinas.toInt()} g de proteína.")
+            if (semana.isNotEmpty()) append("\nMedia de los últimos ${semana.size} días apuntados: ${semana.sumOf { it.kcal }.toInt() / semana.size} kcal y ${semana.sumOf { it.proteinas }.toInt() / semana.size} g de proteína al día.")
+            append("\nPeso: ${perfil.pesoKg} kg ahora; objetivo ${perfil.pesoObjetivoKg} kg.")
+            if (hace4 != null && pesos.size > 1) append(" El ${hace4.fecha} pesaba ${hace4.kg} kg.")
+            append("\n${perfil.sexo.name.lowercase().replaceFirstChar { it.uppercase() }}, ${perfil.edad} años, ${perfil.alturaCm} cm. Dice que entrena ${perfil.diasEjercicio} días por semana.")
+            pasosHoy?.let { append("\nPasos de hoy (Health Connect): $it.") }
+        }
         return Entrenador.contexto(Entrenador.estadisticas(sesionesE, rutinas, perfil), rutinas, nutricion)
     }
     fun errorIa(r: Respuesta<*>) = when (r) {
@@ -269,6 +279,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         var lista = entrenos.leerRutinas()
         cs.forEach { c ->
             if (Cambios.validar(c, lista) == null) return@forEach
+            if (c is Cambio.Crear) { entrenos.guardarRutina(Cambios.rutinaNueva(c)); lista = entrenos.leerRutinas(); return@forEach }
             val nueva = Cambios.aplicar(lista.first { it.id == c.rutina }, c)
             entrenos.guardarRutina(nueva)
             lista = lista.map { if (it.id == nueva.id) nueva else it }

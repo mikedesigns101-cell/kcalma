@@ -91,11 +91,25 @@ sealed interface Cambio {
     data class Anadir(override val rutina: String, val ejercicio: String, val series: Int, val min: Int, val max: Int, override val motivo: String) : Cambio
     data class Quitar(override val rutina: String, val ejercicio: String, override val motivo: String) : Cambio
     data class Dias(override val rutina: String, val dias: Set<Int>, override val motivo: String) : Cambio
+    /** Una rutina nueva entera, de series. [rutina] va vacío: aún no existe. */
+    data class Crear(
+        val nombre: String, val seccion: Seccion, val dias: Set<Int>, val bloques: List<BloqueRutina>, override val motivo: String,
+        override val rutina: String = "",
+    ) : Cambio
 }
 
 object Cambios {
     /** null si el cambio no se puede aplicar tal cual (rutina o ejercicio que no existen, números fuera de rango…). */
     fun validar(c: Cambio, rutinas: List<Rutina>): Cambio? {
+        if (c is Cambio.Crear) {
+            val posibles = Ejercicios.de(c.seccion).map { it.id }.toSet()
+            return c.takeIf {
+                c.nombre.isNotBlank() && c.nombre.length <= 30 && c.bloques.size in 2..12 &&
+                    c.bloques.map { it.ejercicio }.toSet().size == c.bloques.size &&
+                    c.bloques.all { it.ejercicio in posibles && it.series in 1..10 && it.repsMin in 1..60 && it.repsMax in it.repsMin..60 && it.descanso in 0..600 } &&
+                    c.dias.all { it in 1..7 } && rutinas.count { !it.predefinida } < 40
+            }
+        }
         val r = rutinas.firstOrNull { it.id == c.rutina && it.formato == Formato.SERIES } ?: return null
         val tiene = { id: String -> r.bloques.any { it.ejercicio == id } }
         val vale = { id: String -> Ejercicios.de(r.seccion).any { it.id == id } }
@@ -107,6 +121,7 @@ object Cambios {
             is Cambio.Anadir -> c.takeIf { vale(c.ejercicio) && !tiene(c.ejercicio) && c.series in 1..10 && c.min in 1..50 && c.max in c.min..50 && r.bloques.size < 15 }
             is Cambio.Quitar -> c.takeIf { tiene(c.ejercicio) && r.bloques.size > 1 }
             is Cambio.Dias -> c.takeIf { c.dias.isNotEmpty() && c.dias.all { it in 1..7 } && c.dias != r.dias }
+            is Cambio.Crear -> null
         }
     }
 
@@ -118,7 +133,11 @@ object Cambios {
         is Cambio.Anadir -> r.copy(bloques = r.bloques + BloqueRutina(c.ejercicio, c.series, c.min, c.max, if (Ejercicios.porId(c.ejercicio)?.conPeso == true) 120 else 60))
         is Cambio.Quitar -> r.copy(bloques = r.bloques.filter { it.ejercicio != c.ejercicio })
         is Cambio.Dias -> r.copy(dias = c.dias)
+        is Cambio.Crear -> r
     }
+
+    /** La rutina que crea un [Cambio.Crear] (sin id: se le pone al guardarla). */
+    fun rutinaNueva(c: Cambio.Crear) = Rutina("", c.nombre.trim(), c.seccion, c.bloques, dias = c.dias, descripcion = "Hecha con tu entrenador")
 
     /** Frase corta del cambio, escrita por el código con los datos de la rutina. */
     fun titulo(c: Cambio, r: Rutina?): String {
@@ -131,6 +150,7 @@ object Cambios {
             is Cambio.Descanso -> "${n(c.ejercicio)}: descanso ${b(c.ejercicio)?.descanso ?: "?"} → ${c.segundos} s"
             is Cambio.Anadir -> "Añadir ${n(c.ejercicio)}, ${c.series} × ${c.min}–${c.max}"
             is Cambio.Quitar -> "Quitar ${n(c.ejercicio)}"
+            is Cambio.Crear -> c.nombre.trim()
             is Cambio.Dias -> "Días: " + c.dias.sorted().joinToString(", ") { listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo")[it - 1] }
         }
     }

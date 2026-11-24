@@ -112,15 +112,26 @@ private fun TarjetaCambio(c0: Cambio, rutina: Rutina?, estado: Int, onAceptar: (
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     Column(modifier.fillMaxWidth().vidrio(RoundedCornerShape(18.dp), resaltado = estado == 0).padding(12.dp)) {
-        Text("CAMBIO PROPUESTO · ${(rutina?.nombre ?: "Rutina").uppercase()}", style = t.etiqueta, color = c.acento)
+        val nueva = c0 as? Cambio.Crear
+        Text(
+            if (nueva != null) "RUTINA NUEVA · ${nueva.seccion.nombre.uppercase()}${if (nueva.dias.isEmpty()) "" else " · " + nueva.dias.sorted().joinToString(" ") { DIAS[it - 1] }}"
+            else "CAMBIO PROPUESTO · ${(rutina?.nombre ?: "Rutina").uppercase()}",
+            style = t.etiqueta, color = c.acento,
+        )
         Text(Cambios.titulo(c0, rutina), style = t.tituloTarjeta, color = c.texto, modifier = Modifier.padding(top = 4.dp))
+        nueva?.bloques?.forEach { b ->
+            Row(Modifier.fillMaxWidth().padding(top = 5.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(Ejercicios.porId(b.ejercicio)?.nombre ?: b.ejercicio, style = t.pequeno, color = c.texto2, modifier = Modifier.weight(1f).padding(end = 8.dp))
+                Text("${b.series} × ${b.repsMin}–${b.repsMax}", style = t.pequeno, color = c.texto)
+            }
+        }
         if (c0.motivo.isNotBlank()) Text(c0.motivo, style = t.pequeno, color = c.texto2, modifier = Modifier.padding(top = 3.dp))
         when (estado) {
             0 -> Row(Modifier.padding(top = 10.dp).fillMaxWidth(), horizontalArrangement = Arrangement.End, verticalAlignment = Alignment.CenterVertically) {
                 BotonTexto("No", onNo, Modifier.padding(end = 8.dp), color = c.texto2)
-                BotonPastilla("Cambiar", onAceptar)
+                BotonPastilla(if (nueva != null) "Guardar rutina" else "Cambiar", onAceptar)
             }
-            1 -> Text("✓ Cambiado en tu rutina", style = t.pequeno, color = c.verde, modifier = Modifier.padding(top = 8.dp))
+            1 -> Text(if (nueva != null) "✓ Guardada en tus rutinas" else "✓ Cambiado en tu rutina", style = t.pequeno, color = c.verde, modifier = Modifier.padding(top = 8.dp))
             else -> Text("No se ha cambiado", style = t.pequeno, color = c.texto3, modifier = Modifier.padding(top = 8.dp))
         }
     }

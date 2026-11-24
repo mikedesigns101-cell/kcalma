@@ -37,6 +37,20 @@ class EntrenadorTest {
         assertNotNull(Cambios.validar(Cambio.Anadir("p_casa", "fondos_banco", 3, 8, 10, ""), rutinas))
     }
 
+    @Test fun `una rutina nueva solo vale con ejercicios de su seccion y numeros con sentido`() {
+        fun crear(seccion: Seccion, vararg ids: String, series: Int = 3) =
+            Cambio.Crear("Cuerpo entero 3 días", seccion, setOf(1, 3, 5), ids.map { BloqueRutina(it, series, 6, 8, 120) }, "")
+        val buena = crear(Seccion.GIMNASIO, "sentadilla", "press_banca", "remo_barra", "plancha")
+        assertNotNull(Cambios.validar(buena, rutinas))
+        assertEquals(4, Cambios.rutinaNueva(buena).bloques.size)
+        assertEquals(setOf(1, 3, 5), Cambios.rutinaNueva(buena).dias)
+        assertNull(Cambios.validar(crear(Seccion.GIMNASIO, "sentadilla", "ejercicio_inventado"), rutinas))
+        assertNull(Cambios.validar(crear(Seccion.CASA, "sentadilla_libre", "press_banca"), rutinas))
+        assertNull(Cambios.validar(crear(Seccion.GIMNASIO, "sentadilla", "sentadilla"), rutinas))
+        assertNull(Cambios.validar(crear(Seccion.GIMNASIO, "sentadilla", "press_banca", series = 30), rutinas))
+        assertNull(Cambios.validar(buena.copy(nombre = " "), rutinas))
+    }
+
     @Test fun `aplicar cambia solo lo pedido`() {
         val r = Cambios.aplicar(torso, Cambio.Sustituir("p_torso", "press_militar", "press_arnold", ""))
         assertEquals(torso.bloques.size, r.bloques.size)
