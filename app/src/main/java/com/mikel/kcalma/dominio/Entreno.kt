@@ -22,7 +22,7 @@ enum class Patron {
 enum class Seccion(val nombre: String) { GIMNASIO("Gimnasio"), KETTLEBELL("Kettlebell"), CASA("Casa") }
 
 /** Cómo se hace una rutina: series con descanso, o por tiempo (cada minuto / máximas rondas / intervalos). */
-enum class Formato(val nombre: String) { SERIES("Series"), EMOM("EMOM"), AMRAP("AMRAP"), INTERVALOS("Intervalos") }
+enum class Formato(val nombre: String) { SERIES("Series"), EMOM("EMOM"), AMRAP("AMRAP"), INTERVALOS("Intervalos"), COMPLEJO("Complex") }
 
 data class Ejercicio(
     /** Id estable: el historial lo usa para siempre. No cambiarlo nunca. */
@@ -63,7 +63,7 @@ data class Rutina(
     /** Días de la semana (1 = lunes … 7 = domingo). */
     val dias: Set<Int> = emptySet(),
     val descripcion: String = "",
-    /** INTERVALOS: segundos de trabajo y de descanso de cada ronda, y número de rondas. */
+    /** INTERVALOS: segundos de trabajo y de descanso de cada ronda, y número de rondas. COMPLEJO: rondas y descanso entre ellas. */
     val trabajo: Int = 20,
     val pausa: Int = 10,
     val rondas: Int = 8,
@@ -80,6 +80,8 @@ data class Rutina(
     fun duracion(): Int = when (formato) {
         Formato.SERIES -> bloques.sumOf { it.series * (40 + it.descanso) } / 60
         Formato.INTERVALOS -> ((duracionIntervalos() + 59_999) / 60_000).toInt()
+        // Complex: unos 20 s por ejercicio de cada ronda más el descanso entre rondas
+        Formato.COMPLEJO -> (rondas * bloques.size * 20 + (rondas - 1).coerceAtLeast(0) * pausa + 59) / 60
         else -> minutos
     }
 

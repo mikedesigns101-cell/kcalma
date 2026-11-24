@@ -93,7 +93,7 @@ fun PantallaRutina(
                     }
                 }
             }
-            item { Rotulo(when (r.formato) { Formato.SERIES -> "Ejercicios"; Formato.INTERVALOS -> "Por turnos, una ronda cada uno"; else -> "Cada vuelta" }, lateral) }
+            item { Rotulo(when (r.formato) { Formato.SERIES -> "Ejercicios"; Formato.INTERVALOS -> "Por turnos, una ronda cada uno"; Formato.COMPLEJO -> "Cada ronda, seguidos y sin soltar el peso"; else -> "Cada vuelta" }, lateral) }
             itemsIndexed(r.bloques) { _, b ->
                 val ej = Ejercicios.porId(b.ejercicio) ?: return@itemsIndexed
                 val ultima = sesiones.ultimasSeries(ej.id)

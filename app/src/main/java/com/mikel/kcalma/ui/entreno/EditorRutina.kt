@@ -80,9 +80,18 @@ fun PantallaEditorRutina(inicial: Rutina, onAtras: () -> Unit, onGuardar: (Rutin
                     }
                     Segmentado(Formato.entries.map { it.nombre }, r.formato.ordinal) {
                         val f = Formato.entries[it]
-                        r = r.copy(formato = f, minutos = if (f != Formato.SERIES && r.minutos == 0) 12 else r.minutos)
+                        r = r.copy(
+                            formato = f, minutos = if (f != Formato.SERIES && r.minutos == 0) 12 else r.minutos,
+                            // Al pasar a Complex, valores típicos: 5 rondas con 90 s entre ellas
+                            rondas = if (f == Formato.COMPLEJO && r.formato != Formato.COMPLEJO) 5 else r.rondas,
+                            pausa = if (f == Formato.COMPLEJO && r.formato != Formato.COMPLEJO) 90 else r.pausa,
+                        )
                     }
                     if (r.formato == Formato.EMOM || r.formato == Formato.AMRAP) Paso("Minutos en total", r.minutos, 1, 60) { r = r.copy(minutos = it) }
+                    if (r.formato == Formato.COMPLEJO) Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Paso("Rondas", r.rondas, 1, 20, Modifier.weight(1f)) { r = r.copy(rondas = it) }
+                        Paso("Descanso entre rondas (s)", r.pausa, 0, 600, Modifier.weight(1.4f), salto = 15) { r = r.copy(pausa = it) }
+                    }
                     if (r.formato == Formato.INTERVALOS) Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Paso("Trabajo (s)", r.trabajo, 5, 300, Modifier.weight(1f), salto = 5) { r = r.copy(trabajo = it) }
                         Paso("Descanso (s)", r.pausa, 0, 300, Modifier.weight(1f), salto = 5) { r = r.copy(pausa = it) }
@@ -93,6 +102,7 @@ fun PantallaEditorRutina(inicial: Rutina, onAtras: () -> Unit, onGuardar: (Rutin
                             Formato.SERIES -> "Series con descanso; te propongo el peso según lo que hiciste."
                             Formato.EMOM -> "Cada minuto empiezas un ejercicio, en orden. Lo que sobra del minuto, descansas."
                             Formato.AMRAP -> "Tantas vueltas como puedas en el tiempo; apuntas cada vuelta."
+                            Formato.COMPLEJO -> "Todos los ejercicios seguidos sin soltar el peso son una ronda. Descansas entre rondas."
                             Formato.INTERVALOS -> "Trabajo y descanso cronometrados, con pitido. Cada ronda toca el siguiente ejercicio. Unos ${r.duracion()} min."
                         },
                         style = t.pequeno, color = c.texto3, modifier = Modifier.padding(start = 2.dp, top = 2.dp),
@@ -153,7 +163,7 @@ fun PantallaEditorRutina(inicial: Rutina, onAtras: () -> Unit, onGuardar: (Rutin
         BotonPrincipal(
             "Guardar", { onGuardar(r.copy(nombre = r.nombre.trim())) },
             Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(horizontal = MARGEN, vertical = 12.dp),
-            activo = r.nombre.isNotBlank() && r.bloques.isNotEmpty() && (r.formato == Formato.SERIES || r.minutos > 0),
+            activo = r.nombre.isNotBlank() && r.bloques.isNotEmpty() && (r.formato == Formato.SERIES || r.formato == Formato.INTERVALOS || r.formato == Formato.COMPLEJO || r.minutos > 0),
         )
     }
     if (anadir) {

@@ -376,7 +376,8 @@ object Rutinas {
         ),
         Rutina(
             "p_kb_complejo", "Complejo de una kettlebell", Seccion.KETTLEBELL,
-            listOf(b("kb_clean", 5, 5, 8, 0), b("kb_press", 5, 5, 8, 0), b("kb_goblet", 5, 5, 8, 0), b("kb_remo", 5, 5, 8, 90)),
+            listOf(b("kb_clean", 1, 5, 5, 0), b("kb_press", 1, 5, 5, 0), b("kb_goblet", 1, 5, 5, 0), b("kb_remo", 1, 5, 5, 0)),
+            formato = Formato.COMPLEJO, rondas = 5, pausa = 90,
             descripcion = "Cargada, press, sentadilla y remo sin soltarla",
         ),
         Rutina(

@@ -62,6 +62,7 @@ internal fun minutos(m: Int) = if (m < 60) "$m min" else "${m / 60} h${if (m % 6
 
 internal fun detalleRutina(r: Rutina): String = when (r.formato) {
     Formato.SERIES -> "${r.bloques.size} ${if (r.bloques.size == 1) "ejercicio" else "ejercicios"} · ${r.totalSeries} series · ${minutos(r.duracion())}"
+    Formato.COMPLEJO -> "Complex · ${r.rondas} ${if (r.rondas == 1) "ronda" else "rondas"} de ${r.bloques.size} ejercicios · ${minutos(r.duracion())}"
     Formato.INTERVALOS -> "Intervalos ${r.trabajo}/${r.pausa} s · ${r.rondas} rondas · ${minutos(r.duracion())}"
     else -> "${r.formato.nombre} · ${minutos(r.minutos)}"
 }

@@ -137,6 +137,10 @@ fun PantallaSesion(
             }
         }
         if (rutina.formato == Formato.SERIES) SesionSeries(sesion, rutina, sesiones, ajustes, reloj, onSerie, onFicha) { preguntar = true }
+        else if (rutina.formato == Formato.COMPLEJO) {
+            val contexto = LocalContext.current
+            SesionComplejo(sesion, rutina, sesiones, ajustes, reloj, onSerie, onFicha, { avisar(contexto, true) }) { preguntar = true }
+        }
         else if (rutina.formato == Formato.INTERVALOS) SesionIntervalos(sesion, rutina, sesiones, ajustes, reloj, onSerie) { preguntar = true }
         else SesionTiempo(sesion, rutina, sesiones, ajustes, reloj, onSerie) { preguntar = true }
     }
@@ -335,6 +339,9 @@ private fun androidx.compose.foundation.layout.RowScope.Cabeza(s: String, peso: 
 }
 
 /** Casilla numérica pequeña de la tabla de series. */
+@Composable
+internal fun CeldaPeso(valor: String, onCambio: (String) -> Unit) = Celda(valor, true, onCambio)
+
 @Composable
 private fun Celda(valor: String, decimales: Boolean, onCambio: (String) -> Unit) {
     val c = KcalmaTheme.colores
