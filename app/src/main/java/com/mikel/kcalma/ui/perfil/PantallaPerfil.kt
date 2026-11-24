@@ -97,6 +97,8 @@ class AccionesPerfil(
     val onRecordatorios: () -> Unit = {},
     val onActividad: () -> Unit = {},
     val onApariencia: () -> Unit = {},
+    val onPodometro: () -> Unit = {},
+    val onAmigos: () -> Unit = {},
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -108,6 +110,10 @@ fun PantallaPerfil(
     acciones: AccionesPerfil,
     /** Estado de Health Connect para la fila de Actividad del móvil. */
     actividad: String = "",
+    /** Estado del podómetro del móvil («Encendido · 5.980 hoy», «Apagado»…). */
+    podometro: String = "",
+    /** Resumen del grupo de amigos («2.º este mes», «Sin grupo»). */
+    amigos: String = "",
     /** Nombre del tema de color elegido. */
     tema: String = "",
     onPestana: (Pestana) -> Unit,
@@ -173,6 +179,8 @@ fun PantallaPerfil(
             Grupo("Avisos y móvil") {
                 Fila(Ic.AVISOS, "Recordatorios", "Comidas y peso", onClick = acciones.onRecordatorios)
                 Fila(Ic.PASOS, "Pasos y ejercicio", actividad, onClick = acciones.onActividad)
+                Fila(Ic.RAYO, "Podómetro del móvil", podometro, onClick = acciones.onPodometro)
+                Fila(Ic.TROFEO, "Amigos", amigos, onClick = acciones.onAmigos)
             }
             Grupo("Foto con IA") {
                 Fila(Ic.LLAVE, "Clave de Gemini", if (claveGuardada) "Guardada" else "Sin clave", valorColor = if (claveGuardada) c.verde else c.aviso) {

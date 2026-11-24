@@ -75,6 +75,7 @@ fun PantallaProgreso(
     onPestana: (Pestana) -> Unit,
     onCamara: () -> Unit,
     onHistorial: () -> Unit = {},
+    onAmigos: () -> Unit = {},
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -92,6 +93,10 @@ fun PantallaProgreso(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Tu progreso", style = t.marca, color = c.texto, modifier = Modifier.weight(1f))
+                Text(
+                    "Amigos ›", style = t.tituloTarjeta, color = c.acento,
+                    modifier = Modifier.padding(end = 8.dp).vidrio(RoundedCornerShape(14.dp)).clickable(onClick = onAmigos).padding(horizontal = 12.dp, vertical = 7.dp),
+                )
                 Text(
                     "Historial ›", style = t.tituloTarjeta, color = c.acento,
                     modifier = Modifier.vidrio(RoundedCornerShape(14.dp)).clickable(onClick = onHistorial).padding(horizontal = 12.dp, vertical = 7.dp),

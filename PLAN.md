@@ -172,6 +172,14 @@ Las ideas de Mikel están en `C:\Users\Mikel\Documents\Obsidian Vault\Ideas Vibe
   - *Informes:* además de los últimos 15 minutos se manda el último error anterior, si lo hubo.
   - *Compartidos:* solo los productos con código de barras creados leyendo la etiqueta; «Actualizar Kcalma» baja también la lista de la comunidad.
 
+### Amigos y podómetro (25/11/2026, Mikel; idea 12 de la nota de Obsidian; maqueta `maquetas/kcalma-amigos.html`)
+- **Competición con amigos, sin servidor (Mikel: «GitHub cifrado»):** cada grupo tiene un código. Cada móvil publica sus cifras del mes cifradas con ese código (AES-GCM) como comentario en una incidencia fija del repo; un robot las guarda en `comunidad/grupos/` y borra el comentario. Solo quien tiene el código puede leerlas. Se actualiza en minutos, no al instante.
+- **Qué se comparte:** el apodo y cuatro cifras del mes. Nunca el peso ni lo que se come.
+- **Periodo (Mikel: «Mensual»):** del día 1 al último del mes; se guarda quién ganó el mes anterior.
+- **Ganador (Mikel: «4 listas y general»):** cerca del límite de kcal, entrenos, racha de días y pasos; la general da 3, 2 y 1 puntos a los tres primeros de cada lista.
+- **Podómetro (Mikel: «La más alta»):** interruptor «Podómetro del móvil» en Perfil; usa el sensor de pasos del teléfono. Si además hay Health Connect, cada día cuenta la cifra mayor de las dos.
+- *Elegido por Claude, pendiente de revisar:* «cerca del límite» es la media de lo cerca que se queda uno de su objetivo los días que apunta, y solo puntúa con 5 días apuntados o más; la racha es la más larga de días seguidos apuntados dentro del mes; el podómetro lee el sensor al abrir la app y con cada recordatorio, sin servicio en segundo plano; máximo 30 personas por grupo.
+
 ## 1. Qué hace la app
 
 1. **Haces una foto** del plato (o de varios platos).

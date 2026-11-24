@@ -26,6 +26,16 @@ class Salud(private val contexto: Context) {
         else -> Estado.NO_DISPONIBLE
     }
 
+    /** Pasos de cada día desde [desde] (fecha → pasos); vacío si no hay permiso o falla. */
+    suspend fun pasosPorDia(desde: LocalDate): Map<String, Long> = runCatching {
+        val c = cliente() ?: return emptyMap()
+        c.aggregateGroupByPeriod(
+            androidx.health.connect.client.request.AggregateGroupByPeriodRequest(
+                setOf(StepsRecord.COUNT_TOTAL), TimeRangeFilter.between(desde.atStartOfDay(), LocalDateTime.now()), java.time.Period.ofDays(1),
+            )
+        ).associate { it.startTime.toLocalDate().toString() to (it.result[StepsRecord.COUNT_TOTAL] ?: 0L) }
+    }.onFailure { Registro.error("Health Connect", it) }.getOrDefault(emptyMap())
+
     /** Pasos de hoy, o null si no hay permiso o falla. */
     suspend fun pasosHoy(): Long? = runCatching {
         val c = cliente() ?: return null

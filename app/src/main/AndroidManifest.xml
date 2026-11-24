@@ -9,6 +9,8 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.health.READ_STEPS" />
+    <!-- Podómetro del móvil: leer el sensor de pasos (solo si el usuario lo enciende en Perfil) -->
+    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION" />
 
     <!-- Para saber si Health Connect está instalado (Android 13 o anterior) -->
     <queries>

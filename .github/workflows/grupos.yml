@@ -1,0 +1,41 @@
+name: Grupos de amigos
+
+# Las apps dejan las cifras del mes (cifradas con el código de cada grupo) como comentarios en la incidencia 6.
+# El robot recoge todos los pendientes, los guarda en comunidad/grupos/ y vacía el buzón.
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+# De uno en uno. Si llegan varios a la vez no se pierde nada: cada pasada recoge todos los comentarios pendientes.
+concurrency:
+  group: grupos
+  cancel-in-progress: false
+
+jobs:
+  grupos:
+    if: github.event.issue.number == 6 && !github.event.issue.pull_request
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recoger el buzón
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        # El texto de los comentarios no se mete nunca en la línea de órdenes: el robot lo pide a la API y lo lee como JSON
+        run: python3 comunidad/grupos.py 6
+      - name: Guardar
+        run: |
+          git config user.name "kcalma-robot"
+          git config user.email "kcalma-robot@users.noreply.github.com"
+          git add comunidad/grupos
+          git diff --cached --quiet && exit 0
+          git commit -m "Grupos: cifras nuevas"
+          for intento in 1 2 3 4 5; do
+            git pull --rebase && git push && exit 0
+            sleep 4
+          done
+          exit 1

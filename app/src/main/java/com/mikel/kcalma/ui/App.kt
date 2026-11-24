@@ -18,6 +18,7 @@ import com.mikel.kcalma.datos.Coach
 import com.mikel.kcalma.datos.Copia
 import com.mikel.kcalma.dominio.Cambio
 import com.mikel.kcalma.dominio.Cocinado
+import com.mikel.kcalma.dominio.Competicion
 import com.mikel.kcalma.dominio.Cambios
 import com.mikel.kcalma.dominio.Entrenador
 import com.mikel.kcalma.dominio.MensajeChat
@@ -123,6 +124,7 @@ private sealed interface Destino {
     data class EditarRutina(val rutina: com.mikel.kcalma.dominio.Rutina) : Destino
     data object Biblioteca : Destino
     data object Historial : Destino
+    data object Amigos : Destino
     data class Dia(val fecha: String) : Destino
     data object Propuesta : Destino
     data object Chat : Destino
@@ -144,6 +146,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     val salud = remember { Salud(contexto.applicationContext) }
     var estadoSalud by remember { mutableStateOf<Salud.Estado?>(null) }
     var pasosHoy by remember { mutableStateOf<Long?>(null) }
+    val podometro = remember { com.mikel.kcalma.datos.Podometro(contexto.applicationContext) }
+    var podometroOn by remember { mutableStateOf(podometro.activado) }
     val ejercicio = pasosHoy?.let { Actividad.suma(perfil, it) } ?: 0
     val restante = Nutrientes(plan.kcal + ejercicio - comido.kcal, plan.proteinaG - comido.proteinas, plan.hidratosG - comido.hidratos, plan.grasasG - comido.grasas)
     // Filtros del buscador: los supermercados del usuario o, si no eligió, los dos con más productos
@@ -174,14 +178,26 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     var ultimaSalud by remember { mutableStateOf(0L) }
     LaunchedEffect(pestana, pila.size) {
         val ahoraMs = System.currentTimeMillis()
-        if (estadoSalud == Salud.Estado.CONECTADO && ahoraMs - ultimaSalud < 30_000) return@LaunchedEffect
+        if ((estadoSalud == Salud.Estado.CONECTADO || podometroOn) && ahoraMs - ultimaSalud < 30_000) return@LaunchedEffect
         ultimaSalud = ahoraMs
         estadoSalud = salud.estado()
-        if (estadoSalud == Salud.Estado.CONECTADO) {
-            pasosHoy = salud.pasosHoy()
-            pasosHoy?.let { WidgetHoy.guardarEjercicio(contexto, Actividad.suma(perfil, it)); WidgetHoy.refrescar(contexto) }
-        }
+        // Pasos de hoy: Health Connect, el podómetro del móvil o, si están los dos, la cifra más alta
+        val deSalud = if (estadoSalud == Salud.Estado.CONECTADO) salud.pasosHoy() else null
+        val delMovil = if (podometroOn) { podometro.leer(); podometro.pasosHoy() } else null
+        pasosHoy = listOfNotNull(deSalud, delMovil).maxOrNull()
+        pasosHoy?.let { WidgetHoy.guardarEjercicio(contexto, Actividad.suma(perfil, it)); WidgetHoy.refrescar(contexto) }
     }
+    val pedirPasos = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { concedido ->
+        if (concedido) { podometro.activar(); podometroOn = true; ultimaSalud = 0; aviso("Podómetro encendido") }
+        else aviso("Sin ese permiso no se pueden contar los pasos")
+    }
+
+    // ---- Amigos: competición mensual. Mis cifras se calculan aquí; las de los demás se bajan cifradas ----
+    val amigos = remember { com.mikel.kcalma.datos.Amigos(contexto.applicationContext) }
+    var grupo by remember { mutableStateOf(amigos.codigo) }
+    var miMarca by remember { mutableStateOf<Competicion.Marca?>(null) }
+    var marcasGrupo by remember { mutableStateOf<Map<String, List<Competicion.Marca>>>(emptyMap()) }
+    var cargandoAmigos by remember { mutableStateOf(false) }
     val pedirSalud = rememberLauncherForActivityResult(PermissionController.createRequestPermissionResultContract()) { concedidos ->
         if (concedidos.containsAll(salud.permisos)) { estadoSalud = Salud.Estado.CONECTADO; aviso("Pasos conectados") }
     }
@@ -328,6 +344,28 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         }
     }
 
+    /** Calcula mis cifras del mes, las publica si han cambiado y baja las del grupo. */
+    fun refrescarAmigos(forzar: Boolean = false) {
+        if (amigos.codigo == null || cargandoAmigos) return
+        cargandoAmigos = true
+        alcance.launch {
+            val dia = LocalDate.now()
+            // Pasos de cada día del mes: la cifra más alta entre Health Connect y el podómetro del móvil
+            val deSalud = if (estadoSalud == Salud.Estado.CONECTADO) salud.pasosPorDia(dia.withDayOfMonth(1)) else emptyMap()
+            val delMovil = if (podometroOn) podometro.pasosPorDia() else emptyMap()
+            val pasos = (deSalud.keys + delMovil.keys).associateWith { maxOf(deSalud[it] ?: 0L, delMovil[it] ?: 0L) }
+            val mia = Competicion.miMarca(
+                amigos.miembro, amigos.apodo, dia, dias, plan.kcal,
+                sesionesE.filter { it.terminada }.map { Entrenador.fecha(it.inicio) }, pasos,
+            )
+            miMarca = mia
+            val publicado = amigos.publicar(mia, forzar)
+            marcasGrupo = amigos.descargar(forzar)
+            cargandoAmigos = false
+            if (!publicado && forzar) aviso("No se han podido publicar tus cifras. Revisa la conexión.")
+        }
+    }
+
     // ---- Ideas: recetas propias + las que pida a la IA ----
     val recetas by produceState(emptyList<Receta>()) { value = runCatching { Recetas.todas(contexto.applicationContext) }.getOrDefault(emptyList()) }
     // Próxima comida sin apuntar a partir de la hora actual (la cena si ya va todo apuntado)
@@ -447,6 +485,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         is Destino.EditarRutina -> "Editor de rutina"
         Destino.Biblioteca -> "Biblioteca de ejercicios"
         Destino.Historial -> "Historial"
+        Destino.Amigos -> "Amigos"
         is Destino.Dia -> "Día del historial"
         Destino.Propuesta -> "Propuesta del entrenador"
         Destino.Chat -> "Chat con el entrenador"
@@ -472,6 +511,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         ) else if (pestana == Pestana.PROGRESO) com.mikel.kcalma.ui.progreso.PantallaProgreso(
             perfil = perfil, pesos = pesos, dias = dias, onPestana = cambiarPestana,
             onHistorial = { pila.add(Destino.Historial) },
+            onAmigos = { pila.add(Destino.Amigos) },
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
         ) else if (pestana == Pestana.ENTRENO) com.mikel.kcalma.ui.entreno.PantallaEntreno(
             seccion = seccion, rutinas = rutinas, sesiones = sesionesE, ajustes = ajustesE,
@@ -497,6 +537,12 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             pesos = pesos,
             claveGuardada = claveGuardada,
             tema = tema.nombre,
+            podometro = when {
+                !podometro.disponible -> "Sin sensor"
+                podometroOn -> "Encendido · " + "%,d".format(java.util.Locale.US, podometro.pasosHoy()).replace(',', '.') + " hoy"
+                else -> "Apagado"
+            },
+            amigos = if (grupo == null) "Sin grupo" else "Competición del mes",
             actividad = when (estadoSalud) {
                 Salud.Estado.CONECTADO -> pasosHoy?.let { "%,d pasos hoy".format(java.util.Locale.US, it).replace(',', '.') } ?: "Conectado"
                 Salud.Estado.SIN_PERMISO -> "Sin conectar"
@@ -506,6 +552,15 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             acciones = AccionesPerfil(
                 onRecordatorios = { pila.add(Destino.Recordatorios) },
                 onApariencia = { pila.add(Destino.Apariencia) },
+                onPodometro = {
+                    when {
+                        !podometro.disponible -> aviso("Este móvil no tiene sensor de pasos")
+                        podometroOn -> { podometro.desactivar(); podometroOn = false; aviso("Podómetro apagado") }
+                        podometro.conPermiso() -> { podometro.activar(); podometroOn = true; ultimaSalud = 0; aviso("Podómetro encendido") }
+                        else -> pedirPasos.launch(android.Manifest.permission.ACTIVITY_RECOGNITION)
+                    }
+                },
+                onAmigos = { pila.add(Destino.Amigos) },
                 onActividad = {
                     when (estadoSalud) {
                         Salud.Estado.CONECTADO -> aviso("Conectado con Health Connect. Se suma la mitad de lo que camines de más.")
@@ -646,6 +701,23 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
                 }
             },
         )
+        Destino.Amigos -> {
+            LaunchedEffect(grupo) { refrescarAmigos() }
+            com.mikel.kcalma.ui.progreso.PantallaAmigos(
+                codigo = grupo, apodoInicial = amigos.apodo, mia = miMarca, marcas = marcasGrupo, cargando = cargandoAmigos,
+                puedePublicar = com.mikel.kcalma.datos.GitHub.hayToken,
+                onCrear = { apodo -> grupo = amigos.crear(apodo); miMarca = null; marcasGrupo = emptyMap() },
+                onUnirse = { codigo, apodo -> amigos.unirse(codigo, apodo).also { if (it) { grupo = amigos.codigo; miMarca = null; marcasGrupo = emptyMap() } } },
+                onActualizar = { refrescarAmigos(forzar = true) },
+                onCompartir = { codigo ->
+                    val i = Intent(Intent.ACTION_SEND).setType("text/plain")
+                        .putExtra(Intent.EXTRA_TEXT, "Únete a mi grupo de Kcalma. En Progreso › Amigos pon este código: $codigo")
+                    contexto.startActivity(Intent.createChooser(i, "Compartir código"))
+                },
+                onSalir = { amigos.salir(); grupo = null; miMarca = null; marcasGrupo = emptyMap() },
+                onAtras = { pila.remove(d) },
+            )
+        }
         Destino.Historial -> com.mikel.kcalma.ui.progreso.PantallaHistorial(
             dias = dias, pesos = pesos, planKcal = plan.kcal,
             onAtras = { pila.remove(d) },

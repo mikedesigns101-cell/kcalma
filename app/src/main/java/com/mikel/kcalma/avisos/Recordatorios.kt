@@ -178,9 +178,15 @@ class ReceptorAvisos : BroadcastReceiver() {
                     Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED -> {
                         if (i.action == Intent.ACTION_MY_PACKAGE_REPLACED && Actualizador.recienActualizada(c)) Recordatorios.avisarActualizada(c)
                         Recordatorios.programarTodos(c)
+                        // El contador de pasos vuelve a cero al encender el móvil: se relee y se reprograma la lectura
+                        com.mikel.kcalma.datos.Podometro(c).let { p -> if (p.activado) { p.leerAhora(); com.mikel.kcalma.datos.Podometro.programar(c, true) } }
                         WidgetHoy.refrescar(c)
                     }
-                    else -> i.getStringExtra("clave")?.let { Recordatorios.alSaltar(c, it) }
+                    else -> i.getStringExtra("clave")?.let { clave ->
+                        // Cualquier aviso sirve para leer los pasos; el del podómetro no hace nada más
+                        com.mikel.kcalma.datos.Podometro(c).leerAhora()
+                        if (clave != com.mikel.kcalma.datos.Podometro.CLAVE) Recordatorios.alSaltar(c, clave)
+                    }
                 }
             } catch (e: Exception) {
                 Registro.error("Recordatorio", e)
