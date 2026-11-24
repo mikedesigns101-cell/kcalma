@@ -17,11 +17,13 @@ import com.mikel.kcalma.datos.Claves
 import com.mikel.kcalma.datos.Coach
 import com.mikel.kcalma.datos.Copia
 import com.mikel.kcalma.dominio.Cambio
+import com.mikel.kcalma.dominio.Cocinado
 import com.mikel.kcalma.dominio.Cambios
 import com.mikel.kcalma.dominio.Entrenador
 import com.mikel.kcalma.dominio.MensajeChat
 import com.mikel.kcalma.datos.Gemini
-import com.mikel.kcalma.ui.componentes.BurbujaInforme
+import com.mikel.kcalma.ui.componentes.BurbujasInforme
+import com.mikel.kcalma.ui.componentes.TipoEnvio
 import com.mikel.kcalma.ui.componentes.HojaInforme
 import com.mikel.kcalma.ui.foto.PantallaClave
 import com.mikel.kcalma.ui.hoy.Pestana
@@ -344,10 +346,14 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     BackHandler(enabled = pila.isNotEmpty()) { pila.removeAt(pila.lastIndex) }
     BackHandler(enabled = pila.isEmpty() && pestana != Pestana.HOY) { pestana = Pestana.HOY }
 
-    fun guardar(d: Destino.Ficha, gramos: Double, unidad: Unidad, cantidad: Double) {
+    fun guardar(d: Destino.Ficha, gramos: Double, unidad: Unidad, cantidad: Double, cocinado: Cocinado) {
         alcance.launch(Dispatchers.IO) {
             if (d.entrada != null) repo.diario.actualizar(d.entrada.id, gramos, unidad, cantidad)
-            else repo.diario.anadir(fecha, d.comida, d.alimento, gramos, unidad, cantidad)
+            else {
+                repo.diario.anadir(fecha, d.comida, d.alimento, gramos, unidad, cantidad)
+                // El aceite de cocinarlo va aparte, para poder quitarlo o corregirlo
+                cocinado.aceite(gramos).takeIf { it > 0 }?.let { g -> repo.diario.anadir(fecha, d.comida, cocinado.alimentoAceite(), g, Unidad.GRAMOS, g) }
+            }
         }
         // Vuelve a la comida para ver el resultado
         while (pila.lastOrNull().let { it is Destino.Ficha || it is Destino.Anadir || it is Destino.Escaner }) pila.removeAt(pila.lastIndex)
@@ -400,7 +406,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         Destino.Propuesta -> "Propuesta del entrenador"
         Destino.Chat -> "Chat con el entrenador"
     }
-    if (informePerfil) HojaInforme("Desde Perfil", "Perfil", "") { informePerfil = false }
+    if (informePerfil) HojaInforme(TipoEnvio.FALLO, "Desde Perfil", "Perfil", "") { informePerfil = false }
     CompositionLocalProvider(LocalAccionesMas provides accionesMas) {
     androidx.compose.foundation.layout.Box(androidx.compose.ui.Modifier.fillMaxSize()) {
     when (val d = pila.lastOrNull()) {
@@ -693,7 +699,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             restante = if (d.entrada != null) restante + d.entrada.nutrientes else restante,
             inicial = d.entrada,
             onAtras = { pila.removeAt(pila.lastIndex) },
-            onGuardar = { g, u, c -> if (d.paraPlato) anadirIngrediente(d.alimento, g) else guardar(d, g, u, c) },
+            onGuardar = { g, u, c, coc -> if (d.paraPlato) anadirIngrediente(d.alimento, g) else guardar(d, g, u, c, coc) },
+            conCocinado = !d.paraPlato,
             sugerida = d.sugerida ?: remember(d) {
                 if (d.entrada != null || d.paraPlato) null
                 else repo.diario.ultimaDe(d.alimento)?.let { "↺ La última vez" to it }
@@ -804,8 +811,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             },
         )
     }
-    // Burbuja 🐞 encima de todo, abajo a la derecha por encima de la barra
-    BurbujaInforme(
+    // Burbujas 💡 y 🐞 encima de todo, abajo a la derecha por encima de la barra
+    BurbujasInforme(
         pantalla,
         androidx.compose.ui.Modifier.align(androidx.compose.ui.Alignment.BottomEnd).navigationBarsPadding()
             .padding(end = 14.dp, bottom = if (pila.isEmpty()) 96.dp else if (pila.last() == Destino.Chat) 150.dp else 90.dp),

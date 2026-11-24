@@ -92,7 +92,7 @@ fun PantallaPlato(e: EdicionPlato, onAtras: () -> Unit, onAnadirIngrediente: () 
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(Modifier.weight(1f)) {
-                        Text(ing.alimento.nombre, style = t.cuerpo, color = c.texto, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text(ing.alimento.nombre, style = t.cuerpo, color = c.texto, maxLines = 2, overflow = TextOverflow.Ellipsis)
                         Text(ing.alimento.subtitulo.ifEmpty { " " }, style = t.diminuto, color = c.texto3, maxLines = 1)
                     }
                     Text("${ing.gramos.roundToInt()} g", style = t.cuerpo, color = c.texto2)

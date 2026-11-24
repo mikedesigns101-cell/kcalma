@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.ui.unit.dp
 import com.mikel.kcalma.dominio.Alimento
 import com.mikel.kcalma.dominio.Entrada
@@ -59,6 +60,21 @@ fun BarraSuperior(simbolo: String, onIzquierda: () -> Unit, titulo: String = "",
         Spacer(Modifier.width(10.dp))
         Text(titulo, style = KcalmaTheme.tipo.marca, color = KcalmaTheme.colores.texto, modifier = Modifier.weight(1f))
         derecha()
+    }
+}
+
+/** Cómo se ha cocinado: una fila de chips que se desplaza. El elegido va resaltado. */
+@Composable
+fun ChipsCocinado(valor: com.mikel.kcalma.dominio.Cocinado, onCambio: (com.mikel.kcalma.dominio.Cocinado) -> Unit, modifier: Modifier = Modifier) {
+    val c = KcalmaTheme.colores
+    Row(modifier.horizontalScroll(androidx.compose.foundation.rememberScrollState()), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(5.dp)) {
+        com.mikel.kcalma.dominio.Cocinado.entries.forEach { o ->
+            val on = o == valor
+            Text(
+                o.nombre, style = KcalmaTheme.tipo.diminuto, color = if (on) c.texto else c.texto2,
+                modifier = Modifier.vidrio(RoundedCornerShape(11.dp), resaltado = on).clickable { onCambio(o) }.padding(horizontal = 9.dp, vertical = 5.dp),
+            )
+        }
     }
 }
 
@@ -100,7 +116,7 @@ fun FilaAlimento(a: Alimento, onAbrir: () -> Unit, onAnadir: () -> Unit, habitua
             IconoAlimento(a.nombre)
             Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(a.nombre, style = t.tituloTarjeta, color = c.texto, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                    Text(a.nombre, style = t.tituloTarjeta, color = c.texto, maxLines = 2, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                     a.supermercado?.let { EtiquetaSuper(it) }
                 }
                 Text(

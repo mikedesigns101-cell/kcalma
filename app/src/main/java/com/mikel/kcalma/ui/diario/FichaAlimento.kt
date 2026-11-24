@@ -50,6 +50,7 @@ import com.mikel.kcalma.dominio.ComidaDia
 import com.mikel.kcalma.dominio.Entrada
 import com.mikel.kcalma.dominio.Nutrientes
 import com.mikel.kcalma.dominio.Coccion
+import com.mikel.kcalma.dominio.Cocinado
 import com.mikel.kcalma.dominio.Unidad
 import com.mikel.kcalma.dominio.decimal
 import com.mikel.kcalma.ui.componentes.BotonPrincipal
@@ -68,13 +69,16 @@ fun FichaAlimento(
     restante: Nutrientes,
     inicial: Entrada?,
     onAtras: () -> Unit,
-    onGuardar: (gramos: Double, unidad: Unidad, cantidad: Double) -> Unit,
+    onGuardar: (gramos: Double, unidad: Unidad, cantidad: Double, cocinado: Cocinado) -> Unit,
+    /** Al editar o al elegir un ingrediente no se pregunta cómo está cocinado. */
+    conCocinado: Boolean = true,
     /** Cantidad con la que empezar al añadir (la última vez o lo dictado) y su explicación. */
     sugerida: Pair<String, Entrada>? = null,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     val factorCocido = remember(alimento) { Coccion.factor(alimento) }
+    var cocinado by remember(alimento) { mutableStateOf(Cocinado.TAL_CUAL) }
     val unidades = buildList {
         if (alimento.racionValida != null) add(Unidad.RACION)
         add(Unidad.GRAMOS)
@@ -165,6 +169,17 @@ fun FichaAlimento(
                 style = t.pequeno, color = c.texto3, modifier = Modifier.padding(top = 8.dp),
             )
 
+            if (conCocinado && inicial == null) {
+                Text("COCINADO", style = t.etiqueta, color = c.texto3, modifier = Modifier.padding(top = 12.dp, bottom = 6.dp))
+                ChipsCocinado(cocinado, { cocinado = it })
+                val aceite = cocinado.aceite(gramos)
+                if (aceite > 0) Text(
+                    "Se añadirán aparte ${decimal(aceite)} g de aceite (${(aceite * Cocinado.ACEITE.kcal / 100).roundToInt()} kcal). Podrás quitarlo o cambiarlo en la comida.",
+                    style = t.pequeno, color = c.texto3, modifier = Modifier.padding(top = 6.dp),
+                )
+                Spacer(Modifier.padding(top = 8.dp))
+            }
+
             // Resumen de kcal y macros
             val forma = RoundedCornerShape(16.dp)
             Row(
@@ -217,7 +232,7 @@ fun FichaAlimento(
         }
         BotonPrincipal(
             if (inicial != null) "Guardar cambios" else "Añadir a ${comida.nombre}",
-            onClick = { onGuardar(gramos, unidad, cantidad) },
+            onClick = { onGuardar(gramos, unidad, cantidad, cocinado) },
             activo = gramos > 0,
             modifier = Modifier.padding(bottom = 12.dp),
         )

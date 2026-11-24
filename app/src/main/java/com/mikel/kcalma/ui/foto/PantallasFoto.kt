@@ -83,6 +83,10 @@ import com.mikel.kcalma.dominio.decimal
 import com.mikel.kcalma.ui.componentes.BotonPrincipal
 import com.mikel.kcalma.ui.componentes.EnlaceInforme
 import com.mikel.kcalma.ui.diario.BarraSuperior
+import com.mikel.kcalma.ui.diario.ChipsCocinado
+import com.mikel.kcalma.dominio.Cocinado
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.foundation.text.KeyboardOptions
 import com.mikel.kcalma.ui.diario.BotonIcono
 import com.mikel.kcalma.ui.diario.IconoAlimento
 import com.mikel.kcalma.ui.diario.SelectorComida
@@ -442,6 +446,7 @@ fun PantallaResultado(
     onComida: (ComidaDia) -> Unit,
     onAtras: () -> Unit,
     onGramos: (Int, Double) -> Unit,
+    onCocinado: (Int, Cocinado) -> Unit,
     onQuitar: (Int) -> Unit,
     onCambiar: (Int) -> Unit,
     onAnadirOtro: () -> Unit,
@@ -449,7 +454,8 @@ fun PantallaResultado(
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
-    val total = items.fold(Nutrientes()) { s, i -> s + i.alimento.nutrientes(i.gramos) }
+    // El total cuenta también el aceite de cocinar
+    val total = items.fold(Nutrientes()) { s, i -> s + i.alimento.nutrientes(i.gramos) + Cocinado.ACEITE.nutrientes(i.cocinado.aceite(i.gramos)) }
 
     Column(Modifier.fillMaxSize().fondoKcalma().statusBarsPadding().navigationBarsPadding().padding(horizontal = 16.dp)) {
         BarraSuperior("‹", onAtras, "Tu plato") { SelectorComida(comida, onComida) }
@@ -477,7 +483,7 @@ fun PantallaResultado(
                 )
             }
             items(items, key = { it.id }) { item ->
-                TarjetaItem(item, { onGramos(item.id, it) }, { onQuitar(item.id) }, { onCambiar(item.id) })
+                TarjetaItem(item, { onGramos(item.id, it) }, { onCocinado(item.id, it) }, { onQuitar(item.id) }, { onCambiar(item.id) })
             }
             item {
                 Text(
@@ -495,29 +501,31 @@ fun PantallaResultado(
 }
 
 @Composable
-private fun TarjetaItem(item: ItemFoto, onGramos: (Double) -> Unit, onQuitar: () -> Unit, onCambiar: () -> Unit) {
+private fun TarjetaItem(item: ItemFoto, onGramos: (Double) -> Unit, onCocinado: (Cocinado) -> Unit, onQuitar: () -> Unit, onCambiar: () -> Unit) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     val a = item.alimento
     val n = a.nutrientes(item.gramos)
-    // Rango fijo por alimento para que el deslizador no salte mientras se mueve
-    val maximo = remember(item.id, a) { (max(item.gramos * 2.5, 100.0) / 10).roundToInt() * 10f }
+    val aceite = item.cocinado.aceite(item.gramos)
+    // Rango fijo por alimento para que el deslizador no salte mientras se mueve; crece si se escribe más
+    val base = remember(item.id, a) { (max(item.gramos * 2.5, 100.0) / 10).roundToInt() * 10f }
+    val maximo = max(base, (kotlin.math.ceil(item.gramos / 50) * 50).toFloat())
+    // La cifra se puede escribir: mientras se escribe manda el texto; al deslizar, el deslizador
+    var escrito by remember(item.id) { mutableStateOf<String?>(null) }
     val forma = RoundedCornerShape(14.dp)
-    Column(Modifier.fillMaxWidth().vidrio(forma).padding(start = 12.dp, end = 12.dp, top = 11.dp, bottom = 4.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    Column(Modifier.fillMaxWidth().vidrio(forma).padding(start = 12.dp, end = 12.dp, top = 11.dp, bottom = 10.dp)) {
+        Row(verticalAlignment = Alignment.Top) {
             IconoAlimento(a.nombre, 34)
             Column(Modifier.weight(1f).padding(horizontal = 10.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                // El nombre entero, en dos líneas si hace falta
+                Text(a.nombre + if (item.deLaNota) " (de tu nota)" else "", style = t.tituloTarjeta, color = c.texto, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 2.dp)) {
                     Text(
-                        a.nombre + if (item.deLaNota) " (de tu nota)" else "", style = t.tituloTarjeta, color = c.texto,
-                        maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
+                        "${a.subtitulo.ifEmpty { a.supermercado ?: "" }} · P ${n.proteinas.roundToInt()} · H ${n.hidratos.roundToInt()} · G ${n.grasas.roundToInt()}".trimStart(' ', '·'),
+                        style = t.pequeno, color = c.texto3, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false),
                     )
                     ChipConfianza(item)
                 }
-                Text(
-                    "${a.subtitulo.ifEmpty { a.supermercado ?: "" }} · P ${n.proteinas.roundToInt()} · H ${n.hidratos.roundToInt()} · G ${n.grasas.roundToInt()}".trimStart(' ', '·'),
-                    style = t.pequeno, color = c.texto3, maxLines = 1, overflow = TextOverflow.Ellipsis,
-                )
             }
             Text("${n.kcalInt}", style = t.tituloTarjeta, color = c.texto)
             Spacer(Modifier.width(8.dp))
@@ -530,13 +538,36 @@ private fun TarjetaItem(item: ItemFoto, onGramos: (Double) -> Unit, onQuitar: ()
             )
             Slider(
                 value = item.gramos.toFloat().coerceIn(0f, maximo),
-                onValueChange = { onGramos((it / 5).roundToInt() * 5.0) },
+                onValueChange = { escrito = null; onGramos((it / 5).roundToInt() * 5.0) },
                 valueRange = 0f..maximo,
                 colors = SliderDefaults.colors(thumbColor = c.acento, activeTrackColor = c.acento, inactiveTrackColor = c.fondo4),
                 modifier = Modifier.weight(1f).padding(horizontal = 10.dp),
             )
-            Text("${decimal(item.gramos)} g", style = t.pequeno, color = c.texto2, textAlign = TextAlign.End, modifier = Modifier.width(52.dp))
+            Row(
+                Modifier.width(74.dp).vidrio(RoundedCornerShape(11.dp), resaltado = true).padding(horizontal = 8.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.Center,
+            ) {
+                BasicTextField(
+                    escrito ?: decimal(item.gramos),
+                    { nuevo ->
+                        val limpio = nuevo.replace('.', ',').filter { it.isDigit() || it == ',' }.take(5)
+                        if (limpio.count { it == ',' } <= 1) {
+                            escrito = limpio
+                            onGramos((limpio.replace(',', '.').toDoubleOrNull() ?: 0.0).coerceIn(0.0, 5000.0))
+                        }
+                    },
+                    singleLine = true, textStyle = t.tituloTarjeta.copy(color = c.texto, textAlign = TextAlign.End), cursorBrush = SolidColor(c.acento),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.width(44.dp),
+                )
+                Text(" g", style = t.pequeno, color = c.texto3)
+            }
         }
+        ChipsCocinado(item.cocinado, onCocinado, Modifier.padding(top = 4.dp))
+        if (aceite > 0) Text(
+            "+ ${decimal(aceite)} g de aceite · ${(aceite * Cocinado.ACEITE.kcal / 100).roundToInt()} kcal, que se apuntan aparte",
+            style = t.diminuto, color = c.texto3, modifier = Modifier.padding(top = 5.dp),
+        )
     }
 }
 

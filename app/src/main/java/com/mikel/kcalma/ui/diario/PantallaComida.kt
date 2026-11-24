@@ -233,7 +233,7 @@ private fun FilaEntrada(e: Entrada, onEditar: () -> Unit, onBorrar: () -> Unit, 
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Column(Modifier.weight(1f)) {
-                Text(e.alimento.nombre, style = t.tituloTarjeta, color = c.texto, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(e.alimento.nombre, style = t.tituloTarjeta, color = c.texto, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Text(e.alimento.subtitulo.ifEmpty { " " }, style = t.pequeno, color = c.texto3, maxLines = 1)
             }
             Text(

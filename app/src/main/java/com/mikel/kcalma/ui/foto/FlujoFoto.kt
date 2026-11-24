@@ -20,6 +20,7 @@ import com.mikel.kcalma.datos.Registro
 import com.mikel.kcalma.datos.Repositorio
 import com.mikel.kcalma.datos.Respuesta
 import com.mikel.kcalma.dominio.Alimento
+import com.mikel.kcalma.dominio.Cocinado
 import com.mikel.kcalma.dominio.ComidaDia
 import com.mikel.kcalma.ui.diario.PantallaAnadir
 import kotlinx.coroutines.launch
@@ -32,7 +33,12 @@ data class ItemFoto(
     val confianza: String,
     val deLaNota: Boolean = false,
     val estimado: Boolean = false,
+    val cocinado: Cocinado = Cocinado.TAL_CUAL,
 )
+
+/** Los alimentos más el aceite de cocinarlos, sumado por tipo de cocinado. Es lo que se apunta en el diario. */
+fun List<ItemFoto>.conAceite(): List<ItemFoto> = this + filter { it.gramos > 0 }.groupBy { it.cocinado }
+    .mapNotNull { (coc, l) -> l.sumOf { coc.aceite(it.gramos) }.takeIf { it > 0 }?.let { ItemFoto(-1 - coc.ordinal, coc.alimentoAceite(), it, "alta") } }
 
 private enum class Paso { CLAVE, CAMARA, ANALIZANDO, RESULTADO, BUSCAR }
 
@@ -123,10 +129,11 @@ fun FlujoFoto(
             onComida = { comida = it },
             onAtras = { paso = Paso.CAMARA },
             onGramos = { id, g -> items.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { items[it] = items[it].copy(gramos = g) } },
+            onCocinado = { id, coc -> items.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { items[it] = items[it].copy(cocinado = coc) } },
             onQuitar = { id -> items.removeAll { it.id == id } },
             onCambiar = { id -> editando = id; paso = Paso.BUSCAR },
             onAnadirOtro = { editando = null; paso = Paso.BUSCAR },
-            onConfirmar = { onAnadir(comida, items.toList()) },
+            onConfirmar = { onAnadir(comida, items.toList().conAceite()) },
         )
         Paso.BUSCAR -> {
             fun elegir(a: Alimento) {
