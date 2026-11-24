@@ -272,7 +272,10 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         alcance.launch {
             when (val r = Gemini.propuesta(clave, datosEntrenador())) {
                 is Respuesta.Ok -> {
-                    val cambios = r.valor.second.mapNotNull { Coach.cambioDe(it) }.mapNotNull { Cambios.validar(it, rutinas) }.distinct().take(3)
+                    val cambios = r.valor.second.mapNotNull { bruto ->
+                        Coach.cambioDe(bruto)?.let { Cambios.validar(it, rutinas) }
+                            ?: null.also { com.mikel.kcalma.datos.Registro.anotar("Entrenador: cambio descartado: ${bruto.toString().take(700)}") }
+                    }.distinct().take(3)
                     val p = Coach.Propuesta(Entrenador.semana(), r.valor.first, cambios)
                     withContext(hiloEntreno) { entrenos.guardarAjuste("propuesta", Coach.json(p)) }
                     if (cambios.isNotEmpty()) pila.add(Destino.Propuesta)
@@ -311,7 +314,14 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         }
         alcance.launch {
             when (val r = Gemini.chat(clave, datosEntrenador(), turnos)) {
-                is Respuesta.Ok -> chat.add(MensajeChat(false, r.valor.first, r.valor.second?.let { Coach.cambioDe(it) }?.let { Cambios.validar(it, rutinas) }))
+                is Respuesta.Ok -> {
+                    val bruto = r.valor.second
+                    val cambio = bruto?.let { Coach.cambioDe(it) }?.let { Cambios.validar(it, rutinas) }
+                    // Si la IA propone algo que no pasa la validación, no se enseña, pero se dice y queda en el registro
+                    val fallido = bruto != null && cambio == null
+                    if (fallido) com.mikel.kcalma.datos.Registro.anotar("Entrenador: cambio descartado: ${bruto.toString().take(700)}")
+                    chat.add(MensajeChat(false, r.valor.first + if (fallido) " (No he podido prepararlo con los ejercicios de la app: pídemelo otra vez o de otra forma.)" else "", cambio))
+                }
                 else -> errorChat = errorIa(r)
             }
             pensando = false

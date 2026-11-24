@@ -252,18 +252,32 @@ object Gemini {
 
     private val CAMBIO = """
         {"type":"OBJECT","properties":{
-          "tipo":{"type":"STRING","enum":["sustituir","series","repeticiones","descanso","anadir","quitar","dias","crear"]},
-          "nombre":{"type":"STRING"},"seccion":{"type":"STRING","enum":["GIMNASIO","KETTLEBELL","CASA"]},
-          "bloques":{"type":"ARRAY","items":{"type":"OBJECT","properties":{"ejercicio":{"type":"STRING"},"series":{"type":"INTEGER"},
-            "min":{"type":"INTEGER"},"max":{"type":"INTEGER"},"descanso":{"type":"INTEGER"}},"required":["ejercicio","series","min","max","descanso"]}},
+          "tipo":{"type":"STRING","enum":["sustituir","series","repeticiones","descanso","anadir","quitar","dias"]},
           "rutina":{"type":"STRING"},"ejercicio":{"type":"STRING"},"nuevo":{"type":"STRING"},
           "series":{"type":"INTEGER"},"min":{"type":"INTEGER"},"max":{"type":"INTEGER"},"segundos":{"type":"INTEGER"},
           "dias":{"type":"ARRAY","items":{"type":"INTEGER"}},"motivo":{"type":"STRING"}},
          "required":["tipo","rutina","motivo"]}
     """
 
+    /** Una rutina nueva entera va en su propio campo, con los ejercicios obligatorios: mezclada con los cambios, el modelo los dejaba vacíos. */
+    private val RUTINA_NUEVA = """
+        {"type":"OBJECT","properties":{
+          "nombre":{"type":"STRING"},"seccion":{"type":"STRING","enum":["GIMNASIO","KETTLEBELL","CASA"]},
+          "dias":{"type":"ARRAY","items":{"type":"INTEGER"}},
+          "bloques":{"type":"ARRAY","items":{"type":"OBJECT","properties":{"ejercicio":{"type":"STRING"},"series":{"type":"INTEGER"},
+            "min":{"type":"INTEGER"},"max":{"type":"INTEGER"},"descanso":{"type":"INTEGER"}},"required":["ejercicio","series","min","max","descanso"]}},
+          "motivo":{"type":"STRING"}},
+         "required":["nombre","seccion","dias","bloques","motivo"]}
+    """
+
+    /** La rutina nueva, con la misma forma que un cambio de tipo «crear». */
+    private fun comoCambio(o: JSONObject?): JSONObject? =
+        o?.takeIf { (it.optJSONArray("bloques")?.length() ?: 0) > 0 }?.put("tipo", "crear")?.put("rutina", "nueva")
+
     private val REGLAS_CAMBIOS = """
         Un cambio modifica una rutina del usuario. Usa solo ids de rutinas y de ejercicios que aparezcan en los datos; nunca inventes ids.
+        En ejercicio, nuevo y bloques.ejercicio va siempre el id exacto (lo que aparece antes del signo =, como press_banca), nunca el nombre.
+        Si en tu respuesta dices que propones un cambio o una rutina, tienes que rellenar el cambio; si no lo rellenas, no digas que lo has hecho.
         Tipos y campos:
         - sustituir: ejercicio (el que se quita) y nuevo (el que entra, de los que existen para esa sección).
         - series: ejercicio y series (1-10).
@@ -272,9 +286,10 @@ object Gemini {
         - anadir: nuevo, series, min y max.
         - quitar: ejercicio.
         - dias: dias (1 = lunes … 7 = domingo).
-        - crear: una rutina nueva entera. rutina = "nueva"; nombre (máx. 30 letras); seccion (GIMNASIO, KETTLEBELL o CASA);
-          dias en que toca; bloques: de 4 a 8 ejercicios de los que existen para esa sección, cada uno con series, min, max y descanso
-          en segundos. Empieza por los ejercicios grandes (sentadilla, press, remo, peso muerto) y acaba con los pequeños.
+        Una rutina nueva entera no es un cambio: va en el campo rutina_nueva, con nombre (máx. 30 letras), seccion (GIMNASIO,
+        KETTLEBELL o CASA), dias en que toca (1 = lunes … 7 = domingo) y bloques: de 4 a 8 ejercicios de los que existen para esa
+        sección, cada uno con el id del ejercicio, series, min, max y descanso en segundos. Empieza por los ejercicios grandes
+        (sentadilla, press, remo, peso muerto) y acaba con los pequeños.
         motivo: una frase corta en español que cite el dato en que te basas.
         Los números de entrenos, series y pesos te los da la app ya calculados: no los recalcules ni inventes otros.
         No des consejo médico: ante dolor o lesión, recomienda bajar la carga o parar y consultar a un profesional.
@@ -292,14 +307,14 @@ object Gemini {
         Eres el entrenador personal del usuario dentro de la app Kcalma. Responde a su pregunta en 2-5 frases, usando sus datos.
         Si te pide un cambio en una rutina (o tu respuesta lo recomienda claramente), añade UN cambio en el campo cambio;
         el usuario lo aceptará o no con un botón. Si no hay cambio que hacer, no rellenes ese campo.
-        Si te pide una rutina nueva, un plan o que le programes el entreno, usa el tipo crear con una rutina completa adaptada a su
+        Si te pide una rutina nueva, un plan o que le programes el entreno, rellena rutina_nueva con una rutina completa adaptada a su
         objetivo, a los días que puede, a lo que come y a lo que se mueve; si hacen falta varias rutinas (torso y pierna, por ejemplo),
         crea una en esta respuesta y ofrece la siguiente.
         Si pregunta por comida, usa los datos de nutrición de hoy que te da la app.
     """.trimIndent() + "\n" + REGLAS_CAMBIOS
 
-    private val ESQUEMA_PROPUESTA = JSONObject("""{"type":"OBJECT","properties":{"resumen":{"type":"STRING"},"cambios":{"type":"ARRAY","items":$CAMBIO}},"required":["resumen","cambios"]}""")
-    private val ESQUEMA_CHAT = JSONObject("""{"type":"OBJECT","properties":{"respuesta":{"type":"STRING"},"cambio":$CAMBIO},"required":["respuesta"]}""")
+    private val ESQUEMA_PROPUESTA = JSONObject("""{"type":"OBJECT","properties":{"resumen":{"type":"STRING"},"cambios":{"type":"ARRAY","items":$CAMBIO},"rutina_nueva":$RUTINA_NUEVA},"required":["resumen","cambios"]}""")
+    private val ESQUEMA_CHAT = JSONObject("""{"type":"OBJECT","properties":{"respuesta":{"type":"STRING"},"cambio":$CAMBIO,"rutina_nueva":$RUTINA_NUEVA},"required":["respuesta"]}""")
 
     /** Propuesta semanal: resumen y cambios sin validar todavía. */
     suspend fun propuesta(clave: String, datos: String): Respuesta<Pair<String, List<JSONObject>>> = withContext(Dispatchers.IO) {
@@ -307,7 +322,7 @@ object Gemini {
         cadena(MODELOS, clave, contenido, INSTRUCCIONES_PROPUESTA, ESQUEMA_PROPUESTA, 0.4, { r ->
             val o = JSONObject(texto(r))
             val l = o.optJSONArray("cambios") ?: JSONArray()
-            o.optString("resumen") to (0 until l.length()).map { l.getJSONObject(it) }
+            o.optString("resumen") to ((0 until l.length()).map { l.getJSONObject(it) } + listOfNotNull(comoCambio(o.optJSONObject("rutina_nueva"))))
         }) { "${it.second.size} cambios" }
     }
 
@@ -319,7 +334,7 @@ object Gemini {
         }
         cadena(MODELOS, clave, contenido, INSTRUCCIONES_CHAT + "\n\nDATOS DEL USUARIO (calculados por la app):\n" + datos, ESQUEMA_CHAT, 0.5, { r ->
             val o = JSONObject(texto(r))
-            o.getString("respuesta").trim() to o.optJSONObject("cambio")
+            o.getString("respuesta").trim() to (comoCambio(o.optJSONObject("rutina_nueva")) ?: o.optJSONObject("cambio"))
         }) { it.first.take(80) }
     }
 

@@ -2,6 +2,7 @@ package com.mikel.kcalma.datos
 
 import com.mikel.kcalma.dominio.BloqueRutina
 import com.mikel.kcalma.dominio.Cambio
+import com.mikel.kcalma.dominio.Ejercicios
 import com.mikel.kcalma.dominio.Seccion
 import org.json.JSONArray
 import org.json.JSONObject
@@ -15,32 +16,42 @@ object Coach {
 
     /** null si faltan campos. No comprueba que la rutina o el ejercicio existan: eso lo hace Cambios.validar. */
     fun cambioDe(o: JSONObject): Cambio? = runCatching {
-        val r = o.getString("rutina")
+        val r = o.optString("rutina")
         val m = o.optString("motivo")
         fun t(k: String) = o.getString(k).also { require(it.isNotBlank()) }
         when (o.getString("tipo")) {
-            "sustituir" -> Cambio.Sustituir(r, t("ejercicio"), t("nuevo"), m)
-            "series" -> Cambio.Series(r, t("ejercicio"), o.getInt("series"), m)
-            "repeticiones" -> Cambio.Reps(r, t("ejercicio"), o.getInt("min"), o.getInt("max"), m)
-            "descanso" -> Cambio.Descanso(r, t("ejercicio"), o.getInt("segundos"), m)
-            "anadir" -> Cambio.Anadir(r, t("nuevo"), o.optInt("series", 3).takeIf { it > 0 } ?: 3, o.optInt("min", 8).takeIf { it > 0 } ?: 8, o.optInt("max", 12).takeIf { it > 0 } ?: 12, m)
-            "quitar" -> Cambio.Quitar(r, t("ejercicio"), m)
-            "dias" -> o.getJSONArray("dias").let { d -> Cambio.Dias(r, (0 until d.length()).map { d.getInt(it) }.toSet(), m) }
+            // Una rutina nueva: se arregla lo arreglable (nombres por ids, números al rango, ejercicios que no hay en esa sección fuera)
             "crear" -> {
+                val seccion = Seccion.entries.firstOrNull { it.name == o.optString("seccion").uppercase() } ?: Seccion.GIMNASIO
+                val posibles = Ejercicios.de(seccion).map { it.id }.toSet()
                 val b = o.getJSONArray("bloques")
                 val d = o.optJSONArray("dias") ?: JSONArray()
+                val bloques = (0 until b.length()).mapNotNull { b.optJSONObject(it) }.mapNotNull { x ->
+                    val id = idDe(x.optString("ejercicio")).takeIf { it in posibles } ?: return@mapNotNull null
+                    val min = x.optInt("min", 8).coerceIn(1, 60)
+                    BloqueRutina(id, x.optInt("series", 3).coerceIn(1, 10), min, x.optInt("max", min).coerceIn(min, 60), x.optInt("descanso", 90).coerceIn(0, 600))
+                }.distinctBy { it.ejercicio }.take(12)
                 Cambio.Crear(
-                    t("nombre").take(30), Seccion.entries.first { it.name == o.optString("seccion", "GIMNASIO") },
-                    (0 until d.length()).map { d.getInt(it) }.toSet(),
-                    (0 until b.length()).map { b.getJSONObject(it) }.map {
-                        BloqueRutina(it.getString("ejercicio"), it.optInt("series", 3), it.optInt("min", 8), it.optInt("max", 12), it.optInt("descanso", 90))
-                    },
-                    m,
+                    t("nombre").trim().take(30), seccion,
+                    (0 until d.length()).map { d.optInt(it) }.filter { it in 1..7 }.toSet(), bloques, m,
                 )
             }
+            "sustituir" -> Cambio.Sustituir(r, idDe(t("ejercicio")), idDe(t("nuevo")), m)
+            "series" -> Cambio.Series(r, idDe(t("ejercicio")), o.getInt("series"), m)
+            "repeticiones" -> Cambio.Reps(r, idDe(t("ejercicio")), o.getInt("min"), o.getInt("max"), m)
+            "descanso" -> Cambio.Descanso(r, idDe(t("ejercicio")), o.getInt("segundos"), m)
+            "anadir" -> Cambio.Anadir(r, idDe(t("nuevo")), o.optInt("series", 3).takeIf { it > 0 } ?: 3, o.optInt("min", 8).takeIf { it > 0 } ?: 8, o.optInt("max", 12).takeIf { it > 0 } ?: 12, m)
+            "quitar" -> Cambio.Quitar(r, idDe(t("ejercicio")), m)
+            "dias" -> o.getJSONArray("dias").let { d -> Cambio.Dias(r, (0 until d.length()).map { d.getInt(it) }.toSet(), m) }
             else -> null
         }
     }.getOrNull()
+
+    /** La IA a veces pone el nombre del ejercicio en vez de su id: se traduce si coincide con uno del catálogo. */
+    private fun idDe(x: String): String {
+        val t = x.trim()
+        return Ejercicios.porId(t)?.id ?: Ejercicios.todos.firstOrNull { it.nombre.equals(t, ignoreCase = true) }?.id ?: t
+    }
 
     fun json(c: Cambio): JSONObject = JSONObject().put("rutina", c.rutina).put("motivo", c.motivo).apply {
         when (c) {

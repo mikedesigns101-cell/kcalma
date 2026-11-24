@@ -117,7 +117,7 @@ fun FlujoFoto(
                     if (a == null) sin += p.texto
                     else items += ItemFoto(
                         siguienteId++, a, p.cantidad?.entrada(a, comida)?.gramos ?: a.gramosRapidos,
-                        if (p.cantidad != null) "alta" else "media", cocinado = p.cocinado,
+                        if (p.cantidad != null) "alta" else "media", cocinado = Cocinado.paraAlimento(a.nombre, p.cocinado),
                     )
                 }
                 if (sin.isNotEmpty()) aviso = "No he encontrado: ${sin.joinToString()}. Añádelo con «Añadir algo que falte»."
@@ -222,12 +222,12 @@ private suspend fun emparejar(r: Reconocido, repo: Repositorio, id: Int): ItemFo
     val candidato = repo.emparejar(r.busqueda, r.nombre, r.kcal100)
     val razonable = candidato != null
     return if (candidato != null && razonable) {
-        ItemFoto(id, candidato, r.gramos, r.confianza, r.deLaNota, cocinado = Cocinado.de(r.cocinado), busqueda = r.busqueda)
+        ItemFoto(id, candidato, r.gramos, r.confianza, r.deLaNota, cocinado = Cocinado.paraAlimento(candidato.nombre, Cocinado.de(r.cocinado)), busqueda = r.busqueda)
     } else {
         val estimado = Alimento(
             nombre = r.nombre, marca = "Estimado por IA",
             kcal = r.kcal100, proteinas = r.proteinas100, hidratos = r.hidratos100, grasas = r.grasas100,
         )
-        ItemFoto(id, estimado, r.gramos, r.confianza, r.deLaNota, estimado = true, cocinado = Cocinado.de(r.cocinado), busqueda = r.busqueda)
+        ItemFoto(id, estimado, r.gramos, r.confianza, r.deLaNota, estimado = true, busqueda = r.busqueda)
     }
 }

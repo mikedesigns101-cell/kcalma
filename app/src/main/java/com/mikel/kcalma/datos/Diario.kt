@@ -23,7 +23,7 @@ data class Habitual(val id: Long, val nombre: String, val entradas: List<Entrada
  * Datos del usuario (diario.db): lo que come, sus comidas habituales y los productos
  * traídos de Open Food Facts. Cada fila guarda una copia completa del alimento.
  */
-class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 4) {
+class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 5) {
 
     /** Sube cada vez que algo cambia, para que las pantallas vuelvan a leer. */
     private val cambios = MutableStateFlow(0)
@@ -41,12 +41,16 @@ class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario
         bd.execSQL("CREATE TABLE habitual_items (id INTEGER PRIMARY KEY, habitual_id INTEGER, gramos REAL, unidad TEXT, cantidad REAL, $alimento)")
         crearPlatos(bd)
         crearPreferidos(bd)
+        crearComunidad(bd)
     }
 
     /** v4: el alimento que el usuario eligió al corregir a la IA, para acertar la próxima vez. */
     private fun crearPreferidos(bd: SQLiteDatabase) {
         bd.execSQL("CREATE TABLE IF NOT EXISTS preferidos (busca TEXT PRIMARY KEY, $alimento)")
-        // Alimentos de la comunidad: copia de la lista que se baja de GitHub; se rehace entera en cada descarga
+    }
+
+    /** v5: alimentos de la comunidad, copia de la lista que se baja de GitHub; se rehace entera en cada descarga. */
+    private fun crearComunidad(bd: SQLiteDatabase) {
         bd.execSQL("CREATE TABLE IF NOT EXISTS comunidad (id INTEGER PRIMARY KEY, busca TEXT, $alimento)")
         bd.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_comunidad_codigo ON comunidad(codigo_barras)")
     }
@@ -62,6 +66,7 @@ class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario
         if (antes < 2) corregirGenericos(bd)
         if (antes < 3) crearPlatos(bd)
         if (antes < 4) crearPreferidos(bd)
+        if (antes < 5) crearComunidad(bd)
     }
 
     /** v2: lo ya apuntado con genéricos de BEDCA que tenían datos erróneos (ver datos/scripts/07_correcciones.py). */
