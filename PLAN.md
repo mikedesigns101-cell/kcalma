@@ -148,6 +148,20 @@ Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caser
   - *Intervalos:* 5 s de cuenta atrás al empezar, sin descanso tras la última ronda, cada ronda toca el siguiente ejercicio y se apunta sola (sin repeticiones). Rutina hecha nueva: "Tabata de kettlebell" (swing y goblet, 20/10 × 8).
   - *Catálogo:* 152 ejercicios; los 121 nuevos reutilizan los movimientos de la figura que había más 5 nuevos (elevación, fondos, extensión de pierna, escalador y salto), así que algunas animaciones son aproximadas.
 
+### Segunda tanda de la 0.9.0 (24/11/2026, Mikel; nota «Ideas para KCalma» de Obsidian; maqueta `maquetas/kcalma-0.9b.html`, pendiente de aprobar)
+Las ideas de Mikel están en `C:\Users\Mikel\Documents\Obsidian Vault\Ideas Vibecoding\KCalma\Ideas para KCalma.md`. Entran todas en la 0.9.0, que sigue sin publicar.
+- **Gramos a mano y deslizador a la vez** en el resultado de la foto y del dictado: se desliza o se escribe la cifra.
+- **Dictar lo que has comido** (no es el dictado del buscador): «he comido 100 g de arroz cocido con 300 g de pollo a la plancha» se convierte en alimentos con sus gramos en la misma pantalla «Tu plato» de la foto, editable antes de añadir. *Elegido por Claude, pendiente de revisar:* con clave de Gemini lo interpreta Gemini; sin clave, un intérprete local que entiende cantidades dichas.
+- **Entrenador:** además de cambios, puede **programar rutinas nuevas** (del catálogo, validadas por código) y recibe el peso de las últimas semanas, las kcal medias y los pasos.
+- **Informes:** se mandan **los últimos 15 minutos** del registro. **Dos burbujas** en todas las pantallas: 🐞 fallo y 💡 propuesta (Mikel eligió dos burbujas, no una con pestañas). Las propuestas llegan como incidencias con la etiqueta `propuesta`; Mikel pregunta «qué han propuesto», Claude se las enseña y deciden qué implementar.
+- **Complex:** se rehace: todos los ejercicios a la vista, un toque por ronda, cronómetro de la ronda y descanso con cuenta atrás.
+- **Cocinado (Mikel: «Ajusta calorías»):** Tal cual, Hervido, Plancha, Horno, Airfryer o Frito al añadir un alimento. Reglas fijas calculadas por código: plancha +3 g, airfryer +1 g y frito +8 g de aceite por cada 100 g; el resto, nada.
+- **El nombre del alimento no se corta:** pasa a dos líneas.
+- **Foto:** Mikel ve fallos en todo: gramos, alimento, producto emparejado y platos mezclados. Hay que mejorar las cuatro cosas.
+- **Fluidez:** al cambiar de pestaña a veces se queda pillada; hay que medirlo y arreglarlo.
+- **Historial (Mikel: «Ver y editar»):** lista de días con kcal y peso; al abrir un día se ven sus comidas y se pueden añadir, cambiar o borrar.
+- **Alimentos compartidos (Mikel: «GitHub automático»):** un alimento nuevo que registre un usuario se manda al repo con el token de los informes; una GitHub Action valida los números y lo añade a un archivo que todas las apps descargan una vez al día. Sin servidor. Si alguien cuela alimentos falsos, se borran y se revoca el token.
+
 ## 1. Qué hace la app
 
 1. **Haces una foto** del plato (o de varios platos).

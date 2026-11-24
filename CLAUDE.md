@@ -10,6 +10,9 @@ Lee primero la **sección 0 de `PLAN.md`**: recoge las decisiones de Mikel y man
 - Gastar poco uso: respuestas concisas y trabajo eficiente.
 - **"Arregla los errores/bugs":** `gh issue list --label informe --state open`. Enseñar a Mikel cada informe y el arreglo propuesto, arreglar solo lo que apruebe, enseñar capturas y esperar su OK antes de publicar. Cerrar cada incidencia arreglada citando la versión.
 
+- **"Qué han propuesto" / "mira las propuestas":** `gh issue list --label propuesta --state open`. Enseñar a Mikel cada propuesta resumida; él decide cuáles se implementan. Cerrar las descartadas y las hechas (citando la versión).
+- Las ideas propias de Mikel están en Obsidian: `C:\Users\Mikel\Documents\Obsidian Vault\Ideas Vibecoding\KCalma\Ideas para KCalma.md`.
+
 ## Datos técnicos clave
 - Solo Android: Kotlin + Jetpack Compose. Sin servidor. Distribución como APK en GitHub, nunca en Google Play.
 - La IA reconoce y la base de datos calcula. Gemini por defecto, con la clave de cada usuario cifrada en el móvil.
