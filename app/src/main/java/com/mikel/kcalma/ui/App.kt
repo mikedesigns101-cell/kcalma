@@ -14,7 +14,12 @@ import androidx.compose.ui.platform.LocalContext
 import com.mikel.kcalma.datos.Actualizador
 import com.mikel.kcalma.datos.AlmacenPerfil
 import com.mikel.kcalma.datos.Claves
+import com.mikel.kcalma.datos.Coach
 import com.mikel.kcalma.datos.Copia
+import com.mikel.kcalma.dominio.Cambio
+import com.mikel.kcalma.dominio.Cambios
+import com.mikel.kcalma.dominio.Entrenador
+import com.mikel.kcalma.dominio.MensajeChat
 import com.mikel.kcalma.datos.Gemini
 import com.mikel.kcalma.ui.componentes.BurbujaInforme
 import com.mikel.kcalma.ui.componentes.HojaInforme
@@ -114,6 +119,8 @@ private sealed interface Destino {
     data class Ejercicio(val id: String) : Destino
     data class EditarRutina(val rutina: com.mikel.kcalma.dominio.Rutina) : Destino
     data object Biblioteca : Destino
+    data object Propuesta : Destino
+    data object Chat : Destino
 }
 
 @Composable
@@ -214,6 +221,75 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     }
     val abrirRutina: (com.mikel.kcalma.dominio.Rutina) -> Unit = { pila.add(Destino.Rutina(it.id)) }
     val continuar: (com.mikel.kcalma.dominio.Sesion) -> Unit = { pila.add(Destino.Sesion(it.id)) }
+
+    // ---- Entrenador IA: los números los calcula Entrenador; Gemini elige y redacta; Cambios valida ----
+    val propuestaIa = remember(ajustesE.propuesta) { Coach.propuestaDe(ajustesE.propuesta)?.takeIf { it.semana == Entrenador.semana() } }
+    var cargandoPropuesta by remember { mutableStateOf(false) }
+    var errorPropuesta by remember { mutableStateOf<String?>(null) }
+    val chat = remember { mutableStateListOf<MensajeChat>() }
+    var pensando by remember { mutableStateOf(false) }
+    var errorChat by remember { mutableStateOf<String?>(null) }
+    fun datosEntrenador(): String {
+        val nutricion = "Nutrición de hoy: plan de ${plan.kcal + ejercicio} kcal y ${plan.proteinaG} g de proteína; " +
+            "lleva ${comido.kcalInt} kcal y ${comido.proteinas.toInt()} g de proteína. Pesa ${perfil.pesoKg} kg."
+        return Entrenador.contexto(Entrenador.estadisticas(sesionesE, rutinas, perfil), rutinas, nutricion)
+    }
+    fun errorIa(r: Respuesta<*>) = when (r) {
+        Respuesta.ClaveMala -> "La clave de Gemini no es válida. Cámbiala en Perfil."
+        Respuesta.Limite -> "Has llegado al límite gratuito de Gemini por ahora. Prueba en un rato."
+        Respuesta.SinConexion -> "Sin conexión a internet."
+        else -> "La IA no respondió. Prueba otra vez."
+    }
+    fun pedirPropuesta() {
+        val clave = claves.gemini() ?: run { pila.add(Destino.Clave); return }
+        cargandoPropuesta = true; errorPropuesta = null
+        alcance.launch {
+            when (val r = Gemini.propuesta(clave, datosEntrenador())) {
+                is Respuesta.Ok -> {
+                    val cambios = r.valor.second.mapNotNull { Coach.cambioDe(it) }.mapNotNull { Cambios.validar(it, rutinas) }.distinct().take(3)
+                    val p = Coach.Propuesta(Entrenador.semana(), r.valor.first, cambios)
+                    withContext(hiloEntreno) { entrenos.guardarAjuste("propuesta", Coach.json(p)) }
+                    if (cambios.isNotEmpty()) pila.add(Destino.Propuesta)
+                }
+                else -> errorPropuesta = errorIa(r)
+            }
+            cargandoPropuesta = false
+        }
+    }
+    /** Lee, cambia y guarda en el hilo de entreno: dos cambios seguidos a la misma rutina no se pisan. */
+    fun aplicarCambios(cs: List<Cambio>) = enBd {
+        var lista = entrenos.leerRutinas()
+        cs.forEach { c ->
+            if (Cambios.validar(c, lista) == null) return@forEach
+            val nueva = Cambios.aplicar(lista.first { it.id == c.rutina }, c)
+            entrenos.guardarRutina(nueva)
+            lista = lista.map { if (it.id == nueva.id) nueva else it }
+        }
+    }
+    fun resolver(indices: List<Int>) = enBd {
+        Coach.propuestaDe(entrenos.leerAjustes().propuesta)?.let { p -> entrenos.guardarAjuste("propuesta", Coach.json(p.copy(resueltos = p.resueltos + indices))) }
+    }
+    fun preguntar(texto: String) {
+        val clave = claves.gemini() ?: run { pila.add(Destino.Clave); return }
+        chat.add(MensajeChat(true, texto)); pensando = true; errorChat = null
+        // Últimos mensajes, empezando por uno del usuario y sin dos seguidos del mismo lado
+        val turnos = mutableListOf<Pair<Boolean, String>>()
+        chat.takeLast(12).dropWhile { !it.mio }.forEach { m ->
+            val t = m.texto + (m.cambio?.let { c ->
+                " [Cambio propuesto: ${Cambios.titulo(c, rutinas.firstOrNull { it.id == c.rutina })} · " +
+                    "${when (m.estado) { 1 -> "aceptado"; 2 -> "rechazado"; else -> "sin responder" }}]"
+            } ?: "")
+            val u = turnos.lastOrNull()
+            if (u != null && u.first == m.mio) turnos[turnos.lastIndex] = u.first to u.second + "\n" + t else turnos.add(m.mio to t)
+        }
+        alcance.launch {
+            when (val r = Gemini.chat(clave, datosEntrenador(), turnos)) {
+                is Respuesta.Ok -> chat.add(MensajeChat(false, r.valor.first, r.valor.second?.let { Coach.cambioDe(it) }?.let { Cambios.validar(it, rutinas) }))
+                else -> errorChat = errorIa(r)
+            }
+            pensando = false
+        }
+    }
 
     // ---- Ideas: recetas propias + las que pida a la IA ----
     val recetas by produceState(emptyList<Receta>()) { value = runCatching { Recetas.todas(contexto.applicationContext) }.getOrDefault(emptyList()) }
@@ -321,6 +397,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         is Destino.Ejercicio -> "Ejercicio ${d.id}"
         is Destino.EditarRutina -> "Editor de rutina"
         Destino.Biblioteca -> "Biblioteca de ejercicios"
+        Destino.Propuesta -> "Propuesta del entrenador"
+        Destino.Chat -> "Chat con el entrenador"
     }
     if (informePerfil) HojaInforme("Desde Perfil", "Perfil", "") { informePerfil = false }
     CompositionLocalProvider(LocalAccionesMas provides accionesMas) {
@@ -352,6 +430,14 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             onCrear = { pila.add(Destino.EditarRutina(com.mikel.kcalma.dominio.Rutina("", "", seccion, emptyList()))) },
             onKettlebells = { kg -> enBd { entrenos.guardarKettlebells(kg) } },
             onBiblioteca = { pila.add(Destino.Biblioteca) },
+            onChat = { pila.add(Destino.Chat) },
+            entrenador = {
+                com.mikel.kcalma.ui.entreno.TarjetaEntrenador(
+                    propuestaIa, propuestaIa?.let { p -> p.pendientes.count { Cambios.validar(p.cambios[it], rutinas) != null } } ?: 0,
+                    cargandoPropuesta, errorPropuesta, sesionesE.count { it.terminada },
+                    onPedir = { pedirPropuesta() }, onVer = { pila.add(Destino.Propuesta) },
+                )
+            },
             onPestana = cambiarPestana,
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
         ) else if (pestana == Pestana.PERFIL) PantallaPerfil(
@@ -476,6 +562,32 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
                     pila.remove(d)
                     if (d.rutina.id.isEmpty()) pila.add(Destino.Rutina(id))
                     aviso("Rutina guardada")
+                }
+            },
+        )
+        Destino.Propuesta -> propuestaIa?.let { p ->
+            com.mikel.kcalma.ui.entreno.PantallaPropuesta(
+                propuesta = p, rutinas = rutinas,
+                datos = remember(sesionesE, rutinas, perfil) { Entrenador.estadisticas(sesionesE, rutinas, perfil) },
+                onAtras = { pila.remove(d) },
+                onAceptar = { ids ->
+                    aplicarCambios(ids.map { p.cambios[it] }); resolver(ids)
+                    aviso(if (ids.size == 1) "Rutina cambiada" else "${ids.size} cambios hechos")
+                },
+                onDescartar = { resolver(it) },
+            )
+        } ?: LaunchedEffect(d) { pila.remove(d) }
+        Destino.Chat -> com.mikel.kcalma.ui.entreno.PantallaChat(
+            mensajes = chat, pensando = pensando, error = errorChat, rutinas = rutinas,
+            onAtras = { pila.remove(d) },
+            onEnviar = { preguntar(it) },
+            onCambio = { i, aceptar ->
+                val m = chat[i]
+                val cambio = m.cambio
+                if (cambio != null) {
+                    if (!aceptar) chat[i] = m.copy(estado = 2)
+                    else if (Cambios.validar(cambio, rutinas) == null) { aviso("Ese cambio ya no se puede aplicar"); chat[i] = m.copy(estado = 2) }
+                    else { aplicarCambios(listOf(cambio)); chat[i] = m.copy(estado = 1); aviso("Rutina cambiada") }
                 }
             },
         )
@@ -696,7 +808,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     BurbujaInforme(
         pantalla,
         androidx.compose.ui.Modifier.align(androidx.compose.ui.Alignment.BottomEnd).navigationBarsPadding()
-            .padding(end = 14.dp, bottom = if (pila.isEmpty()) 96.dp else 90.dp),
+            .padding(end = 14.dp, bottom = if (pila.isEmpty()) 96.dp else if (pila.last() == Destino.Chat) 150.dp else 90.dp),
     )
     }
     }

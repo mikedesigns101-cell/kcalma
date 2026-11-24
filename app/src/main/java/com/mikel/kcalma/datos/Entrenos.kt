@@ -21,7 +21,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 /** Ajustes del entreno: las kettlebells que se tienen. */
-data class AjustesEntreno(val kettlebells: List<Double> = listOf(12.0, 16.0, 24.0))
+data class AjustesEntreno(
+    val kettlebells: List<Double> = listOf(12.0, 16.0, 24.0),
+    /** Propuesta semanal del entrenador (JSON de [Coach.Propuesta]); vacía si no hay. */
+    val propuesta: String = "",
+)
 
 /**
  * Entrenos (entreno.db): rutinas del usuario, sesiones y series. Cada serie se guarda al marcarla,
@@ -51,6 +55,7 @@ class Entrenos(contexto: Context) : SQLiteOpenHelper(contexto, "entreno.db", nul
         val d = AjustesEntreno()
         return AjustesEntreno(
             m["kettlebells"]?.split(",")?.mapNotNull { it.toDoubleOrNull() } ?: d.kettlebells,
+            m["propuesta"] ?: "",
         )
     }
 

@@ -201,6 +201,72 @@ object Gemini {
         }
     }
 
+    // ---------- Entrenador ----------
+
+    private val CAMBIO = """
+        {"type":"OBJECT","properties":{
+          "tipo":{"type":"STRING","enum":["sustituir","series","repeticiones","descanso","anadir","quitar","dias"]},
+          "rutina":{"type":"STRING"},"ejercicio":{"type":"STRING"},"nuevo":{"type":"STRING"},
+          "series":{"type":"INTEGER"},"min":{"type":"INTEGER"},"max":{"type":"INTEGER"},"segundos":{"type":"INTEGER"},
+          "dias":{"type":"ARRAY","items":{"type":"INTEGER"}},"motivo":{"type":"STRING"}},
+         "required":["tipo","rutina","motivo"]}
+    """
+
+    private val REGLAS_CAMBIOS = """
+        Un cambio modifica una rutina del usuario. Usa solo ids de rutinas y de ejercicios que aparezcan en los datos; nunca inventes ids.
+        Tipos y campos:
+        - sustituir: ejercicio (el que se quita) y nuevo (el que entra, de los que existen para esa sección).
+        - series: ejercicio y series (1-10).
+        - repeticiones: ejercicio, min y max.
+        - descanso: ejercicio y segundos.
+        - anadir: nuevo, series, min y max.
+        - quitar: ejercicio.
+        - dias: dias (1 = lunes … 7 = domingo).
+        motivo: una frase corta en español que cite el dato en que te basas.
+        Los números de entrenos, series y pesos te los da la app ya calculados: no los recalcules ni inventes otros.
+        No des consejo médico: ante dolor o lesión, recomienda bajar la carga o parar y consultar a un profesional.
+        Escribe en español de España, cercano y directo, sin Markdown.
+    """.trimIndent()
+
+    private val INSTRUCCIONES_PROPUESTA = """
+        Eres un entrenador personal de fuerza. Con los datos del usuario, propón como mucho 3 cambios para esta semana,
+        los que más le ayuden a progresar hacia su objetivo (músculos con pocas series frente a otros, ejercicios estancados,
+        descansos cortos en ejercicios pesados, rutinas sin día…). Si todo va bien o faltan datos, devuelve menos cambios o ninguno.
+        resumen: 1-2 frases sobre cómo ha ido el mes y la idea de la semana.
+    """.trimIndent() + "\n" + REGLAS_CAMBIOS
+
+    private val INSTRUCCIONES_CHAT = """
+        Eres el entrenador personal del usuario dentro de la app Kcalma. Responde a su pregunta en 2-5 frases, usando sus datos.
+        Si te pide un cambio en una rutina (o tu respuesta lo recomienda claramente), añade UN cambio en el campo cambio;
+        el usuario lo aceptará o no con un botón. Si no hay cambio que hacer, no rellenes ese campo.
+        Si pregunta por comida, usa los datos de nutrición de hoy que te da la app.
+    """.trimIndent() + "\n" + REGLAS_CAMBIOS
+
+    private val ESQUEMA_PROPUESTA = JSONObject("""{"type":"OBJECT","properties":{"resumen":{"type":"STRING"},"cambios":{"type":"ARRAY","items":$CAMBIO}},"required":["resumen","cambios"]}""")
+    private val ESQUEMA_CHAT = JSONObject("""{"type":"OBJECT","properties":{"respuesta":{"type":"STRING"},"cambio":$CAMBIO},"required":["respuesta"]}""")
+
+    /** Propuesta semanal: resumen y cambios sin validar todavía. */
+    suspend fun propuesta(clave: String, datos: String): Respuesta<Pair<String, List<JSONObject>>> = withContext(Dispatchers.IO) {
+        val contenido = JSONArray().put(JSONObject().put("parts", JSONArray().put(JSONObject().put("text", datos))))
+        cadena(MODELOS, clave, contenido, INSTRUCCIONES_PROPUESTA, ESQUEMA_PROPUESTA, 0.4, { r ->
+            val o = JSONObject(texto(r))
+            val l = o.optJSONArray("cambios") ?: JSONArray()
+            o.optString("resumen") to (0 until l.length()).map { l.getJSONObject(it) }
+        }) { "${it.second.size} cambios" }
+    }
+
+    /** Chat: [turnos] = (es del usuario, texto) en orden; el último es la pregunta. Devuelve la respuesta y, si lo hay, un cambio sin validar. */
+    suspend fun chat(clave: String, datos: String, turnos: List<Pair<Boolean, String>>): Respuesta<Pair<String, JSONObject?>> = withContext(Dispatchers.IO) {
+        val contenido = JSONArray()
+        turnos.forEach { (mio, t) ->
+            contenido.put(JSONObject().put("role", if (mio) "user" else "model").put("parts", JSONArray().put(JSONObject().put("text", t))))
+        }
+        cadena(MODELOS, clave, contenido, INSTRUCCIONES_CHAT + "\n\nDATOS DEL USUARIO (calculados por la app):\n" + datos, ESQUEMA_CHAT, 0.5, { r ->
+            val o = JSONObject(texto(r))
+            o.getString("respuesta").trim() to o.optJSONObject("cambio")
+        }) { it.first.take(80) }
+    }
+
     /** Junta el texto de todas las partes que no son razonamiento y quita un posible ```json. */
     private fun texto(respuesta: JSONObject): String {
         val partes = respuesta.getJSONArray("candidates").getJSONObject(0).getJSONObject("content").getJSONArray("parts")

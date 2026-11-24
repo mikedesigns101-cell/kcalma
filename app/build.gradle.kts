@@ -27,8 +27,8 @@ android {
         minSdk = 26
         targetSdk = 36
         // -PcodigoPrueba y -PetiquetaPrueba solo para probar actualizaciones en el emulador
-        versionCode = (findProperty("codigoPrueba") as String?)?.toInt() ?: 18
-        versionName = "0.8.0"
+        versionCode = (findProperty("codigoPrueba") as String?)?.toInt() ?: 19
+        versionName = "0.9.0"
         buildConfigField("String", "GITHUB_INFORMES", "\"$tokenInformes\"")
         buildConfigField("String", "ETIQUETA_PRUEBA", "\"${findProperty("etiquetaPrueba") ?: ""}\"")
     }

@@ -87,3 +87,9 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 2. La APK release pesa 29 MB (ML Kit con todas las arquitecturas). Decidir con Mikel si se divide por arquitectura.
 3. Hecho en v0.4.1: `datos/scripts/07_correcciones.py` corrige 15 genéricos de BEDCA (arroz, lenteja, garbanzo y judía cocidos, etc.) y quita 48 productos con kcal incoherentes; la base sube a la versión 2 y `Diario` (v2) corrige lo ya apuntado. Las bebidas alcohólicas no cuadran con sus macros por el alcohol, pero son correctas.
 4. Mikel tiene que revisar los detalles provisionales de la 0.5.0 (PLAN.md §0) y probar el widget y la foto de la etiqueta en su móvil.
+
+## 0.9.0 (24/11/2026): hecha y probada en el emulador, SIN publicar
+- Informes: burbuja 🐞 en todas las pantallas y hoja «Reportar un fallo» (`ui/componentes/Informe.kt`). Envío directo a GitHub si al compilar existe `C:\Users\Mikel\.kcalma\github-informes.txt`; si no, abre el navegador. El envío directo no se ha podido probar: falta el token.
+- Intervalos (`Formato.INTERVALOS`, `Rutina.fase`), Tabata hecha, 152 ejercicios (`dominio/EjerciciosMas.kt`), Biblioteca (`ui/entreno/Biblioteca.kt`).
+- Entrenador IA: `dominio/Entrenador.kt` (estadísticas y validación de cambios), `datos/Coach.kt`, `Gemini.propuesta` y `Gemini.chat`, pantallas en `ui/entreno/PantallasEntrenador.kt`. Probado con Gemini real: propuesta aceptada (días de Pierna) y chat con tarjeta de cambio.
+- 61 tests pasan. Mikel quiere comentar cambios antes de publicar.

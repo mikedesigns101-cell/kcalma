@@ -79,6 +79,8 @@ fun PantallaEntreno(
     onCrear: () -> Unit,
     onKettlebells: (List<Double>) -> Unit,
     onBiblioteca: () -> Unit,
+    onChat: () -> Unit,
+    entrenador: @Composable () -> Unit,
     onPestana: (Pestana) -> Unit,
     onCamara: () -> Unit,
 ) {
@@ -89,7 +91,12 @@ fun PantallaEntreno(
     val hechas = rutinas.filter { it.seccion == seccion && it.predefinida }
     Box(Modifier.fillMaxSize().fondoKcalma()) {
         LazyColumn(Modifier.fillMaxSize().statusBarsPadding(), contentPadding = PaddingValues(top = 12.dp, bottom = 130.dp)) {
-            item { Text("Entreno", style = t.tituloGrande, color = c.texto, modifier = lateral.padding(bottom = 12.dp)) }
+            item {
+                Row(lateral.padding(bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text("Entreno", style = t.tituloGrande, color = c.texto, modifier = Modifier.weight(1f))
+                    com.mikel.kcalma.ui.componentes.BotonCristal(Ic.CHAT, onChat)
+                }
+            }
             item {
                 Box(lateral) {
                     Segmentado(Seccion.entries.map { it.nombre }, seccion.ordinal) { onSeccion(Seccion.entries[it]) }
@@ -106,6 +113,7 @@ fun PantallaEntreno(
                     )
                 }
             }
+            item { Box(lateral.padding(top = 10.dp)) { entrenador() } }
             if (seccion == Seccion.KETTLEBELL) item { Kettlebells(ajustes.kettlebells, onKettlebells, lateral.padding(top = 14.dp)) }
             if (propias.isNotEmpty()) {
                 item { Rotulo("Tus rutinas", lateral) }

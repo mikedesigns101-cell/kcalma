@@ -134,11 +134,19 @@ Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caser
   - Catálogo inicial: 31 ejercicios (9 de kettlebell) y 10 rutinas hechas (3 gimnasio, 5 kettlebell con EMOM y AMRAP, 2 casa). Faltan ejercicios hasta los ~150 y el modo intervalos.
   - EMOM apunta solo cada minuto; AMRAP cuenta rondas con + y −.
 
-### Informes de fallos y 0.9.0 (22/11/2026, Mikel; maqueta `maquetas/kcalma-0.9.html`, pendiente de aprobar)
+### Informes de fallos y 0.9.0 (22/11/2026, Mikel; maqueta `maquetas/kcalma-0.9.html`, aprobada)
 - **Envío directo a GitHub, sin cuenta:** la APK lleva una clave de GitHub que solo puede crear incidencias en el repo de Kcalma (fine-grained, *Issues: write*). La crea Mikel; se guarda fuera del repo, en `C:\Users\Mikel\.kcalma\`. Si alguien la saca y manda spam, se revoca.
 - **Botón pequeño de reportar en todas las pantallas** (un bicho de cristal en la esquina). Abre una hoja: "¿Qué ha pasado?" + pantalla, versión, móvil y registro de errores (sin datos personales).
 - **"Arregla los errores":** Claude lee las incidencias con la etiqueta `informe`, enseña a Mikel la lista y lo que cambiaría en cada una, arregla solo lo aprobado y enseña capturas antes de publicar.
 - **0.9.0 incluye:** entrenador IA (propuesta semanal en tarjeta) y chat, unos 150 ejercicios con biblioteca, e intervalos de kettlebell (trabajo/descanso por rondas).
+- **Maquetas aprobadas ("Sí, implementa").** La 0.9.0 está hecha y probada en el emulador (24/11/2026), **sin publicar**: Mikel pidió que le avisara al terminar para comentar cambios antes.
+- **Elegido al implementar, pendiente de que Mikel lo revise:**
+  - *Informes:* sin el archivo `github-informes.txt` al compilar (aún no existe), "Enviar" abre GitHub en el navegador con el informe escrito, como antes. La hoja avisa de que el repositorio es público.
+  - *Entrenador:* la propuesta **se pide a mano** con un botón (no sola, para no gastar la clave de Gemini sin que el usuario lo sepa), **una por semana**, y hace falta tener 2 entrenos apuntados. Máximo 3 cambios.
+  - *Qué puede cambiar la IA:* solo sustituir, añadir o quitar un ejercicio, series, repeticiones, descanso o días, y solo en rutinas de series con ejercicios del catálogo. El código lo valida y escribe la frase del cambio; la IA solo pone el motivo. Nada se aplica sin tocar "Cambiar".
+  - *Chat:* la conversación no se guarda al cerrar la app. Recibe los datos de entreno calculados y el plan y lo comido hoy.
+  - *Intervalos:* 5 s de cuenta atrás al empezar, sin descanso tras la última ronda, cada ronda toca el siguiente ejercicio y se apunta sola (sin repeticiones). Rutina hecha nueva: "Tabata de kettlebell" (swing y goblet, 20/10 × 8).
+  - *Catálogo:* 152 ejercicios; los 121 nuevos reutilizan los movimientos de la figura que había más 5 nuevos (elevación, fondos, extensión de pierna, escalador y salto), así que algunas animaciones son aproximadas.
 
 ## 1. Qué hace la app
 
