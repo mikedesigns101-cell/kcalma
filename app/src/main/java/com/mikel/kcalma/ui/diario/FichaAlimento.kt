@@ -72,6 +72,8 @@ fun FichaAlimento(
     onGuardar: (gramos: Double, unidad: Unidad, cantidad: Double, cocinado: Cocinado) -> Unit,
     /** Al editar o al elegir un ingrediente no se pregunta cómo está cocinado. */
     conCocinado: Boolean = true,
+    /** Solo para alimentos de la comunidad: avisar de que está mal (recibe el motivo). */
+    onDenunciar: ((String) -> Unit)? = null,
     /** Cantidad con la que empezar al añadir (la última vez o lo dictado) y su explicación. */
     sugerida: Pair<String, Entrada>? = null,
 ) {
@@ -224,6 +226,23 @@ fun FichaAlimento(
                     "Fibra" to g(alimento.fibra), "Sal" to g(alimento.sal),
                     "Por 100 g" to "${alimento.kcal.roundToInt()} kcal",
                 ).filter { it.second != null }.forEach { (k, v) -> FilaDetalle(k, v!!) }
+            }
+            if (onDenunciar != null) {
+                var preguntar by remember { mutableStateOf(false) }
+                Column(Modifier.padding(top = 10.dp).fillMaxWidth().vidrio(RoundedCornerShape(12.dp)).padding(11.dp)) {
+                    Text("Este alimento lo ha añadido otro usuario de Kcalma; no es un dato oficial.", style = t.pequeno, color = c.texto2)
+                    if (!preguntar) Text(
+                        "¿Está mal? Avisar", style = t.pequeno, color = c.acento,
+                        modifier = Modifier.padding(top = 4.dp).clip(RoundedCornerShape(8.dp)).clickable { preguntar = true }.padding(vertical = 4.dp),
+                    ) else Row(Modifier.padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        listOf("Los números están mal", "No existe", "Nombre ofensivo").forEach { motivo ->
+                            Text(
+                                motivo, style = t.diminuto, color = c.texto,
+                                modifier = Modifier.vidrio(RoundedCornerShape(10.dp)).clickable { onDenunciar(motivo) }.padding(horizontal = 8.dp, vertical = 6.dp),
+                            )
+                        }
+                    }
+                }
             }
             Text(
                 "Datos: Open Food Facts (ODbL) · BEDCA. Revisa la etiqueta si algo no cuadra.",

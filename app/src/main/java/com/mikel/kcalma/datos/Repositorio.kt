@@ -14,7 +14,11 @@ class Repositorio(contexto: Context) {
     /** [supermercado]: null = todos, "" = solo genéricos. */
     suspend fun buscar(consulta: String, supermercado: String?): List<Alimento> = withContext(Dispatchers.IO) {
         val propios = if (supermercado == null) diario.buscarProductos(consulta) else emptyList()
-        propios + catalogo.buscar(consulta, supermercado)
+        // Los de la comunidad van al final y solo si ese código no lo tiene ya el usuario ni el catálogo
+        val delCatalogo = catalogo.buscar(consulta, supermercado)
+        val vistos = (propios + delCatalogo).mapNotNull { it.codigoBarras }.toSet()
+        val comunidad = if (supermercado == null) diario.buscarComunidad(consulta).filter { it.codigoBarras !in vistos } else emptyList()
+        propios + delCatalogo + comunidad
     }
 
     /**
@@ -33,6 +37,8 @@ class Repositorio(contexto: Context) {
     suspend fun porCodigo(codigo: String): Busqueda = withContext(Dispatchers.IO) {
         diario.productoPorCodigo(codigo)?.let { return@withContext Busqueda.Encontrado(it) }
         catalogo.porCodigo(codigo)?.let { return@withContext Busqueda.Encontrado(it) }
-        OpenFoodFacts.buscar(codigo).also { if (it is Busqueda.Encontrado) diario.guardarProducto(it.alimento) }
+        val off = OpenFoodFacts.buscar(codigo).also { if (it is Busqueda.Encontrado) diario.guardarProducto(it.alimento) }
+        // La comunidad solo cuenta si no está en el móvil, en el catálogo ni en Open Food Facts: nunca pisa datos oficiales
+        if (off is Busqueda.Encontrado) off else diario.comunidadPorCodigo(codigo)?.let { Busqueda.Encontrado(it) } ?: off
     }
 }

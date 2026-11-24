@@ -46,6 +46,9 @@ class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario
     /** v4: el alimento que el usuario eligió al corregir a la IA, para acertar la próxima vez. */
     private fun crearPreferidos(bd: SQLiteDatabase) {
         bd.execSQL("CREATE TABLE IF NOT EXISTS preferidos (busca TEXT PRIMARY KEY, $alimento)")
+        // Alimentos de la comunidad: copia de la lista que se baja de GitHub; se rehace entera en cada descarga
+        bd.execSQL("CREATE TABLE IF NOT EXISTS comunidad (id INTEGER PRIMARY KEY, busca TEXT, $alimento)")
+        bd.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_comunidad_codigo ON comunidad(codigo_barras)")
     }
 
     /** v3: platos caseros (la olla entera y sus raciones). */
@@ -306,6 +309,36 @@ class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario
             palabras.map { "% $it%" }.toTypedArray(), null, null, null, "10",
         ).use { c -> generateSequence { if (c.moveToNext()) c.alimento() else null }.toList() }
     }
+
+    // ---------- Alimentos de la comunidad ----------
+
+    fun reemplazarComunidad(lista: List<Alimento>) {
+        val bd = writableDatabase
+        bd.beginTransaction()
+        try {
+            bd.delete("comunidad", null, null)
+            lista.forEach { a ->
+                val busca = " " + listOfNotNull(a.nombre, a.marca).joinToString(" ") { normalizar(it) } + " "
+                bd.insertWithOnConflict("comunidad", null, valores(a).apply { put("busca", busca) }, SQLiteDatabase.CONFLICT_IGNORE)
+            }
+            bd.setTransactionSuccessful()
+        } finally { bd.endTransaction() }
+    }
+
+    fun comunidadPorCodigo(codigo: String): Alimento? =
+        readableDatabase.query("comunidad", null, "codigo_barras = ?", arrayOf(codigo), null, null, null, "1")
+            .use { if (it.moveToFirst()) it.alimento() else null }
+
+    fun buscarComunidad(consulta: String): List<Alimento> {
+        val palabras = normalizar(consulta).split(' ').filter { it.isNotEmpty() }.take(5)
+        if (palabras.isEmpty()) return emptyList()
+        return readableDatabase.query(
+            "comunidad", null, palabras.joinToString(" AND ") { "busca LIKE ?" },
+            palabras.map { "% $it%" }.toTypedArray(), null, null, null, "10",
+        ).use { c -> generateSequence { if (c.moveToNext()) c.alimento() else null }.toList() }
+    }
+
+    fun borrarComunidad(codigo: String) { writableDatabase.delete("comunidad", "codigo_barras = ?", arrayOf(codigo)) }
 
     // ---------- Correcciones a la IA ----------
 

@@ -155,7 +155,10 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     var descarga by remember { mutableStateOf<Float?>(null) }
     // Cada vez que se vuelve a la app (no solo al arrancarla), como mucho una consulta cada 10 minutos
     LifecycleResumeEffect(Unit) {
-        val trabajo = alcance.launch { val v = actualizador.comprobar(); if (descarga == null) nueva = v }
+        val trabajo = alcance.launch {
+            val v = actualizador.comprobar(); if (descarga == null) nueva = v
+            com.mikel.kcalma.datos.Comunidad.sincronizar(contexto.applicationContext, repo.diario)
+        }
         onPauseOrDispose { trabajo.cancel() }
     }
 
@@ -748,6 +751,13 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             onAtras = { pila.removeAt(pila.lastIndex) },
             onGuardar = { g, u, c, coc -> if (d.paraPlato) anadirIngrediente(d.alimento, g) else guardar(d, g, u, c, coc) },
             conCocinado = !d.paraPlato,
+            onDenunciar = if (d.alimento.supermercado == com.mikel.kcalma.dominio.Compartidos.ORIGEN) ({ motivo ->
+                alcance.launch {
+                    val ok = com.mikel.kcalma.datos.Comunidad.denunciar(repo.diario, d.alimento, motivo)
+                    aviso(if (ok) "Gracias: se retira para todos hasta revisarlo" else "Quitado de tu móvil. No se pudo avisar a los demás.")
+                }
+                pila.removeAt(pila.lastIndex)
+            }) else null,
             sugerida = d.sugerida ?: remember(d) {
                 if (d.entrada != null || d.paraPlato) null
                 else repo.diario.ultimaDe(d.alimento)?.let { "↺ La última vez" to it }
@@ -768,8 +778,14 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             onCerrar = { pila.removeAt(pila.lastIndex) },
             onSinClave = { pila.add(Destino.Clave) },
             onGuardado = { a ->
-                alcance.launch(Dispatchers.IO) { if (a.codigoBarras != null) repo.diario.guardarProducto(a) }
-                aviso("Guardado: lo reconocerá la próxima vez que lo escanees")
+                alcance.launch(Dispatchers.IO) {
+                    if (a.codigoBarras != null) {
+                        repo.diario.guardarProducto(a)
+                        // Y se comparte: el robot de GitHub lo valida y lo publica para los demás usuarios
+                        com.mikel.kcalma.datos.Comunidad.enviar(a)
+                    }
+                }
+                aviso(if (a.codigoBarras != null && com.mikel.kcalma.datos.GitHub.hayToken) "Guardado y compartido con los demás usuarios" else "Guardado: lo reconocerá la próxima vez que lo escanees")
                 pila[pila.lastIndex] = Destino.Ficha(a, d.comida, paraPlato = d.paraPlato)
             },
         )

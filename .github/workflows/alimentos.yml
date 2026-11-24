@@ -1,0 +1,37 @@
+name: Alimentos de la comunidad
+
+# Cada alimento nuevo que registra un usuario llega como incidencia con la etiqueta «alimento».
+# El robot lo valida y lo añade a comunidad/alimentos.json, que las apps descargan una vez al día.
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+# De una en una: dos incidencias a la vez no deben pisarse al escribir el archivo
+concurrency:
+  group: alimentos
+  cancel-in-progress: false
+
+jobs:
+  alimento:
+    if: contains(github.event.issue.labels.*.name, 'alimento') || contains(github.event.issue.labels.*.name, 'alimento-mal')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validar y publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        # El texto de la incidencia no se mete nunca en la línea de órdenes: el robot lo lee del archivo del evento
+        run: python3 comunidad/robot.py "$GITHUB_EVENT_PATH"
+      - name: Guardar el archivo
+        env:
+          NUMERO: ${{ github.event.issue.number }}
+        run: |
+          git config user.name "kcalma-robot"
+          git config user.email "kcalma-robot@users.noreply.github.com"
+          git add comunidad/alimentos.json comunidad/retirados.json
+          git diff --cached --quiet || (git commit -m "Comunidad: incidencia #$NUMERO" && git pull --rebase && git push)
