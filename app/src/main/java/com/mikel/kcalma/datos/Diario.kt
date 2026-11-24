@@ -23,7 +23,7 @@ data class Habitual(val id: Long, val nombre: String, val entradas: List<Entrada
  * Datos del usuario (diario.db): lo que come, sus comidas habituales y los productos
  * traídos de Open Food Facts. Cada fila guarda una copia completa del alimento.
  */
-class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 3) {
+class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario.db", null, 4) {
 
     /** Sube cada vez que algo cambia, para que las pantallas vuelvan a leer. */
     private val cambios = MutableStateFlow(0)
@@ -40,6 +40,12 @@ class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario
         bd.execSQL("CREATE TABLE habituales (id INTEGER PRIMARY KEY, nombre TEXT NOT NULL, creado INTEGER)")
         bd.execSQL("CREATE TABLE habitual_items (id INTEGER PRIMARY KEY, habitual_id INTEGER, gramos REAL, unidad TEXT, cantidad REAL, $alimento)")
         crearPlatos(bd)
+        crearPreferidos(bd)
+    }
+
+    /** v4: el alimento que el usuario eligió al corregir a la IA, para acertar la próxima vez. */
+    private fun crearPreferidos(bd: SQLiteDatabase) {
+        bd.execSQL("CREATE TABLE IF NOT EXISTS preferidos (busca TEXT PRIMARY KEY, $alimento)")
     }
 
     /** v3: platos caseros (la olla entera y sus raciones). */
@@ -52,6 +58,7 @@ class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario
         // Migraciones siempre sin borrar datos del usuario.
         if (antes < 2) corregirGenericos(bd)
         if (antes < 3) crearPlatos(bd)
+        if (antes < 4) crearPreferidos(bd)
     }
 
     /** v2: lo ya apuntado con genéricos de BEDCA que tenían datos erróneos (ver datos/scripts/07_correcciones.py). */
@@ -66,7 +73,7 @@ class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario
 
     // ---------- Copia de seguridad ----------
 
-    private val TABLAS = listOf("entradas", "productos", "habituales", "habitual_items", "platos", "plato_items")
+    private val TABLAS = listOf("entradas", "productos", "habituales", "habitual_items", "platos", "plato_items", "preferidos")
 
     /** Todas las tablas en JSON (fila = objeto columna → valor). */
     fun exportar(): org.json.JSONObject {
@@ -299,6 +306,18 @@ class Diario(private val contexto: Context) : SQLiteOpenHelper(contexto, "diario
             palabras.map { "% $it%" }.toTypedArray(), null, null, null, "10",
         ).use { c -> generateSequence { if (c.moveToNext()) c.alimento() else null }.toList() }
     }
+
+    // ---------- Correcciones a la IA ----------
+
+    /** [busca] es lo que dijo la IA («pollo pechuga»); [a], lo que el usuario puso en su lugar. */
+    fun guardarPreferido(busca: String, a: Alimento) {
+        val clave = normalizar(busca).trim()
+        if (clave.isNotEmpty()) writableDatabase.insertWithOnConflict("preferidos", null, valores(a).apply { put("busca", clave) }, SQLiteDatabase.CONFLICT_REPLACE)
+    }
+
+    fun preferido(busca: String): Alimento? =
+        readableDatabase.query("preferidos", null, "busca = ?", arrayOf(normalizar(busca).trim()), null, null, null, "1")
+            .use { if (it.moveToFirst()) it.alimento() else null }
 
     // ---------- Conversión ----------
 

@@ -454,6 +454,8 @@ fun PantallaResultado(
     /** Lo que se dictó, si el plato viene de un dictado. */
     frase: String? = null,
     aviso: String? = null,
+    /** Repetir el análisis con el modelo lento y más preciso; null si no procede. */
+    onPreciso: (() -> Unit)? = null,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -494,6 +496,12 @@ fun PantallaResultado(
             }
             items(items, key = { it.id }) { item ->
                 TarjetaItem(item, { onGramos(item.id, it) }, { onCocinado(item.id, it) }, { onQuitar(item.id) }, { onCambiar(item.id) })
+            }
+            if (onPreciso != null) item {
+                Text(
+                    "¿No ha acertado? Analizar con más precisión (tarda hasta un minuto)", style = t.pequeno, color = c.acento, textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(13.dp)).clickable(onClick = onPreciso).padding(10.dp),
+                )
             }
             item {
                 Text(

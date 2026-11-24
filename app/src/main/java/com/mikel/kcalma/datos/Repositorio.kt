@@ -22,6 +22,8 @@ class Repositorio(contexto: Context) {
      * estricta a la más amplia) y, si no, cualquier producto. Null si nada encaja.
      */
     suspend fun emparejar(busqueda: String, nombre: String, kcal100: Double): Alimento? {
+        // Si el usuario ya corrigió antes este mismo alimento, vale su elección
+        withContext(Dispatchers.IO) { runCatching { diario.preferido(busqueda) }.getOrNull() }?.let { return it }
         val consultas = Emparejado.consultas(busqueda, nombre)
         return consultas.firstNotNullOfOrNull { q -> Emparejado.elegir(buscar(q, "").take(30), "$busqueda $nombre", kcal100) }
             ?: consultas.firstNotNullOfOrNull { q -> Emparejado.elegir(buscar(q, null).take(30), "$busqueda $nombre", kcal100) }

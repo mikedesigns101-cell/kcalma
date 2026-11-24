@@ -35,6 +35,8 @@ data class ItemFoto(
     val deLaNota: Boolean = false,
     val estimado: Boolean = false,
     val cocinado: Cocinado = Cocinado.TAL_CUAL,
+    /** Lo que buscó la IA para este alimento; sirve para recordar la corrección del usuario. */
+    val busqueda: String = "",
 )
 
 /** Los alimentos más el aceite de cocinarlos, sumado por tipo de cocinado. Es lo que se apunta en el diario. */
@@ -72,13 +74,15 @@ fun FlujoFoto(
     var editando by remember { mutableStateOf<Int?>(null) } // id del item que se cambia; null = añadir uno nuevo
     var siguienteId by remember { mutableStateOf(0) }
 
-    fun analizar(jpeg: ByteArray) {
+    var preciso by remember { mutableStateOf(false) }
+    fun analizar(jpeg: ByteArray, conPrecision: Boolean = false) {
+        preciso = conPrecision
         val clave = claves.gemini() ?: run { paso = Paso.CLAVE; return }
         error = null
         avance = 0
         paso = Paso.ANALIZANDO
         alcance.launch {
-            when (val r = Gemini.analizar(clave, jpeg, nota)) {
+            when (val r = Gemini.analizar(clave, jpeg, nota, conPrecision)) {
                 is Respuesta.Ok -> {
                     avance = 2
                     items.clear()
@@ -169,6 +173,7 @@ fun FlujoFoto(
             onComida = { comida = it },
             onAtras = { paso = if (dictar) Paso.DICTAR else Paso.CAMARA },
             frase = frase.takeIf { dictar },
+            onPreciso = if (!dictar && !preciso && foto != null) ({ foto?.let { analizar(prepararFoto(it).second, conPrecision = true) } }) else null,
             aviso = error.takeIf { dictar },
             onGramos = { id, g -> items.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { items[it] = items[it].copy(gramos = g) } },
             onCocinado = { id, coc -> items.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { items[it] = items[it].copy(cocinado = coc) } },
@@ -180,7 +185,11 @@ fun FlujoFoto(
         Paso.BUSCAR -> {
             fun elegir(a: Alimento) {
                 val i = items.indexOfFirst { it.id == editando }
-                if (i >= 0) items[i] = items[i].copy(alimento = a, confianza = "alta", estimado = false)
+                if (i >= 0) {
+                    // Se recuerda la corrección: la próxima vez que la IA diga lo mismo, sale este alimento
+                    items[i].busqueda.takeIf { it.isNotBlank() }?.let { b -> alcance.launch(kotlinx.coroutines.Dispatchers.IO) { runCatching { repo.diario.guardarPreferido(b, a) } } }
+                    items[i] = items[i].copy(alimento = a, confianza = "alta", estimado = false)
+                }
                 else items += ItemFoto(siguienteId++, a, a.gramosRapidos, "alta")
                 paso = Paso.RESULTADO
             }
@@ -213,12 +222,12 @@ private suspend fun emparejar(r: Reconocido, repo: Repositorio, id: Int): ItemFo
     val candidato = repo.emparejar(r.busqueda, r.nombre, r.kcal100)
     val razonable = candidato != null
     return if (candidato != null && razonable) {
-        ItemFoto(id, candidato, r.gramos, r.confianza, r.deLaNota, cocinado = Cocinado.de(r.cocinado))
+        ItemFoto(id, candidato, r.gramos, r.confianza, r.deLaNota, cocinado = Cocinado.de(r.cocinado), busqueda = r.busqueda)
     } else {
         val estimado = Alimento(
             nombre = r.nombre, marca = "Estimado por IA",
             kcal = r.kcal100, proteinas = r.proteinas100, hidratos = r.hidratos100, grasas = r.grasas100,
         )
-        ItemFoto(id, estimado, r.gramos, r.confianza, r.deLaNota, estimado = true, cocinado = Cocinado.de(r.cocinado))
+        ItemFoto(id, estimado, r.gramos, r.confianza, r.deLaNota, estimado = true, cocinado = Cocinado.de(r.cocinado), busqueda = r.busqueda)
     }
 }

@@ -48,12 +48,25 @@ object Gemini {
     private val INSTRUCCIONES = """
         Eres un nutricionista español experto en estimar raciones a partir de fotos. Identifica cada alimento visible
         en el plato y estima su peso en gramos tal como se va a comer (cocinado si está cocinado).
+        Hazlo en este orden: 1) busca una referencia de tamaño (plato, cubierto, mano, envase); 2) apunta lo que ves, de lo que
+        más ocupa a lo que menos; 3) estima el volumen de cada cosa y pásalo a gramos; 4) repasa que el total sea una comida creíble.
         Cómo estimar los gramos:
-        - Usa referencias: un plato llano mide unos 26 cm, uno de postre 20 cm, un tenedor 19 cm, una cuchara sopera 15 ml.
-        - Cuenta las piezas cuando se pueda (3 patatas medianas cocidas ≈ 450 g; 1 huevo ≈ 55 g; 1 filete de pollo ≈ 150 g).
-        - Fíjate en la altura del montón, no solo en la superficie que ocupa.
-        - Separa los ingredientes que se distinguen (arroz, pollo, verdura) y agrupa lo que es un plato único (lentejas
-          estofadas, paella, tortilla de patatas).
+        - Referencias: un plato llano mide unos 26 cm, uno de postre 20 cm, un tenedor 19 cm, una cuchara sopera 15 ml, un vaso 200 ml.
+        - Cuenta las piezas cuando se pueda (3 patatas medianas cocidas ≈ 450 g; 1 huevo ≈ 55 g; 1 filete de pollo ≈ 150 g;
+          1 rebanada de pan ≈ 30 g; 1 loncha de jamón o queso ≈ 20 g).
+        - Volumen a peso: una taza (250 ml) de arroz cocido ≈ 160 g, de pasta cocida ≈ 140 g, de legumbre guisada ≈ 250 g,
+          de ensalada de hojas ≈ 40 g; carne o pescado del tamaño de la palma de la mano ≈ 120 g.
+        - Fíjate en la altura del montón, no solo en la superficie que ocupa; un plato hondo lleno son 300-400 g.
+        - Raciones normales de un adulto: carne o pescado 120-200 g, arroz o pasta cocidos 180-300 g, legumbres guisadas
+          250-350 g, guarnición de verdura 100-200 g. Si tu estimación se sale mucho de esto, vuelve a mirar la referencia.
+        Qué separar y qué juntar:
+        - Lo que se podría pesar por separado (filete, patatas, ensalada, pan), sepáralo: un alimento por cada cosa.
+        - Lo que se ha cocinado junto y no se puede separar (guisos, potajes, arroces, pasta con salsa, revueltos, ensaladilla,
+          tortilla de patatas, croquetas) es UN solo plato con su nombre habitual («Lentejas con chorizo», «Macarrones con tomate»).
+        - Ensaladas: la base de hojas y verdura como «Ensalada verde» y, aparte, solo lo que aporta calorías (atún, queso, huevo,
+          aguacate, frutos secos, pasta).
+        - Un mismo alimento no puede salir dos veces. No des alimentos que no veas.
+        - Si dudas entre dos alimentos parecidos, elige el más habitual en España y pon confianza media.
         Nota del usuario: si menciona algo que no se ve (aceite, salsa, azúcar…), añádelo aparte con de_la_nota = true;
         si corrige algo (qué es o cuánto hay), hazle caso por encima de lo que veas. No inventes aceite ni salsas que
         no se vean ni se mencionen.
@@ -84,13 +97,18 @@ object Gemini {
         llamar("$BASE/models?pageSize=1", clave, null).let { if (it is Respuesta.Ok) Respuesta.Ok(Unit) else it as Respuesta<Unit> }
     }
 
-    suspend fun analizar(clave: String, jpeg: ByteArray, nota: String): Respuesta<List<Reconocido>> {
+    /** Para «Analizar con más precisión»: el modelo grande razonando más (6-40 s). Si falla, los de siempre. */
+    private val MODELOS_PRECISOS = listOf<Pair<String, JSONObject?>>(
+        "gemini-3.5-flash" to JSONObject().put("thinkingLevel", "high"),
+    ) + MODELOS.filter { it.first != "gemini-3.5-flash" }
+
+    suspend fun analizar(clave: String, jpeg: ByteArray, nota: String, preciso: Boolean = false): Respuesta<List<Reconocido>> {
         val contenido = JSONArray().put(JSONObject().put("parts", JSONArray()
             .put(JSONObject().put("text", if (nota.isBlank()) "Sin nota." else "Nota del usuario: $nota"))
             .put(JSONObject().put("inline_data", JSONObject()
                 .put("mime_type", "image/jpeg").put("data", Base64.encodeToString(jpeg, Base64.NO_WRAP))))))
         return withContext(Dispatchers.IO) {
-            cadena(MODELOS, clave, contenido, INSTRUCCIONES, ESQUEMA, 0.2, ::interpretar) { l ->
+            cadena(if (preciso) MODELOS_PRECISOS else MODELOS, clave, contenido, INSTRUCCIONES, ESQUEMA, 0.2, ::interpretar, espera = if (preciso) 70000 else 30000) { l ->
                 l.joinToString { "${it.nombre} ${it.gramos.toInt()} g (${it.confianza})" }
             }
         }
@@ -124,7 +142,7 @@ object Gemini {
     private fun <T> cadena(
         modelos: List<Pair<String, JSONObject?>>, clave: String, contenido: JSONArray,
         instrucciones: String, esquema: JSONObject, temperatura: Double,
-        leer: (JSONObject) -> T, resumir: (T) -> String,
+        leer: (JSONObject) -> T, espera: Int = 30000, resumir: (T) -> String,
     ): Respuesta<T> {
         var ultimo: Respuesta<T> = Respuesta.Fallo("sin modelo")
         for ((modelo, razonamiento) in modelos) {
@@ -137,7 +155,7 @@ object Gemini {
                     .put("responseSchema", esquema)
                     .apply { if (razonamiento != null) put("thinkingConfig", razonamiento) })
             val inicio = System.currentTimeMillis()
-            val r = llamar("$BASE/models/$modelo:generateContent", clave, cuerpo.toString())
+            val r = llamar("$BASE/models/$modelo:generateContent", clave, cuerpo.toString(), espera)
             ultimo = when (r) {
                 is Respuesta.Ok -> runCatching { Respuesta.Ok(leer(r.valor)) }.getOrElse {
                     Registro.anotar("Gemini $modelo: respuesta ilegible: ${it.message} · ${r.valor.toString().take(600)}")
@@ -341,11 +359,11 @@ object Gemini {
         else -> r.toString()
     }
 
-    private fun llamar(url: String, clave: String, cuerpo: String?): Respuesta<JSONObject> {
+    private fun llamar(url: String, clave: String, cuerpo: String?, espera: Int = 30000): Respuesta<JSONObject> {
         val c = URL(url).openConnection() as HttpURLConnection
         return try {
             c.connectTimeout = 10000
-            c.readTimeout = 30000
+            c.readTimeout = espera
             c.setRequestProperty("x-goog-api-key", clave) // en cabecera, nunca en la URL
             if (cuerpo != null) {
                 c.requestMethod = "POST"
