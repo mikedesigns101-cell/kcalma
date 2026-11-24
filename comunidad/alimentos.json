@@ -1,16 +1,1 @@
-[
- {
-  "nombre": "Prueba del robot (se retira)",
-  "marca": "Kcalma",
-  "codigo": "8480000123459",
-  "kcal": 250.0,
-  "proteinas": 17.5,
-  "hidratos": 0.8,
-  "grasas": 19.6,
-  "azucares": 0.5,
-  "saturadas": 8.9,
-  "sal": 1.2,
-  "fecha": "2026-11-24",
-  "incidencia": 1
- }
-]
+[]
