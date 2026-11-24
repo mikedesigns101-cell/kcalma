@@ -92,4 +92,4 @@ Escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borra
 - Informes: burbuja 🐞 en todas las pantallas y hoja «Reportar un fallo» (`ui/componentes/Informe.kt`). Envío directo a GitHub si al compilar existe `C:\Users\Mikel\.kcalma\github-informes.txt`; si no, abre el navegador. El envío directo no se ha podido probar: falta el token.
 - Intervalos (`Formato.INTERVALOS`, `Rutina.fase`), Tabata hecha, 152 ejercicios (`dominio/EjerciciosMas.kt`), Biblioteca (`ui/entreno/Biblioteca.kt`).
 - Entrenador IA: `dominio/Entrenador.kt` (estadísticas y validación de cambios), `datos/Coach.kt`, `Gemini.propuesta` y `Gemini.chat`, pantallas en `ui/entreno/PantallasEntrenador.kt`. Probado con Gemini real: propuesta aceptada (días de Pierna) y chat con tarjeta de cambio.
-- 61 tests pasan. Mikel quiere comentar cambios antes de publicar.
+- 55 tests pasan. Mikel quiere comentar cambios antes de publicar.
