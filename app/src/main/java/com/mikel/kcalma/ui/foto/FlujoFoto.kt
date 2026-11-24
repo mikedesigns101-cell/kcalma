@@ -22,6 +22,7 @@ import com.mikel.kcalma.datos.Respuesta
 import com.mikel.kcalma.dominio.Alimento
 import com.mikel.kcalma.dominio.Cocinado
 import com.mikel.kcalma.dominio.ComidaDia
+import com.mikel.kcalma.dominio.Voz
 import com.mikel.kcalma.ui.diario.PantallaAnadir
 import kotlinx.coroutines.launch
 
@@ -40,7 +41,7 @@ data class ItemFoto(
 fun List<ItemFoto>.conAceite(): List<ItemFoto> = this + filter { it.gramos > 0 }.groupBy { it.cocinado }
     .mapNotNull { (coc, l) -> l.sumOf { coc.aceite(it.gramos) }.takeIf { it > 0 }?.let { ItemFoto(-1 - coc.ordinal, coc.alimentoAceite(), it, "alta") } }
 
-private enum class Paso { CLAVE, CAMARA, ANALIZANDO, RESULTADO, BUSCAR }
+private enum class Paso { CLAVE, CAMARA, DICTAR, ANALIZANDO, RESULTADO, BUSCAR }
 
 /**
  * Foto con IA: clave (solo la primera vez), foto con nota, análisis y revisión.
@@ -53,11 +54,15 @@ fun FlujoFoto(
     supermercados: List<String>,
     onCerrar: () -> Unit,
     onAnadir: (ComidaDia, List<ItemFoto>) -> Unit,
+    /** En vez de una foto, se dicta (o se escribe) lo comido. Funciona también sin clave de Gemini. */
+    dictar: Boolean = false,
 ) {
     val contexto = LocalContext.current
     val alcance = rememberCoroutineScope()
     val claves = remember { Claves(contexto.applicationContext) }
-    var paso by remember { mutableStateOf(if (claves.gemini() == null) Paso.CLAVE else Paso.CAMARA) }
+    var paso by remember { mutableStateOf(if (dictar) Paso.DICTAR else if (claves.gemini() == null) Paso.CLAVE else Paso.CAMARA) }
+    var frase by remember { mutableStateOf("") }
+    var ocupado by remember { mutableStateOf(false) }
     var comida by remember { mutableStateOf(comidaInicial) }
     var nota by remember { mutableStateOf("") }
     var foto by remember { mutableStateOf<Bitmap?>(null) }
@@ -90,10 +95,41 @@ fun FlujoFoto(
         }
     }
 
+    /** Lo dictado → alimentos. Con clave lo separa Gemini; sin clave, sin red o si falla, el intérprete local. */
+    fun reconocer() {
+        val texto = frase.trim()
+        if (texto.isEmpty() || ocupado) return
+        error = null
+        ocupado = true
+        alcance.launch {
+            val ia = claves.gemini()?.let { Gemini.dictado(it, texto) }
+            items.clear()
+            var aviso: String? = null
+            if (ia is Respuesta.Ok && ia.valor.isNotEmpty()) ia.valor.forEach { rec -> items += emparejar(rec, repo, siguienteId++) }
+            else {
+                val sin = mutableListOf<String>()
+                Voz.separar(texto).forEach { p ->
+                    val a = repo.emparejar(p.texto, p.texto, 0.0)
+                    if (a == null) sin += p.texto
+                    else items += ItemFoto(
+                        siguienteId++, a, p.cantidad?.entrada(a, comida)?.gramos ?: a.gramosRapidos,
+                        if (p.cantidad != null) "alta" else "media", cocinado = p.cocinado,
+                    )
+                }
+                if (sin.isNotEmpty()) aviso = "No he encontrado: ${sin.joinToString()}. Añádelo con «Añadir algo que falte»."
+            }
+            Registro.anotar("Dictado (${if (ia is Respuesta.Ok) "IA" else "local"}): " + items.joinToString { "${it.alimento.nombre} ${it.gramos.toInt()} g" })
+            ocupado = false
+            if (items.isEmpty()) error = "No he entendido ningún alimento. Dilo de otra forma o escríbelo."
+            else { error = aviso; paso = Paso.RESULTADO }
+        }
+    }
+
     BackHandler {
         when (paso) {
             Paso.BUSCAR -> paso = Paso.RESULTADO
-            Paso.RESULTADO, Paso.ANALIZANDO -> paso = Paso.CAMARA
+            Paso.RESULTADO -> paso = if (dictar) Paso.DICTAR else Paso.CAMARA
+            Paso.ANALIZANDO -> paso = Paso.CAMARA
             else -> onCerrar()
         }
     }
@@ -116,6 +152,10 @@ fun FlujoFoto(
             onCerrar = onCerrar,
             onFoto = { bitmap, jpeg -> foto = bitmap; analizar(jpeg) },
         )
+        Paso.DICTAR -> PantallaDictar(
+            comida = comida, frase = frase, ocupado = ocupado, error = error, conIa = claves.gemini() != null,
+            onFrase = { frase = it }, onComida = { comida = it }, onReconocer = ::reconocer, onCerrar = onCerrar,
+        )
         Paso.ANALIZANDO -> PantallaAnalizando(
             foto = foto,
             avance = avance,
@@ -127,7 +167,9 @@ fun FlujoFoto(
             comida = comida,
             items = items,
             onComida = { comida = it },
-            onAtras = { paso = Paso.CAMARA },
+            onAtras = { paso = if (dictar) Paso.DICTAR else Paso.CAMARA },
+            frase = frase.takeIf { dictar },
+            aviso = error.takeIf { dictar },
             onGramos = { id, g -> items.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { items[it] = items[it].copy(gramos = g) } },
             onCocinado = { id, coc -> items.indexOfFirst { it.id == id }.takeIf { it >= 0 }?.let { items[it] = items[it].copy(cocinado = coc) } },
             onQuitar = { id -> items.removeAll { it.id == id } },
@@ -171,12 +213,12 @@ private suspend fun emparejar(r: Reconocido, repo: Repositorio, id: Int): ItemFo
     val candidato = repo.emparejar(r.busqueda, r.nombre, r.kcal100)
     val razonable = candidato != null
     return if (candidato != null && razonable) {
-        ItemFoto(id, candidato, r.gramos, r.confianza, r.deLaNota)
+        ItemFoto(id, candidato, r.gramos, r.confianza, r.deLaNota, cocinado = Cocinado.de(r.cocinado))
     } else {
         val estimado = Alimento(
             nombre = r.nombre, marca = "Estimado por IA",
             kcal = r.kcal100, proteinas = r.proteinas100, hidratos = r.hidratos100, grasas = r.grasas100,
         )
-        ItemFoto(id, estimado, r.gramos, r.confianza, r.deLaNota, estimado = true)
+        ItemFoto(id, estimado, r.gramos, r.confianza, r.deLaNota, estimado = true, cocinado = Cocinado.de(r.cocinado))
     }
 }

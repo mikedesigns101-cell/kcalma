@@ -19,6 +19,8 @@ data class Reconocido(
     val proteinas100: Double,
     val hidratos100: Double,
     val grasas100: Double,
+    /** Cómo está cocinado según la IA: tal_cual, hervido, plancha, horno, airfryer o frito. */
+    val cocinado: String = "",
 )
 
 sealed interface Respuesta<out T> {
@@ -60,6 +62,8 @@ object Gemini {
         - busqueda: el alimento base en 1-2 palabras en singular, sin marcas ni acompañamientos ("patata cocida", "pollo pechuga", "paella", "merluza", "verdura").
         - confianza: "alta" si lo ves claro, "media" si dudas del alimento o la cantidad, "baja" si casi adivinas.
         - kcal_100g, proteinas_100g, hidratos_100g, grasas_100g: valores típicos por 100 g de ese alimento así preparado.
+        - cocinado: cómo está hecho ese alimento (plancha o sartén con poco aceite = plancha; rebozado o en mucho aceite = frito);
+          tal_cual si está crudo, es un producto listo para comer o no se sabe.
         Si no hay comida en la foto, devuelve la lista vacía.
     """.trimIndent()
 
@@ -68,6 +72,7 @@ object Gemini {
         {"type":"OBJECT","properties":{"alimentos":{"type":"ARRAY","items":{"type":"OBJECT","properties":{
           "nombre":{"type":"STRING"},"busqueda":{"type":"STRING"},"gramos":{"type":"NUMBER"},
           "confianza":{"type":"STRING","enum":["alta","media","baja"]},"de_la_nota":{"type":"BOOLEAN"},
+          "cocinado":{"type":"STRING","enum":["tal_cual","hervido","plancha","horno","airfryer","frito"]},
           "kcal_100g":{"type":"NUMBER"},"proteinas_100g":{"type":"NUMBER"},"hidratos_100g":{"type":"NUMBER"},"grasas_100g":{"type":"NUMBER"}},
           "required":["nombre","busqueda","gramos","confianza","de_la_nota","kcal_100g","proteinas_100g","hidratos_100g","grasas_100g"]}}},
          "required":["alimentos"]}
@@ -88,6 +93,30 @@ object Gemini {
             cadena(MODELOS, clave, contenido, INSTRUCCIONES, ESQUEMA, 0.2, ::interpretar) { l ->
                 l.joinToString { "${it.nombre} ${it.gramos.toInt()} g (${it.confianza})" }
             }
+        }
+    }
+
+    private val INSTRUCCIONES_DICTADO = """
+        Eres un nutricionista español. El usuario dicta lo que ha comido; el texto viene de un dictado por voz y puede
+        tener errores. Devuelve cada alimento que dice, con los gramos que dice.
+        - No añadas nada que no diga (ni aceite, ni salsas, ni guarniciones).
+        - Si dice piezas o raciones en vez de gramos, estima los gramos (1 huevo ≈ 55 g, 1 rebanada de pan ≈ 30 g,
+          1 plato de pasta cocida ≈ 250 g, 1 vaso ≈ 200 ml, 1 yogur ≈ 125 g, 1 pieza de fruta mediana ≈ 150 g).
+        - gramos: tal como lo dice. Si dice «cocido» o «hecho», son gramos ya cocinados y el nombre debe decirlo («Arroz blanco cocido»).
+        - nombre: nombre corto en español de España, como en una tabla de alimentos.
+        - busqueda: el alimento base en 1-2 palabras en singular, sin marcas («arroz cocido», «pollo pechuga»).
+        - cocinado: plancha, frito, horno, airfryer o hervido si lo dice; si no lo dice, tal_cual.
+        - confianza: alta si dijo los gramos; media si los has estimado tú; baja si no se entiende bien.
+        - de_la_nota: siempre false.
+        - kcal_100g, proteinas_100g, hidratos_100g, grasas_100g: valores típicos por 100 g de ese alimento así preparado.
+        Si no dice ninguna comida, devuelve la lista vacía.
+    """.trimIndent()
+
+    /** Lo dictado («he comido 100 g de arroz con 300 g de pollo a la plancha») convertido en alimentos con gramos. */
+    suspend fun dictado(clave: String, frase: String): Respuesta<List<Reconocido>> = withContext(Dispatchers.IO) {
+        val contenido = JSONArray().put(JSONObject().put("parts", JSONArray().put(JSONObject().put("text", frase))))
+        cadena(MODELOS, clave, contenido, INSTRUCCIONES_DICTADO, ESQUEMA, 0.1, ::interpretar) { l ->
+            l.joinToString { "${it.nombre} ${it.gramos.toInt()} g" }
         }
     }
 
@@ -292,6 +321,7 @@ object Gemini {
                 proteinas100 = o.optDouble("proteinas_100g", 0.0),
                 hidratos100 = o.optDouble("hidratos_100g", 0.0),
                 grasas100 = o.optDouble("grasas_100g", 0.0),
+                cocinado = o.optString("cocinado"),
             )
         }.filter { it.gramos > 0 }
     }

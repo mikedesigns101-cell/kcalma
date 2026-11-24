@@ -451,6 +451,9 @@ fun PantallaResultado(
     onCambiar: (Int) -> Unit,
     onAnadirOtro: () -> Unit,
     onConfirmar: () -> Unit,
+    /** Lo que se dictó, si el plato viene de un dictado. */
+    frase: String? = null,
+    aviso: String? = null,
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -476,6 +479,13 @@ fun PantallaResultado(
         }
 
         LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (frase != null) item {
+                Row(Modifier.fillMaxWidth().vidrio(RoundedCornerShape(14.dp)).padding(11.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icono(Ic.VOZ, tamano = 17.dp)
+                    Text("«$frase»", style = t.pequeno, color = c.texto2, modifier = Modifier.padding(start = 9.dp))
+                }
+            }
+            if (aviso != null) item { Text(aviso, style = t.pequeno, color = c.aviso) }
             if (items.isEmpty()) item {
                 Text(
                     "No hemos reconocido comida en la foto. Añade los alimentos a mano o haz otra foto.",

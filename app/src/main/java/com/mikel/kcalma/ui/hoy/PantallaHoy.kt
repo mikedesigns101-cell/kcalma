@@ -420,7 +420,7 @@ fun BarraInferior(modifier: Modifier, actual: Pestana, onPestana: (Pestana) -> U
                 OpcionMas(Ic.BUSCAR, "Buscar alimento", "Por nombre o marca") { hoja = false; acciones.buscar() }
                 OpcionMas(Ic.CAMARA, "Foto con IA", "Reconoce el plato") { hoja = false; acciones.foto() }
                 OpcionMas(Ic.ESCANER, "Escanear código", "Código de barras del envase") { hoja = false; acciones.escanear() }
-                OpcionMas(Ic.VOZ, "Dictar", "«200 gramos de arroz cocido»") { hoja = false; acciones.voz() }
+                OpcionMas(Ic.VOZ, "Dictar lo que has comido", "«100 g de arroz con 300 g de pollo a la plancha»") { hoja = false; acciones.voz() }
             }
         }
     }

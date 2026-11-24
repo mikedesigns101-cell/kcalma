@@ -113,6 +113,7 @@ private sealed interface Destino {
     data object Recordatorios : Destino
     data object Apariencia : Destino
     data class Foto(val comida: ComidaDia) : Destino
+    data class Dictar(val comida: ComidaDia) : Destino
     data class Editar(val bloque: Bloque) : Destino
     data object Clave : Destino
     data class VerIdea(val idea: Idea, val comida: ComidaDia) : Destino
@@ -377,7 +378,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     val ahora = { ComidaDia.segunHora(LocalTime.now().hour) }
     val accionesMas = AccionesMas(
         buscar = { pila.add(Destino.Anadir(ahora())) },
-        voz = { pila.add(Destino.Anadir(ahora(), voz = true)) },
+        voz = { pila.add(Destino.Dictar(ahora())) },
         foto = { pila.add(Destino.Foto(ahora())) },
         escanear = { pila.add(Destino.Escaner(ahora())) },
     )
@@ -395,6 +396,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         Destino.Recordatorios -> "Recordatorios"
         Destino.Apariencia -> "Apariencia"
         is Destino.Foto -> "Foto de comida"
+        is Destino.Dictar -> "Dictar comida"
         is Destino.Editar -> "Editar perfil"
         Destino.Clave -> "Clave de Gemini"
         is Destino.VerIdea -> "Idea (${d.idea.receta.nombre})"
@@ -765,6 +767,20 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             comidaInicial = d.comida,
             repo = repo,
             supermercados = supermercados,
+            onCerrar = { pila.removeAt(pila.lastIndex) },
+            onAnadir = { comida, items ->
+                alcance.launch(Dispatchers.IO) {
+                    items.filter { it.gramos > 0 }.forEach { i -> repo.diario.anadir(fecha, comida, i.alimento, i.gramos, Unidad.GRAMOS, i.gramos) }
+                }
+                pila.removeAt(pila.lastIndex)
+                if (pila.lastOrNull() != Destino.Comida(comida)) pila.add(Destino.Comida(comida))
+            },
+        )
+        is Destino.Dictar -> FlujoFoto(
+            comidaInicial = d.comida,
+            repo = repo,
+            supermercados = supermercados,
+            dictar = true,
             onCerrar = { pila.removeAt(pila.lastIndex) },
             onAnadir = { comida, items ->
                 alcance.launch(Dispatchers.IO) {
