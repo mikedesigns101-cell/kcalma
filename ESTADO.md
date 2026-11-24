@@ -106,3 +106,9 @@ Ideas de la nota de Obsidian de Mikel (ver PLAN.md §0). Lo nuevo:
 - Fluidez: fuera del hilo de pantalla el descifrado de la clave y Health Connect; ideas calculadas una vez. En el emulador no se nota diferencia (4-5 % de fotogramas lentos antes y después); hay que verlo en un móvil.
 - Alimentos compartidos: `datos/Comunidad.kt`, `dominio/Compartidos.kt`, `comunidad/robot.py` y `.github/workflows/alimentos.yml`. Robot probado en GitHub real (publicar, dejar en revisión, retirar) y descarga probada en la app. El envío desde la app necesita el token, que aún no existe.
 - `diario.db` pasa a la versión 5 (tablas `preferidos` y `comunidad`). 65 tests y las pruebas del robot pasan.
+
+## 0.9.0, tercera tanda (25/11/2026): amigos y podómetro; código en GitHub, release SIN publicar
+- Competición mensual con amigos: `dominio/Competicion.kt` (cifras y clasificaciones), `dominio/CifradoGrupo.kt` (AES-GCM con clave sacada del código del grupo), `datos/Amigos.kt`, `ui/progreso/PantallaAmigos.kt`. Se entra desde Progreso («Amigos ›») y desde Perfil.
+- Robot: `comunidad/grupos.py` y `.github/workflows/grupos.yml`; el buzón es la incidencia 6 del repo. Probado en GitHub real con dos amigos simulados: la app descifra y enseña la general, las cuatro listas y el ganador del mes anterior.
+- Podómetro del móvil: `datos/Podometro.kt` (sensor de pasos, lectura al abrir, con cada aviso y cada hora). El emulador no tiene ese sensor («Sin sensor»): la lectura real está sin probar; el reparto de pasos tiene tests.
+- Publicar las cifras propias desde la app necesita el token de GitHub, que aún no existe.
