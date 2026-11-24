@@ -98,6 +98,11 @@ class AlmacenPerfil(private val context: Context) {
         }
     }
 
+    /** Apunta (o corrige) el peso de un día concreto del historial, sin tocar el perfil. */
+    suspend fun guardarPesada(fecha: String, kg: Double) {
+        context.almacen.edit { p -> p[K.pesos] = escribirPesos(leerPesos(p[K.pesos]).filter { it.fecha != fecha } + Pesada(fecha, kg)) }
+    }
+
     /**
      * Guarda el perfil. Si el peso ha cambiado respecto a la última pesada (o es la primera vez),
      * lo apunta con la fecha de hoy; [forzarPesada] lo apunta aunque sea el mismo.

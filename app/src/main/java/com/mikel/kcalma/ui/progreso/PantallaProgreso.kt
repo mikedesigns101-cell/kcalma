@@ -1,5 +1,6 @@
 package com.mikel.kcalma.ui.progreso
 
+import androidx.compose.foundation.clickable
 import com.mikel.kcalma.ui.componentes.Ic
 import com.mikel.kcalma.ui.componentes.Icono
 import com.mikel.kcalma.ui.componentes.vidrio
@@ -73,6 +74,7 @@ fun PantallaProgreso(
     dias: Map<String, Nutrientes>,
     onPestana: (Pestana) -> Unit,
     onCamara: () -> Unit,
+    onHistorial: () -> Unit = {},
 ) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
@@ -88,7 +90,13 @@ fun PantallaProgreso(
             Modifier.fillMaxSize().statusBarsPadding().verticalScroll(rememberScrollState())
                 .padding(horizontal = 18.dp).padding(top = 14.dp, bottom = 130.dp),
         ) {
-            Text("Tu progreso", style = t.marca, color = c.texto)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("Tu progreso", style = t.marca, color = c.texto, modifier = Modifier.weight(1f))
+                Text(
+                    "Historial ›", style = t.tituloTarjeta, color = c.acento,
+                    modifier = Modifier.vidrio(RoundedCornerShape(14.dp)).clickable(onClick = onHistorial).padding(horizontal = 12.dp, vertical = 7.dp),
+                )
+            }
             Spacer(Modifier.height(12.dp))
             Segmentado(listOf("1 mes", "3 meses", "Todo"), periodo) { periodo = it }
             Spacer(Modifier.height(12.dp))

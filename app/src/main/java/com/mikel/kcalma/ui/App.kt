@@ -122,6 +122,8 @@ private sealed interface Destino {
     data class Ejercicio(val id: String) : Destino
     data class EditarRutina(val rutina: com.mikel.kcalma.dominio.Rutina) : Destino
     data object Biblioteca : Destino
+    data object Historial : Destino
+    data class Dia(val fecha: String) : Destino
     data object Propuesta : Destino
     data object Chat : Destino
 }
@@ -131,7 +133,10 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     val contexto = LocalContext.current
     val alcance = rememberCoroutineScope()
     val pila = remember { mutableStateListOf<Destino>() }
-    val fecha = remember { LocalDate.now().toString() }
+    val hoy = remember { LocalDate.now().toString() }
+    // Día que se está viendo o editando: hoy, salvo que se haya abierto un día del historial
+    var diaPasado by rememberSaveable { mutableStateOf<String?>(null) }
+    val fecha = diaPasado ?: hoy
     val entradas by remember(fecha) { repo.diario.entradasDe(fecha) }.collectAsState(initial = emptyList())
     val plan = remember(perfil) { Calculadora.calcular(perfil) }
     val comido = entradas.fold(Nutrientes()) { s, e -> s + e.nutrientes }
@@ -156,7 +161,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
 
     var pestana by rememberSaveable { mutableStateOf(Pestana.HOY) }
     val pesos by almacen.pesos.collectAsState(initial = emptyList())
-    val dias by remember(fecha) { repo.diario.totalesDesde(LocalDate.parse(fecha).minusDays(100).toString()) }.collectAsState(initial = emptyMap())
+    val dias by remember(hoy) { repo.diario.totalesDesde(LocalDate.parse(hoy).minusDays(com.mikel.kcalma.ui.progreso.DIAS_HISTORIAL).toString()) }.collectAsState(initial = emptyMap())
     val claves = remember { Claves(contexto.applicationContext) }
     var claveGuardada by remember { mutableStateOf(claves.gemini() != null) }
     // La clave también se guarda desde la foto: se vuelve a mirar al cambiar de pantalla
@@ -345,6 +350,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     }
 
     BackHandler(enabled = pila.isNotEmpty()) { pila.removeAt(pila.lastIndex) }
+    // Al salir del día del historial se vuelve a hoy
+    LaunchedEffect(pila.size) { if (pila.none { it is Destino.Dia }) diaPasado = null }
     BackHandler(enabled = pila.isEmpty() && pestana != Pestana.HOY) { pestana = Pestana.HOY }
 
     fun guardar(d: Destino.Ficha, gramos: Double, unidad: Unidad, cantidad: Double, cocinado: Cocinado) {
@@ -405,6 +412,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
         is Destino.Ejercicio -> "Ejercicio ${d.id}"
         is Destino.EditarRutina -> "Editor de rutina"
         Destino.Biblioteca -> "Biblioteca de ejercicios"
+        Destino.Historial -> "Historial"
+        is Destino.Dia -> "Día del historial"
         Destino.Propuesta -> "Propuesta del entrenador"
         Destino.Chat -> "Chat con el entrenador"
     }
@@ -428,6 +437,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             onLista = { pila.add(Destino.Lista) },
         ) else if (pestana == Pestana.PROGRESO) com.mikel.kcalma.ui.progreso.PantallaProgreso(
             perfil = perfil, pesos = pesos, dias = dias, onPestana = cambiarPestana,
+            onHistorial = { pila.add(Destino.Historial) },
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
         ) else if (pestana == Pestana.ENTRENO) com.mikel.kcalma.ui.entreno.PantallaEntreno(
             seccion = seccion, rutinas = rutinas, sesiones = sesionesE, ajustes = ajustesE,
@@ -498,6 +508,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             onPestana = cambiarPestana,
             onCamara = { pila.add(Destino.Foto(ComidaDia.segunHora(LocalTime.now().hour))) },
         ) else PantallaHoy(
+            onHistorial = { pila.add(Destino.Historial) },
             perfil = perfil,
             entradas = entradas,
             onAbrirComida = { c -> pila.add(if (entradas.any { it.comida == c }) Destino.Comida(c) else Destino.Anadir(c)) },
@@ -598,6 +609,19 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
                     else { aplicarCambios(listOf(cambio)); chat[i] = m.copy(estado = 1); aviso("Rutina cambiada") }
                 }
             },
+        )
+        Destino.Historial -> com.mikel.kcalma.ui.progreso.PantallaHistorial(
+            dias = dias, pesos = pesos, planKcal = plan.kcal,
+            onAtras = { pila.remove(d) },
+            onDia = { f -> diaPasado = f; pila.add(Destino.Dia(f)) },
+        )
+        is Destino.Dia -> com.mikel.kcalma.ui.progreso.PantallaDia(
+            fecha = d.fecha, entradas = if (fecha == d.fecha) entradas else emptyList(), planKcal = plan.kcal,
+            peso = pesos.firstOrNull { it.fecha == d.fecha }?.kg,
+            onAtras = { pila.remove(d) },
+            onComida = { c -> pila.add(Destino.Comida(c)) },
+            onAnadir = { c -> pila.add(Destino.Anadir(c)) },
+            onPeso = { kg -> alcance.launch { almacen.guardarPesada(d.fecha, kg) }; aviso("Peso guardado") },
         )
         Destino.Biblioteca -> com.mikel.kcalma.ui.entreno.PantallaBiblioteca(
             onAtras = { pila.removeAt(pila.lastIndex) },

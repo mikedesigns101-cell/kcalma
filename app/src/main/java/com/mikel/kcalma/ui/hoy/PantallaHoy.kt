@@ -97,6 +97,7 @@ val LocalAccionesMas = staticCompositionLocalOf<AccionesMas?> { null }
 
 @Composable
 fun PantallaHoy(
+    onHistorial: () -> Unit = {},
     perfil: Perfil,
     entradas: List<Entrada>,
     onAbrirComida: (ComidaDia) -> Unit,
@@ -155,7 +156,7 @@ fun PantallaHoy(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = MARGEN).padding(top = 6.dp),
                 )
             }
-            item { Box(lateral.entrada(0)) { Saludo() } }
+            item { Box(lateral.entrada(0)) { Saludo(onHistorial) } }
             item {
                 Box(lateral.entrada(1)) {
                     Buscador(
@@ -196,7 +197,7 @@ private fun Cabecera(onPerfil: () -> Unit, onAvisos: () -> Unit) {
 }
 
 @Composable
-private fun Saludo() {
+private fun Saludo(onHistorial: () -> Unit) {
     val c = KcalmaTheme.colores
     val t = KcalmaTheme.tipo
     val (saludo, fecha) = remember {
@@ -207,7 +208,11 @@ private fun Saludo() {
     }
     Column(Modifier.fillMaxWidth().padding(top = 12.dp, bottom = 12.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(saludo, style = t.tituloPaso, color = c.texto)
-        Text("$fecha · ¿Qué has comido?", style = t.cuerpo, color = c.texto2, modifier = Modifier.padding(top = 2.dp))
+        // La fecha abre el historial de días
+        Text(
+            "$fecha · ¿Qué has comido?", style = t.cuerpo, color = c.texto2,
+            modifier = Modifier.padding(top = 2.dp).clip(RoundedCornerShape(8.dp)).clickable(onClick = onHistorial).padding(horizontal = 6.dp, vertical = 2.dp),
+        )
     }
 }
 
