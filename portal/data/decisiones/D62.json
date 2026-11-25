@@ -1,0 +1,12 @@
+{
+  "id": "D62",
+  "estado": "decidida",
+  "fecha": "2026-11-24",
+  "fechaRespuesta": "2026-11-24",
+  "pregunta": "¿Cómo son los informes y las propuestas?",
+  "opciones": [
+    "Dos burbujas",
+    "Una burbuja con pestañas"
+  ],
+  "respuesta": "Se mandan los últimos 15 minutos del registro. Dos burbujas en todas las pantallas: 🐞 fallo y 💡 propuesta (Mikel eligió dos burbujas, no una con pestañas). Las propuestas llegan como incidencias con la etiqueta `propuesta`; Mikel pregunta «qué han propuesto», Claude se las enseña y deciden qué implementar."
+}

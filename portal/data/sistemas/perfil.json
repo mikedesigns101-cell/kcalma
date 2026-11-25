@@ -1,0 +1,10 @@
+{
+  "id": "perfil",
+  "nombre": "Perfil, aspecto y copia de seguridad",
+  "categoria": "App",
+  "orden": 8,
+  "color": "pc",
+  "explicacion": "Tus datos, el peso, la clave de Gemini, los temas de color, los recordatorios y la copia de seguridad en un archivo.",
+  "uso": "Botón de arriba a la izquierda en Hoy.",
+  "tecnico": "ui/perfil/ · datos/Copia.kt · ui/theme/ (Colores.kt, KcalmaTheme.kt, Tipografia.kt) · ui/componentes/Cristal.kt · Iconos.kt"
+}

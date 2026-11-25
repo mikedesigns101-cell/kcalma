@@ -1,0 +1,5 @@
+{
+  "id": "clave-api",
+  "palabra": "Clave de API",
+  "definicion": "Una especie de contraseña que deja a la app usar la IA a tu nombre. Se guarda cifrada en el móvil."
+}

@@ -1,0 +1,10 @@
+{
+  "id": "comunidad",
+  "nombre": "Alimentos compartidos",
+  "categoria": "Comunidad",
+  "orden": 12,
+  "color": "pc2",
+  "explicacion": "Un producto nuevo que alguien crea leyendo su etiqueta se comparte con todos los demás, después de que un robot compruebe que sus números tienen sentido.",
+  "uso": "Automático al crear un producto desde la etiqueta; «¿Está mal?» lo retira.",
+  "tecnico": "datos/Comunidad.kt · dominio/Compartidos.kt · comunidad/alimentos.json · comunidad/retirados.json"
+}

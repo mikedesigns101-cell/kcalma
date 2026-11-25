@@ -1,0 +1,13 @@
+{
+  "id": "D15",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Cómo es el diario y qué base de alimentos va dentro de la app?",
+  "opciones": [
+    "La versión reducida dentro de la APK",
+    "Otra"
+  ],
+  "respuesta": "4 pantallas: añadir (buscador con filtros por supermercado, genéricos y «Mis comidas», y recientes), ficha (unidad / gramos / envase, macros y lo que queda para hoy), escáner y comida del día (borrar deslizando, guardar como comida habitual). Dentro de la APK va la base reducida: genéricos + productos de supermercados españoles + productos escaneados alguna vez, unos 20 MB. Funciona sin internet.",
+  "porque": "Aprobado el 20/11/2026. Maqueta en `maquetas/kcalma-diario.html`."
+}

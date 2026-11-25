@@ -1,0 +1,12 @@
+{
+  "id": "D55",
+  "estado": "decidida",
+  "fecha": "2026-11-22",
+  "fechaRespuesta": "2026-11-22",
+  "pregunta": "¿Dónde está el botón de reportar?",
+  "opciones": [
+    "Pequeño, en todas las pantallas",
+    "Otra"
+  ],
+  "respuesta": "Botón pequeño de reportar en todas las pantallas (un bicho de cristal en la esquina). Abre una hoja: «¿Qué ha pasado?» + pantalla, versión, móvil y registro de errores (sin datos personales)."
+}

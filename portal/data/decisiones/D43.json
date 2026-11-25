@@ -1,0 +1,13 @@
+{
+  "id": "D43",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "Extras de la 0.6.1",
+  "opciones": [
+    "Los que eligiera Claude",
+    "Otra"
+  ],
+  "respuesta": "El dictado entiende «cocidos» («250 gramos de espaguetis cocidos» abre la ficha en Cocido); «Deshacer» durante 5 segundos al borrar un alimento; «1 ud» pasa a «1 ración»; el tomate frito, las conservas y las salsas van a Despensa en la lista de la compra.",
+  "porque": "Elegidos por Claude con permiso de Mikel."
+}

@@ -1,0 +1,9 @@
+{
+  "id": "t03",
+  "fase": "v01",
+  "titulo": "Diario de comidas",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "Guarda lo que comes, las comidas habituales y los productos traídos de Open Food Facts. Cada apunte guarda una copia del alimento.",
+  "tecnico": "datos/Diario.kt guarda en diario.db el diario, las comidas habituales y los productos de Open Food Facts. Cada fila guarda una copia del alimento."
+}

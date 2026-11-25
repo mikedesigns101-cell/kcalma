@@ -1,0 +1,9 @@
+{
+  "id": "b12",
+  "tipo": "idea",
+  "estado": "nuevo",
+  "fecha": "2026-10-16",
+  "titulo": "Base de EE. UU. de respaldo para alimentos raros",
+  "detalle": "Idea del plan inicial: usar la base libre USDA FoodData Central para alimentos que no estén en las otras.",
+  "tecnico": "PLAN.md, apartado 4.5"
+}

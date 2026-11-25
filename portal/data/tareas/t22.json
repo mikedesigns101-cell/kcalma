@@ -1,0 +1,9 @@
+{
+  "id": "t22",
+  "fase": "v05",
+  "titulo": "Siete funciones nuevas de la 0.5.0",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Ajuste semanal del plan, platos caseros, lista de la compra, foto de la etiqueta, recordatorios, widget y pasos de Health Connect.",
+  "tecnico": "Ajuste: dominio/Ajuste.kt, ui/hoy/TarjetaAjuste.kt\nPlatos: dominio/Plato.kt, ui/diario/PantallaPlato.kt, tablas platos y plato_items en diario.db v3\nLista: datos/ListaCompra.kt, ui/ideas/PantallaLista.kt\nEtiqueta: ui/diario/PantallaEtiqueta.kt, Gemini.etiqueta\nRecordatorios: avisos/Recordatorios.kt\nWidget: widget/WidgetHoy.kt\nPasos: datos/Salud.kt, dominio/Actividad.kt"
+}

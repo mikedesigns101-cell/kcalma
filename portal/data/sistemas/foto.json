@@ -1,0 +1,10 @@
+{
+  "id": "foto",
+  "nombre": "Foto y dictado con IA",
+  "categoria": "App",
+  "orden": 4,
+  "color": "pc2",
+  "explicacion": "Haces una foto del plato (o dices lo que has comido) y Gemini dice qué alimentos hay y cuántos gramos; las calorías salen de la base de alimentos, no de la IA. También lee la etiqueta de un producto.",
+  "uso": "Botón + → Foto o Dictar. Cada usuario pone su propia clave gratis de Gemini.",
+  "tecnico": "datos/Gemini.kt · datos/Claves.kt (Android Keystore) · datos/Emparejado.kt · ui/foto/ (FlujoFoto, PantallasFoto, PantallaDictar, Imagen) · ui/diario/PantallaEtiqueta.kt"
+}

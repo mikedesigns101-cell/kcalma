@@ -1,0 +1,9 @@
+{
+  "id": "t57",
+  "fase": "v09",
+  "titulo": "Competición mensual con amigos",
+  "estado": "hecho",
+  "fecha": "2026-11-25",
+  "detalle": "Se entra desde Progreso («Amigos ›») y desde Perfil.",
+  "tecnico": "dominio/Competicion.kt (cifras y clasificaciones) · dominio/CifradoGrupo.kt (AES-GCM con clave sacada del código del grupo) · datos/Amigos.kt · ui/progreso/PantallaAmigos.kt"
+}

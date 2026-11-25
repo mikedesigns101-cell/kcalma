@@ -1,0 +1,9 @@
+{
+  "id": "t10",
+  "fase": "v02",
+  "titulo": "Foto del plato con Gemini (0.2.0)",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "La clave de Gemini de cada usuario se guarda cifrada en el móvil y no entra en las copias de seguridad.",
+  "tecnico": "datos/Claves.kt (clave cifrada con Android Keystore, fuera de copias) · datos/Gemini.kt (REST + responseSchema) · ui/foto/ (FlujoFoto, PantallasFoto, Imagen)"
+}

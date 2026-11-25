@@ -1,0 +1,9 @@
+{
+  "id": "t40",
+  "fase": "v08",
+  "titulo": "Ejercicios, rutinas y progresión",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Catálogo de ejercicios, rutinas hechas, doble progresión y récords.",
+  "tecnico": "dominio/Entreno.kt · Ejercicios.kt (catálogo y rutinas hechas) · Progresion.kt (doble progresión, récords; 11 tests)"
+}

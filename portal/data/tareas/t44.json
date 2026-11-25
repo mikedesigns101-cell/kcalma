@@ -1,0 +1,9 @@
+{
+  "id": "t44",
+  "fase": "v09",
+  "titulo": "Informes con la burbuja 🐞 en todas las pantallas",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "detalle": "Hoja «Reportar un fallo». Si al compilar existe el token de GitHub, el informe se envía directo; si no, abre el navegador. El 24/11 el envío directo no se pudo probar porque faltaba el token; se comprobó el 25/11.",
+  "tecnico": "ui/componentes/Informe.kt · token en C:\\Users\\Mikel\\.kcalma\\github-informes.txt"
+}

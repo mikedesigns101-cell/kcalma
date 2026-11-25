@@ -1,0 +1,13 @@
+{
+  "id": "D46",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Hace falta un servidor?",
+  "opciones": [
+    "Sin servidor: todo en el móvil",
+    "Servidor intermedio con Supabase"
+  ],
+  "respuesta": "Sin servidor. No hay Supabase ni ningún backend. La app funciona entera en el móvil: base de datos local, la clave de cada usuario guardada cifrada (Android Keystore) y la llamada a la IA directamente desde la app. Cada amigo saca su propia clave gratis de Gemini en Google AI Studio, con una guía dentro de la app. La clave de Mikel nunca va en el APK. Sin sincronización: botón de exportar e importar copia de seguridad.",
+  "porque": "Confirmada el 20/11/2026. Sustituye al «servidor intermedio» y a Supabase de las secciones 3 y 5 de PLAN.md."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "D23",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Cómo es la pestaña Perfil?",
+  "opciones": [
+    "Las opciones recomendadas",
+    "Otra"
+  ],
+  "respuesta": "Cabecera, tarjeta del plan y grupos: Mis datos, Comida, Foto con IA, Datos y ayuda. Editar un bloque reutiliza las pantallas del onboarding y enseña el plan nuevo antes de guardar. Peso con historial y fecha (hoja rápida con − / +), que alimenta Progreso. Plan a mano: se pueden fijar kcal a mano, con «Volver al calculado». Copia de seguridad (exportar e importar un archivo) en esta versión. También: cambiar o borrar la clave de Gemini, Mandar informe y Buscar actualizaciones.",
+  "porque": "Mikel pidió hacer todas las pantallas y sacarlas juntas, así que se aplicaron las opciones recomendadas. Maqueta en `maquetas/kcalma-perfil.html`."
+}

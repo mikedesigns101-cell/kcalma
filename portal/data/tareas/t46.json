@@ -1,0 +1,9 @@
+{
+  "id": "t46",
+  "fase": "v09",
+  "titulo": "Entrenador con IA: propuesta semanal y chat",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "detalle": "Probado con Gemini real: propuesta aceptada (días de Pierna) y chat con tarjeta de cambio. Con esta tanda pasaban 55 tests. Querías comentar cambios antes de publicar.",
+  "tecnico": "dominio/Entrenador.kt (estadísticas y validación de cambios) · datos/Coach.kt · Gemini.propuesta y Gemini.chat · ui/entreno/PantallasEntrenador.kt"
+}

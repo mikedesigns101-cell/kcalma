@@ -1,0 +1,12 @@
+{
+  "id": "D72",
+  "estado": "decidida",
+  "fecha": "2026-11-25",
+  "fechaRespuesta": "2026-11-25",
+  "pregunta": "¿Cada cuánto se compite?",
+  "opciones": [
+    "Mensual",
+    "Otra"
+  ],
+  "respuesta": "Mensual (Mikel: «Mensual»): del día 1 al último del mes; se guarda quién ganó el mes anterior."
+}

@@ -1,0 +1,8 @@
+{
+  "id": "t12",
+  "fase": "v02",
+  "titulo": "Modelos de Gemini: el rápido primero",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "Primero Flash Lite (1-3 s). De reserva, 3.5 Flash y el alias Flash. El alias da error 503 por saturación en el plan gratuito, y 2.5 Flash ya no existe para claves nuevas."
+}

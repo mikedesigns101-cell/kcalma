@@ -1,0 +1,9 @@
+{
+  "id": "t48",
+  "fase": "v09",
+  "titulo": "Dictar lo que has comido",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "detalle": "Probado con Gemini real escribiendo la frase; el micrófono no se puede probar en el emulador.",
+  "tecnico": "ui/foto/PantallaDictar.kt · Gemini.dictado · Voz.separar (sin clave)"
+}

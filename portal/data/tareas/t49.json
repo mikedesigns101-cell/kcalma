@@ -1,0 +1,8 @@
+{
+  "id": "t49",
+  "fase": "v09",
+  "titulo": "Tarjeta de alimento: nombre entero, gramos a mano y cocinado",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "tecnico": "dominio/Cocinado.kt"
+}

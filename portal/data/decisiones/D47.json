@@ -1,0 +1,13 @@
+{
+  "id": "D47",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Cómo es el apartado de gimnasio y dónde va en la barra?",
+  "opciones": [
+    "Apartado Entreno en la barra; Perfil arriba en Hoy",
+    "Otra"
+  ],
+  "respuesta": "Apartado de gimnasio para usar Kcalma también como app de entreno: hacer y registrar sesiones, rutinas hechas y editables, rutinas propias. La barra pasa a ser Hoy, Ideas, +, Entreno, Progreso; a Perfil se llega con un botón arriba en Hoy, que ocupa el sitio del botón de peso. No se suman kcal del gimnasio: los días de pesas ya cuentan en el factor de actividad.",
+  "porque": "Mikel, 21/11/2026. Maqueta `maquetas/kcalma-entreno.html` aprobada."
+}

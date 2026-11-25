@@ -1,0 +1,9 @@
+{
+  "id": "t59",
+  "fase": "v09",
+  "titulo": "Podómetro del móvil",
+  "estado": "hecho",
+  "fecha": "2026-11-25",
+  "detalle": "Lee el sensor de pasos al abrir la app, con cada aviso y cada hora. El emulador no tiene ese sensor («Sin sensor»): la lectura real está sin probar; el reparto de pasos tiene tests.",
+  "tecnico": "datos/Podometro.kt"
+}

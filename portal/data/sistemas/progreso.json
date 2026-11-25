@@ -1,0 +1,10 @@
+{
+  "id": "progreso",
+  "nombre": "Progreso e historial",
+  "categoria": "App",
+  "orden": 7,
+  "color": "green",
+  "explicacion": "Gráficas de peso y calorías, proteína media y racha. El historial deja ver y cambiar los días pasados.",
+  "uso": "Pestaña Progreso.",
+  "tecnico": "ui/progreso/PantallaProgreso.kt · ui/progreso/Historial.kt"
+}

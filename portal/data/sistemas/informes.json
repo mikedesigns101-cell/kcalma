@@ -1,0 +1,10 @@
+{
+  "id": "informes",
+  "nombre": "Informes y propuestas",
+  "categoria": "Comunidad",
+  "orden": 11,
+  "color": "red",
+  "explicacion": "Dos burbujas en todas las pantallas: 🐞 para contar un fallo y 💡 para proponer una idea. Llegan directas a GitHub con los últimos minutos del registro de errores, sin datos personales.",
+  "uso": "Las burbujas de la esquina.",
+  "tecnico": "ui/componentes/Informe.kt · datos/GitHub.kt · datos/Registro.kt · token github-informes.txt (fuera del repo) · etiquetas informe y propuesta"
+}

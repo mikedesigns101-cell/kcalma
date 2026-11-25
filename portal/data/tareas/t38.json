@@ -1,0 +1,7 @@
+{
+  "id": "t38",
+  "fase": "v07",
+  "titulo": "Probar lo que falta del rediseño",
+  "estado": "pendiente",
+  "detalle": "Sin probar en el emulador: el onboarding (haría falta borrar los datos), el escáner con cámara real, Receta, Lista y la hoja de peso."
+}

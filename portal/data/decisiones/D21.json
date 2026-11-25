@@ -1,0 +1,13 @@
+{
+  "id": "D21",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Cómo se actualiza la app?",
+  "opciones": [
+    "Desde la propia app, con una tarjeta en Hoy",
+    "Otra"
+  ],
+  "respuesta": "Una vez al día consulta la última Release. Si hay una nueva, muestra una tarjeta arriba en «Hoy» («✨ Nueva versión X · Actualizar», con ✕ para ocultarla hasta la siguiente). Al pulsar, descarga la APK y Android pide confirmar la instalación.",
+  "porque": "Después cambió: desde la 0.6.0 se instala sin preguntar (D41) y desde la 0.6.2 se mira también al volver a la app (D44)."
+}

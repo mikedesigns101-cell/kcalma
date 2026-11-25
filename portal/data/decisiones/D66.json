@@ -1,0 +1,12 @@
+{
+  "id": "D66",
+  "estado": "decidida",
+  "fecha": "2026-11-24",
+  "fechaRespuesta": "2026-11-24",
+  "pregunta": "¿Qué se hace con los tirones al cambiar de pestaña?",
+  "opciones": [
+    "Medirlo y arreglarlo",
+    "Otra"
+  ],
+  "respuesta": "Al cambiar de pestaña a veces se queda pillada; hay que medirlo y arreglarlo."
+}

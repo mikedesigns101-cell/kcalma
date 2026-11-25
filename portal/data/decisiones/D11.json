@@ -1,0 +1,12 @@
+{
+  "id": "D11",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Qué viene en el futuro?",
+  "opciones": [
+    "Módulo de gimnasio",
+    "Otra"
+  ],
+  "respuesta": "Un módulo de gimnasio inspirado en openGym, sin reutilizar su código AGPL ni sus imágenes."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "D52",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿En qué versiones sale Entreno?",
+  "opciones": [
+    "0.8.0 y 0.9.0",
+    "Otra"
+  ],
+  "respuesta": "La 0.8.0 trae biblioteca, rutinas, registro, progresión, mapa y kettlebell; la 0.9.0, el entrenador IA y el chat."
+}

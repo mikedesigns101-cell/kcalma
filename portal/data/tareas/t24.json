@@ -1,0 +1,9 @@
+{
+  "id": "t24",
+  "fase": "v05",
+  "titulo": "Revisar los detalles provisionales de la 0.5.0 y probar en tu móvil el widget y la foto de la etiqueta",
+  "estado": "te-toca",
+  "fecha": "2026-11-21",
+  "detalle": "Claude decidió algunos detalles de la 0.5.0 mientras estabas fuera (ajuste, pasos, recordatorios, widget y platos). Están en Decisiones.",
+  "tecnico": "ESTADO.md, «Pendiente», punto 4 · decisiones D30, D31 y D33"
+}

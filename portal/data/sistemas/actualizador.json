@@ -1,0 +1,10 @@
+{
+  "id": "actualizador",
+  "nombre": "Actualizador",
+  "categoria": "App",
+  "orden": 10,
+  "color": "blue",
+  "explicacion": "La app mira en GitHub si hay una versión nueva y, si la hay, la descarga y se instala sola.",
+  "uso": "Tarjeta «Nueva versión» en Hoy o botón «Actualizar Kcalma» en Perfil.",
+  "tecnico": "datos/Actualizador.kt · ReceptorInstalacion · PackageInstaller · ui/hoy/TarjetaActualizacion.kt"
+}

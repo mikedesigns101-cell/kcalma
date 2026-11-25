@@ -1,0 +1,9 @@
+{
+  "id": "t28",
+  "fase": "v06",
+  "titulo": "Actualizaciones sin preguntar (0.6.0)",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Kcalma instala sus propias actualizaciones; al terminar sale una notificación para volver a abrir la app. Probado en el emulador con dos versiones de prueba temporales: se instalaron solas y con los permisos intactos.",
+  "tecnico": "PackageInstaller (Actualizador, ReceptorInstalacion)"
+}

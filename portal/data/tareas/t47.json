@@ -1,0 +1,9 @@
+{
+  "id": "t47",
+  "fase": "v09",
+  "titulo": "Burbujas 💡 y 🐞; informes con los últimos 15 minutos",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "detalle": "Segunda tanda, con las ideas de tu nota de Obsidian. Dos burbujas en todas las pantallas: fallo y propuesta. Los informes llevan los últimos 15 minutos del registro.",
+  "tecnico": "ui/componentes/Informe.kt · datos/GitHub.kt · Registro.recientes"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "D03",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Cómo se reparte la app?",
+  "opciones": [
+    "APK en un repositorio de GitHub",
+    "Google Play"
+  ],
+  "respuesta": "APK en un repositorio de GitHub, como fud-ai u openGym. Nada de Google Play."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "D01",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Para qué móviles se hace la app?",
+  "opciones": [
+    "Solo Android",
+    "Android e iPhone"
+  ],
+  "respuesta": "Solo Android, con Kotlin y Jetpack Compose. iPhone no, de momento."
+}

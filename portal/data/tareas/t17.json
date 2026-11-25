@@ -1,0 +1,9 @@
+{
+  "id": "t17",
+  "fase": "v04",
+  "titulo": "Ideas de recetas (0.4.0)",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "39 recetas españolas calculadas con la base (gramos en crudo). Lista, detalle y «Añadir a la comida». Hoy muestra las ideas de la próxima comida sin apuntar. «Más ideas con IA» pide otras a Gemini.",
+  "tecnico": "assets/recetas.json, generado con datos/scripts/06_recetas.py a partir de la base.\ndominio/Receta.kt (Recomendador: objetivo por comida, escalado, «encaja», alergias, gustos, filtros)\ndatos/Recetas.kt (carga y conversión de las ideas de Gemini, emparejadas con la base)\nui/ideas/PantallaIdeas.kt"
+}

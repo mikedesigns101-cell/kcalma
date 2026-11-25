@@ -1,0 +1,13 @@
+{
+  "id": "D07",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Qué estilo tiene la app?",
+  "opciones": [
+    "B, oscuro premium",
+    "Otro"
+  ],
+  "respuesta": "B, oscuro premium, con la paleta de Raideo: azul petróleo `#070c10`, degradado cian `#3ad6f0` → magenta `#e05cc0` y títulos en Outfit.",
+  "porque": "Debe poder cambiarse en el futuro, así que habrá un tema centralizado y quizá un selector de temas. Maqueta: `maquetas/kcalma-hoy.html`. Desde la 0.7.0 el estilo es «cristal» con estos mismos colores (D34)."
+}

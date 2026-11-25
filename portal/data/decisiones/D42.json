@@ -1,0 +1,14 @@
+{
+  "id": "D42",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Cómo se apunta la pasta o el arroz cocidos?",
+  "opciones": [
+    "Unidad «Cocido»",
+    "Pasta genérica delante al buscar",
+    "Las dos cosas"
+  ],
+  "respuesta": "Las dos cosas (Mikel: «las dos cosas»). La ficha de pasta, arroz, legumbres, cuscús y quinoa secos tiene la unidad «Cocido»: se pone lo que pesa hecho y se divide por un factor medio (pasta y legumbres ×2,4, arroz ×2,7, cuscús y quinoa ×2,5) para calcular con los datos en seco. Además, buscar «espaguetis», «macarrones», etc. enseña arriba la pasta genérica, seca y cocida, y el buscador tolera plurales.",
+  "porque": "0.6.1, 21/11/2026. Maqueta en `maquetas/kcalma-0.6.1.html`."
+}

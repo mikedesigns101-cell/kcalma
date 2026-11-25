@@ -1,0 +1,9 @@
+{
+  "id": "b05",
+  "tipo": "idea",
+  "estado": "descartado",
+  "fecha": "2026-11-21",
+  "titulo": "Comodidades que quedaron fuera de la 0.6.0",
+  "detalle": "Descartadas por ahora: copiar de otro día, cantidades rápidas y contador de agua. De la misma lista, «deshacer al borrar» llegó en la 0.6.1 y «ver días anteriores» con el historial de la 0.9.0.",
+  "tecnico": "Decisión D40"
+}

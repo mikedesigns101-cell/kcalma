@@ -1,0 +1,14 @@
+{
+  "id": "D25",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿De dónde salen las ideas de comidas y cuándo se publican Progreso e Ideas?",
+  "opciones": [
+    "Recetas propias",
+    "Ideas de la IA",
+    "Las dos"
+  ],
+  "respuesta": "Las dos. Una lista propia de recetas españolas calculadas con la base y filtradas por lo que queda, alergias y gustos (sin internet), y el botón «Más ideas con IA» que pide otras a Gemini. Ideas enseña lo que queda del día y filtros (comida, rápidas, supermercado, lo que me encanta). Al tocar una: ingredientes, pasos y «Añadir a la comida». La 0.3.0 sale ya con la foto arreglada y Perfil; Progreso e Ideas van en la 0.4.0.",
+  "porque": "Aprobado el 20/11/2026. Maqueta en `maquetas/kcalma-progreso-ideas.html`."
+}

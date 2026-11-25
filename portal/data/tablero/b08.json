@@ -1,0 +1,9 @@
+{
+  "id": "b08",
+  "tipo": "fallo",
+  "estado": "pendiente",
+  "fecha": "2026-11-24",
+  "titulo": "Al cambiar de pestaña a veces se queda pillada",
+  "detalle": "En la 0.9.0 se quitó trabajo del momento de cambiar de pestaña. En el emulador no se nota diferencia (4-5 % de fotogramas lentos antes y después); hay que verlo en un móvil.",
+  "tecnico": "Decisión D66"
+}

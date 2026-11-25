@@ -1,0 +1,8 @@
+{
+  "id": "t08",
+  "fase": "v01",
+  "titulo": "Probar en un móvil la lectura real de un código de barras",
+  "estado": "pendiente",
+  "detalle": "En el emulador solo se ha probado con la cámara emulada y escribiendo el código.",
+  "tecnico": "ESTADO.md, «Pendiente», punto 1."
+}

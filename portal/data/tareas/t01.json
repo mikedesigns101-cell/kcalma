@@ -1,0 +1,9 @@
+{
+  "id": "t01",
+  "fase": "v01",
+  "titulo": "Onboarding, plan y pantalla Hoy",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "Funcionan y se guardan en el móvil.",
+  "tecnico": "ui/onboarding/ · ui/hoy/ · dominio/Calculadora.kt"
+}

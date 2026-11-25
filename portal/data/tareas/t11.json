@@ -1,0 +1,9 @@
+{
+  "id": "t11",
+  "fase": "v02",
+  "titulo": "Emparejar lo que ve la IA con la base de alimentos",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "Se buscan primero los alimentos genéricos. Si no hay ninguno, o sus calorías no cuadran con lo que dice la IA (entre 0,45 y 2,2 veces), se usa la estimación de la IA marcada «Estimado». El emparejado tiene en cuenta raíces de palabras y sinónimos.",
+  "tecnico": "Emparejado: genéricos → todos; si no hay o las kcal no cuadran (0,45–2,2×), estimación de la IA marcada «Estimado».\ndatos/Emparejado.kt (raíces y sinónimos)"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "D64",
+  "estado": "decidida",
+  "fecha": "2026-11-24",
+  "fechaRespuesta": "2026-11-24",
+  "pregunta": "¿Cómo se tiene en cuenta cómo se cocina un alimento?",
+  "opciones": [
+    "Ajusta calorías",
+    "Otra"
+  ],
+  "respuesta": "Ajusta calorías (Mikel: «Ajusta calorías»). Tal cual, Hervido, Plancha, Horno, Airfryer o Frito al añadir un alimento. Reglas fijas calculadas por código: plancha +3 g, airfryer +1 g y frito +8 g de aceite por cada 100 g; el resto, nada."
+}

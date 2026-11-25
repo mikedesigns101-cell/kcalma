@@ -1,0 +1,13 @@
+{
+  "id": "D24",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Qué enseña Progreso?",
+  "opciones": [
+    "Peso, calorías, proteína y racha",
+    "Otra"
+  ],
+  "respuesta": "Gráfica de peso con la línea del ritmo del plan y fecha estimada, calorías de la semana frente al objetivo, proteína media y racha de días apuntados; periodos 1 mes, 3 meses y todo.",
+  "porque": "Aprobado el 20/11/2026. Maqueta en `maquetas/kcalma-progreso-ideas.html`."
+}

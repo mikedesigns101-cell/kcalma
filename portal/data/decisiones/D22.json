@@ -1,0 +1,13 @@
+{
+  "id": "D22",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Cómo se mandan los informes de errores?",
+  "opciones": [
+    "«Mandar informe» abre una incidencia en GitHub",
+    "Otra"
+  ],
+  "respuesta": "La app guarda en el móvil un registro local (versión, modelo de móvil, fallos de cámara y de Gemini, cierres; sin fotos, claves ni diario). «Mandar informe» abre una incidencia en GitHub con el informe ya escrito (es público y pide cuenta de GitHub; el usuario lo revisa antes de enviarlo). El botón está en cada pantalla de error (cámara y análisis de foto), con el error incluido. Las pestañas y botones que aún no existen (Progreso, Ideas, Perfil, «Ver más») muestran «llega en una próxima versión».",
+  "porque": "Desde la 0.9.0 los informes se envían directos, sin cuenta (D54)."
+}

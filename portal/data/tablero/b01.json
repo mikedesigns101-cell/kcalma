@@ -1,0 +1,10 @@
+{
+  "id": "b01",
+  "tipo": "falta",
+  "estado": "pendiente",
+  "fecha": "2026-11-20",
+  "teToca": true,
+  "titulo": "Decidir si la APK se divide por tipo de móvil",
+  "detalle": "La APK publicada pesa 29 MB porque el lector de códigos lleva dentro el código para todos los tipos de procesador. Hay que decidir contigo si se saca una APK por tipo.",
+  "tecnico": "ML Kit con todas las arquitecturas · ESTADO.md, «Pendiente», punto 2 · tarea t09 (fase 0.1)"
+}

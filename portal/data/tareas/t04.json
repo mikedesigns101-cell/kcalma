@@ -1,0 +1,9 @@
+{
+  "id": "t04",
+  "fase": "v01",
+  "titulo": "Códigos de barras: primero en el móvil y luego en Open Food Facts",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "Un código se busca primero en la base del móvil; si no está, en Open Food Facts por internet.",
+  "tecnico": "datos/OpenFoodFacts.kt · datos/Repositorio.kt"
+}

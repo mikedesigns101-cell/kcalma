@@ -1,0 +1,13 @@
+{
+  "id": "D58",
+  "estado": "decidida",
+  "fecha": "2026-11-22",
+  "fechaRespuesta": "2026-11-22",
+  "pregunta": "Lo elegido al implementar la 0.9.0",
+  "opciones": [
+    "Lo que eligiera Claude",
+    "Otra"
+  ],
+  "respuesta": "Informes: sin el archivo `github-informes.txt` al compilar, «Enviar» abre GitHub en el navegador con el informe escrito, como antes; la hoja avisa de que el repositorio es público. Entrenador: la propuesta se pide a mano con un botón (no sola, para no gastar la clave de Gemini sin que el usuario lo sepa), una por semana, y hace falta tener 2 entrenos apuntados; máximo 3 cambios. Qué puede cambiar la IA: solo sustituir, añadir o quitar un ejercicio, series, repeticiones, descanso o días, y solo en rutinas de series con ejercicios del catálogo; el código lo valida y escribe la frase del cambio; la IA solo pone el motivo; nada se aplica sin tocar «Cambiar». Chat: la conversación no se guarda al cerrar la app; recibe los datos de entreno calculados y el plan y lo comido hoy. Intervalos: 5 s de cuenta atrás al empezar, sin descanso tras la última ronda, cada ronda toca el siguiente ejercicio y se apunta sola (sin repeticiones); rutina hecha nueva «Tabata de kettlebell» (swing y goblet, 20/10 × 8). Catálogo: 152 ejercicios; los 121 nuevos reutilizan los movimientos de la figura que había más 5 nuevos (elevación, fondos, extensión de pierna, escalador y salto), así que algunas animaciones son aproximadas.",
+  "porque": "Lo eligió Claude al implementar; está pendiente de que lo revises."
+}

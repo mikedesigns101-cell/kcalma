@@ -1,0 +1,13 @@
+{
+  "id": "D69",
+  "estado": "decidida",
+  "fecha": "2026-11-24",
+  "fechaRespuesta": "2026-11-24",
+  "pregunta": "¿Qué frenos tienen los alimentos compartidos?",
+  "opciones": [
+    "Todos menos la confirmación por un segundo usuario",
+    "Todos",
+    "Otra"
+  ],
+  "respuesta": "Todos menos la confirmación por un segundo usuario (Mikel: «Hazlo así», 24/11/2026). Validación automática (kcal coherentes con los macros, valores posibles, código de barras con dígito de control, sin enlaces ni insultos); nunca pisan los datos del catálogo ni de Open Food Facts; tope de 20 altas y 20 retiradas al día (el resto espera revisión); etiqueta «Comunidad» y aviso «¿Está mal?» que lo retira para todos; un código retirado no vuelve a entrar solo; repaso con Mikel cuando diga «revisa los alimentos» (`gh issue list --label revisar --state open`)."
+}

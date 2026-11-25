@@ -1,0 +1,13 @@
+{
+  "id": "D27",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Cómo se eligen los gustos?",
+  "opciones": [
+    "Por categorías",
+    "Otra"
+  ],
+  "respuesta": "La app ofrece 26 categorías (Setas, Pescado, Marisco, Cerdo…); un toque = no me gusta, dos = me encanta. Cada categoría lleva sus palabras (Setas → champiñón, boletus, níscalo…), que filtran las recetas y se mandan a la IA. Lo que se escribe a mano solo bloquea esa palabra («nata» no quita la leche).",
+  "porque": "v0.4.2. Mikel pidió categorías."
+}

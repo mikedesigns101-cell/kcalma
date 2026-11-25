@@ -1,0 +1,9 @@
+{
+  "id": "t05",
+  "fase": "v01",
+  "titulo": "Pantallas Añadir, Ficha, Comida y Escáner",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "Con la maqueta del diario aprobada. En Comida se borra deslizando y se guarda como comida habitual. El escáner usa la cámara y también deja escribir el código. Hoy ya muestra lo comido de verdad.",
+  "tecnico": "Maqueta maquetas/kcalma-diario.html (decisiones en PLAN.md §0, ahora en portal/data/decisiones/).\nPantallas en ui/diario/: Añadir, Ficha, Comida y Escáner (CameraX + ML Kit incluido).\nNavegación con una pila en ui/App.kt."
+}

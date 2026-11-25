@@ -1,0 +1,12 @@
+{
+  "id": "D60",
+  "estado": "decidida",
+  "fecha": "2026-11-24",
+  "fechaRespuesta": "2026-11-24",
+  "pregunta": "¿Se puede dictar lo que has comido?",
+  "opciones": [
+    "Sí, a la pantalla «Tu plato»",
+    "No"
+  ],
+  "respuesta": "Sí (no es el dictado del buscador): «he comido 100 g de arroz cocido con 300 g de pollo a la plancha» se convierte en alimentos con sus gramos en la misma pantalla «Tu plato» de la foto, editable antes de añadir. Elegido por Claude, pendiente de revisar: con clave de Gemini lo interpreta Gemini; sin clave, un intérprete local que entiende cantidades dichas."
+}

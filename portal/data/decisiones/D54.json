@@ -1,0 +1,13 @@
+{
+  "id": "D54",
+  "estado": "decidida",
+  "fecha": "2026-11-22",
+  "fechaRespuesta": "2026-11-22",
+  "pregunta": "¿Cómo llegan los informes de fallos a GitHub?",
+  "opciones": [
+    "Directos, con una clave que solo crea incidencias",
+    "Abriendo GitHub en el navegador, con cuenta"
+  ],
+  "respuesta": "Envío directo a GitHub, sin cuenta: la APK lleva una clave de GitHub que solo puede crear incidencias en el repo de Kcalma (fine-grained, Issues: write). La crea Mikel y se guarda fuera del repo, en `C:\\Users\\Mikel\\.kcalma\\`. Si alguien la saca y manda spam, se revoca.",
+  "porque": "Mikel, 22/11/2026. Maqueta `maquetas/kcalma-0.9.html`, aprobada. `app/build.gradle.kts` cita esta decisión."
+}

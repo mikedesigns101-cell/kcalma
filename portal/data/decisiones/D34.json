@@ -1,0 +1,13 @@
+{
+  "id": "D34",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Qué estilo y qué colores lleva el rediseño?",
+  "opciones": [
+    "1A: los colores de Kcalma (cian → magenta), con variaciones",
+    "Otra paleta"
+  ],
+  "respuesta": "Estilo cristal: paneles esmerilados con borde brillante, luces de color difuminadas detrás, orbe de vidrio con el anillo de kcal y botón + flotante en la barra. Paleta: los colores de Kcalma (cian → magenta), opción 1A, y además variaciones, aprobadas: Kcalma (por defecto), Hielo (cian → azul), Aurora (cian → verde menta) y Orquídea (magenta → violeta), elegibles en Perfil → Apariencia.",
+  "porque": "Mikel, a partir de una imagen de referencia. Maquetas en `maquetas/kcalma-cristal.html`, `kcalma-cristal-2.html` y `maquetas/kcalma-colores.html`."
+}

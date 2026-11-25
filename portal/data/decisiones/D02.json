@@ -1,0 +1,13 @@
+{
+  "id": "D02",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Para quién es la app y qué se busca con ella?",
+  "opciones": [
+    "Gratis, para ti y tus amigos",
+    "Otra"
+  ],
+  "respuesta": "Gratis, para Mikel y sus amigos. El objetivo es que Mikel pierda peso fácilmente.",
+  "porque": "Rentabilizarla, quizá más adelante."
+}

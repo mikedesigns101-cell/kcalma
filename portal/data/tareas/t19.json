@@ -1,0 +1,9 @@
+{
+  "id": "t19",
+  "fase": "v04",
+  "titulo": "Datos de la base corregidos (0.4.1)",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "Se corrigen 15 alimentos genéricos de BEDCA (arroz, lenteja, garbanzo y judía cocidos, etc.) y se quitan 48 productos con kcal incoherentes. Lo que ya tenías apuntado se corrige solo. Las bebidas alcohólicas no cuadran con sus macros por el alcohol, pero son correctas.",
+  "tecnico": "datos/scripts/07_correcciones.py · la base sube a la versión 2 y Diario (v2) corrige lo ya apuntado.\nEn ESTADO.md era el punto 3 de «Pendiente», marcado «Hecho en v0.4.1»."
+}

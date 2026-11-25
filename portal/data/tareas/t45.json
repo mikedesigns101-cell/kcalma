@@ -1,0 +1,9 @@
+{
+  "id": "t45",
+  "fase": "v09",
+  "titulo": "Intervalos, Tabata, 152 ejercicios y biblioteca",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "detalle": "Modo intervalos, la rutina Tabata hecha, 152 ejercicios y una biblioteca para verlos.",
+  "tecnico": "Formato.INTERVALOS, Rutina.fase · dominio/EjerciciosMas.kt · ui/entreno/Biblioteca.kt"
+}

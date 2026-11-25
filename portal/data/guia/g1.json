@@ -1,0 +1,16 @@
+{
+  "id": "g1",
+  "orden": 1,
+  "icono": "📏",
+  "titulo": "Cómo trabajamos",
+  "tipo": "lista",
+  "elementos": [
+    "Tono profesional y serio, y respuestas concisas para gastar poco uso.",
+    "Cada decisión abierta de producto, diseño, tecnología o datos se te consulta con opciones y una recomendación. Claude no decide por ti.",
+    "Cada decisión nueva se apunta en Decisiones para no volver a preguntarla. Las decisiones mandan sobre el resto del plan.",
+    "Antes de programar cualquier pantalla, Claude te enseña una maqueta o una captura.",
+    "Lo que Claude elige solo al programar se marca «pendiente de que lo revises».",
+    "Tus propias ideas para Kcalma están en tu nota de Obsidian."
+  ],
+  "tecnico": "CLAUDE.md · maquetas en maquetas/ · nota: C:\\Users\\Mikel\\Documents\\Obsidian Vault\\Ideas Vibecoding\\KCalma\\Ideas para KCalma.md"
+}

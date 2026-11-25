@@ -1,0 +1,10 @@
+{
+  "id": "plan",
+  "nombre": "Plan de calorías",
+  "categoria": "App",
+  "orden": 1,
+  "color": "green",
+  "explicacion": "Calcula cuántas calorías y cuánta proteína, grasa e hidratos te tocan al día según tu cuerpo, tu trabajo, tus pasos y tu ejercicio. Cada semana puede proponer un ajuste si tu peso real va por otro camino.",
+  "uso": "Se rellena en el onboarding y se cambia en Perfil.",
+  "tecnico": "dominio/Calculadora.kt · dominio/Perfil.kt · dominio/Ajuste.kt · dominio/Actividad.kt · datos/AlmacenPerfil.kt · ui/onboarding/ · ui/hoy/TarjetaAjuste.kt"
+}

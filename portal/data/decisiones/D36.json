@@ -1,0 +1,13 @@
+{
+  "id": "D36",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Cómo son las animaciones?",
+  "opciones": [
+    "Fluidas y limpias",
+    "Otra"
+  ],
+  "respuesta": "Fluidas y limpias, de 0,25 a 0,6 s con frenada suave: orbe que se dibuja y respira, tarjetas en cascada, + con hoja de cristal, burbuja en la barra, cifra que cuenta al añadir, iconos que se trazan (aprobado).",
+  "porque": "Demo en `maquetas/kcalma-animaciones.html`."
+}

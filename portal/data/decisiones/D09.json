@@ -1,0 +1,13 @@
+{
+  "id": "D09",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Con qué identidad se instala la app?",
+  "opciones": [
+    "com.mikel.kcalma, Android 8 o más",
+    "Otra"
+  ],
+  "respuesta": "`applicationId = com.mikel.kcalma`, minSdk 26 (Android 8+). Aprobado («Sí, todo así», 20/11/2026).",
+  "porque": "No se cambia una vez instalada en móviles de amigos. Antes de compartir el APK hay que crear una clave de firma de release, guardada fuera del repositorio y con copia de seguridad."
+}

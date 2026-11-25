@@ -1,0 +1,13 @@
+{
+  "id": "D12",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Cómo es el onboarding?",
+  "opciones": [
+    "8 pantallas, con alergias y gustos que se pueden saltar",
+    "Otra"
+  ],
+  "respuesta": "8 pantallas: bienvenida, sobre ti (el % de grasa es opcional), trabajo (4 niveles con profesiones de ejemplo), pasos (4 rangos más Health Connect), ejercicio (días, tipo y duración), objetivo con ritmo, tu plan con el desglose, y alergias y gustos. Las alergias y gustos van en el onboarding, con la opción «Saltar por ahora». La clave de Gemini no va en el onboarding: se pide la primera vez que se pulsa la cámara, con una guía paso a paso.",
+  "porque": "Aprobado el 20/11/2026. Maqueta en `maquetas/kcalma-onboarding.html`."
+}

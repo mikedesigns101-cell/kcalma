@@ -1,0 +1,9 @@
+{
+  "id": "b11",
+  "tipo": "idea",
+  "estado": "nuevo",
+  "fecha": "2026-10-16",
+  "titulo": "Mandar a Open Food Facts los productos nuevos",
+  "detalle": "Idea del plan inicial: cuando alguien crea un producto leyendo su etiqueta, enviarlo también a Open Food Facts para que mejore para todos.",
+  "tecnico": "PLAN.md, apartado 4.4"
+}

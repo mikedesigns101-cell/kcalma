@@ -1,0 +1,13 @@
+{
+  "id": "D41",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Cómo se instalan las actualizaciones?",
+  "opciones": [
+    "Sin preguntar, con PackageInstaller",
+    "Con el instalador clásico"
+  ],
+  "respuesta": "Kcalma se instala sus propias actualizaciones con una sesión de `PackageInstaller` (Android 12 o superior), así que Android ya no pregunta. Si falla, vuelve al instalador clásico. Los permisos se conservan al actualizar (comprobado en el emulador).",
+  "porque": "0.6.0. Si piden otra vez la cámara, lo más probable es que se eligiera «Solo esta vez»."
+}

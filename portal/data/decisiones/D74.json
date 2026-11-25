@@ -1,0 +1,12 @@
+{
+  "id": "D74",
+  "estado": "decidida",
+  "fecha": "2026-11-25",
+  "fechaRespuesta": "2026-11-25",
+  "pregunta": "¿Qué pasos cuentan si hay podómetro y Health Connect?",
+  "opciones": [
+    "La más alta",
+    "Otra"
+  ],
+  "respuesta": "La más alta (Mikel: «La más alta»). Interruptor «Podómetro del móvil» en Perfil; usa el sensor de pasos del teléfono. Si además hay Health Connect, cada día cuenta la cifra mayor de las dos."
+}

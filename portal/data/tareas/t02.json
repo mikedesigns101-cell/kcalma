@@ -1,0 +1,9 @@
+{
+  "id": "t02",
+  "fase": "v01",
+  "titulo": "Base de alimentos dentro de la app",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "78.890 alimentos en 15,8 MB, dentro de la app: el buscador funciona sin internet.",
+  "tecnico": "Base reducida app/src/main/assets/alimentos.db. Se genera con datos/scripts/05_bd_movil.py. Se busca con LIKE sobre una columna normalizada; no usa FTS5.\ndatos/Catalogo.kt: lee el catálogo, de solo lectura, que se copia al móvil."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "D31",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Cuánto suma Health Connect?",
+  "opciones": [
+    "La mitad de lo que diga el móvil o el reloj",
+    "Otra"
+  ],
+  "respuesta": "Se suma la mitad de las calorías activas de más que diga el móvil o el reloj (suelen exagerar). Detalle provisional (Claude, 21/11/2026, pendiente de revisar): Health Connect lee pasos, no calorías activas, porque los entrenamientos ya están en el plan. Suma la mitad de lo que camines por encima de lo que dijiste en el onboarding (4.000 / 6.500 / 10.000 / 13.500), a unas 0,5 kcal por kg cada 1.000 pasos.",
+  "porque": "`dominio/Actividad.kt` cita esta decisión («la mitad») en su comentario."
+}

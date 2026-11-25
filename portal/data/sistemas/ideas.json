@@ -1,0 +1,10 @@
+{
+  "id": "ideas",
+  "nombre": "Ideas y lista de la compra",
+  "categoria": "App",
+  "orden": 5,
+  "color": "amber",
+  "explicacion": "Recetas españolas que encajan con lo que te queda del día, tus alergias y tus gustos, más otras que pide a la IA. Desde una idea se hace la lista de la compra.",
+  "uso": "Pestaña Ideas.",
+  "tecnico": "assets/recetas.json · dominio/Receta.kt · dominio/Gustos.kt · datos/Recetas.kt · datos/ListaCompra.kt · ui/ideas/"
+}

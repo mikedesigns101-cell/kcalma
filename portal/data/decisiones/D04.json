@@ -1,0 +1,13 @@
+{
+  "id": "D04",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Qué IA reconoce la comida?",
+  "opciones": [
+    "Gemini gratis por defecto, con la clave de cada usuario",
+    "Entrenar un modelo propio",
+    "Otra"
+  ],
+  "respuesta": "Gemini (gratis) por defecto. Cada usuario puede poner la clave de API de la IA que quiera (Gemini, Claude, OpenAI…). No se entrena un modelo propio."
+}

@@ -1,0 +1,9 @@
+{
+  "id": "b04",
+  "tipo": "idea",
+  "estado": "nuevo",
+  "fecha": "2026-11-20",
+  "titulo": "Elegir proveedor de IA: OpenAI y Claude",
+  "detalle": "En la primera versión solo hay Gemini. Más adelante, un apartado «Elegir proveedor» para poner la clave de OpenAI o de Claude.",
+  "tecnico": "Decisiones D04 y D17"
+}

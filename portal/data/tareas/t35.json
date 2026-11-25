@@ -1,0 +1,9 @@
+{
+  "id": "t35",
+  "fase": "v07",
+  "titulo": "Piezas de cristal e iconos propios",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "46 iconos propios con degradado, sacados de las maquetas.",
+  "tecnico": "ui/componentes/Cristal.kt (fondoKcalma, vidrio, esferaBrillo, BurbujaIcono, BotonCristal, entrada) · Iconos.kt"
+}

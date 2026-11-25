@@ -1,0 +1,9 @@
+{
+  "id": "t36",
+  "fase": "v07",
+  "titulo": "Hoy nuevo con la pompa y barra flotante",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "La pompa es un orbe con líquido que sube con lo comido, olas, burbujas y chapoteo al tocar. Saludo, buscador con voz y cámara, macros y comidas en dos columnas. Barra flotante con burbuja que se desliza y botón + con Buscar, Foto, Escanear y Dictar.",
+  "tecnico": "ui/hoy/Pompa.kt"
+}

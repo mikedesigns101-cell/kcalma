@@ -1,0 +1,18 @@
+{
+  "id": "D29",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Qué funciones entran en la 0.5.0 y cómo se publican?",
+  "opciones": [
+    "Ajuste automático del plan",
+    "Recordatorios",
+    "Mis platos caseros",
+    "Widget",
+    "Health Connect",
+    "Foto de la etiqueta",
+    "Lista de la compra",
+    "Calorías por semana"
+  ],
+  "respuesta": "Elegidas por Mikel: ajuste automático del plan, recordatorios, mis platos caseros, widget, Health Connect, foto de la etiqueta y lista de la compra. Descartado: calorías por semana. Todo junto en la 0.5.0."
+}

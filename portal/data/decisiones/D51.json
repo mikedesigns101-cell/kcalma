@@ -1,0 +1,12 @@
+{
+  "id": "D51",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Qué hace el entrenador con IA?",
+  "opciones": [
+    "Propone cada semana y tiene chat",
+    "Otra"
+  ],
+  "respuesta": "Entrenador IA (Gemini, con la clave del usuario): cada semana propone cambios en una tarjeta y el usuario los acepta o descarta. Tiene además un chat para dudas de técnica, ejercicios y dieta."
+}

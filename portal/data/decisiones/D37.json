@@ -1,0 +1,13 @@
+{
+  "id": "D37",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Cómo es el orbe de Hoy?",
+  "opciones": [
+    "B · Líquida",
+    "Otra de las tres pompas"
+  ],
+  "respuesta": "Pompa «B · Líquida»: dentro hay líquido que se mece con dos olas; su nivel es lo comido hoy; al tocarla chapotea; flota y suben burbujitas. Quieta si el móvil tiene «Quitar animaciones».",
+  "porque": "Elegida entre tres en `maquetas/kcalma-pompas.html`."
+}

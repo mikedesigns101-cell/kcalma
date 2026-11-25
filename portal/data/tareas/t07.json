@@ -1,0 +1,9 @@
+{
+  "id": "t07",
+  "fase": "v01",
+  "titulo": "Repositorio en GitHub y actualizaciones desde la app",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "Cada versión se publica en GitHub con la APK firmada. La app mira si hay una versión nueva al abrirse (como mucho cada 10 minutos); si la hay, sale la tarjeta «Nueva versión» en Hoy. Arriba en Perfil está el botón «Actualizar Kcalma», que la descarga directamente.",
+  "tecnico": "Repo público mikedesigns101-cell/kcalma. Cada versión es una release con kcalma-X.Y.Z.apk firmada (clave en C:\\Users\\Mikel\\.kcalma\\, fuera del repo).\ndatos/Actualizador.kt"
+}

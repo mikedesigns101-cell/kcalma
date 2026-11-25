@@ -1,0 +1,9 @@
+{
+  "id": "t27",
+  "fase": "v06",
+  "titulo": "Buscar por voz (0.6.0)",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Con el dictado del móvil; la app separa la cantidad («200 gramos de…», «dos huevos»). Sin probar en el emulador el dictado real (no hay micrófono); la lectura del texto la cubren los tests.",
+  "tecnico": "dominio/Voz.kt"
+}

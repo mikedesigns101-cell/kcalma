@@ -1,0 +1,9 @@
+{
+  "id": "t58",
+  "fase": "v09",
+  "titulo": "Robot de los grupos de amigos",
+  "estado": "hecho",
+  "fecha": "2026-11-25",
+  "detalle": "Probado en GitHub real con dos amigos simulados: la app descifra y enseña la general, las cuatro listas y el ganador del mes anterior.",
+  "tecnico": "comunidad/grupos.py · .github/workflows/grupos.yml · el buzón es la incidencia 6 del repo"
+}

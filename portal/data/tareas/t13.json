@@ -1,0 +1,9 @@
+{
+  "id": "t13",
+  "fase": "v02",
+  "titulo": "Registro de errores y «Mandar informe»",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "La app guarda en el móvil un registro de errores, y «Mandar informe» abre una incidencia en GitHub.",
+  "tecnico": "datos/Registro.kt (también a logcat con etiqueta Kcalma)"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "D05",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿En qué carpeta sigue el proyecto?",
+  "opciones": [
+    "6. AppCalorias",
+    "Otra"
+  ],
+  "respuesta": "Se sigue en 6. AppCalorias."
+}

@@ -1,0 +1,9 @@
+{
+  "id": "t52",
+  "fase": "v09",
+  "titulo": "El entrenador crea rutinas",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "detalle": "Probado con Gemini real: rutina guardada.",
+  "tecnico": "Cambio.Crear · campo rutina_nueva"
+}

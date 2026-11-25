@@ -1,0 +1,9 @@
+{
+  "id": "t33",
+  "fase": "v06",
+  "titulo": "Aviso de versión nueva también al volver a la app (0.6.2)",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Antes solo se veía la tarjeta si Android había cerrado la app. Probado en el emulador con una versión de prueba temporal: la tarjeta sale al abrir y al volver a la app, sin cierres.",
+  "tecnico": "La comprobación pasa de LaunchedEffect(Unit) a LifecycleResumeEffect en ui/App.kt.\nversionCode 16 (el 15 se usó en una versión de prueba del emulador)."
+}

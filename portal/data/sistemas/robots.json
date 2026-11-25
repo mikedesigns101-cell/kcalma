@@ -1,0 +1,10 @@
+{
+  "id": "robots",
+  "nombre": "Robots de GitHub",
+  "categoria": "Comunidad",
+  "orden": 14,
+  "color": "blue",
+  "explicacion": "Dos programas que corren solos en GitHub: uno valida y publica los alimentos compartidos, y otro recoge las cifras de los grupos de amigos. Escriben en el repositorio por su cuenta.",
+  "uso": "No se tocan: se lanzan solos cuando llega una incidencia o un comentario.",
+  "tecnico": ".github/workflows/alimentos.yml → comunidad/robot.py (incidencias con etiqueta alimento o alimento-mal)\n.github/workflows/grupos.yml → comunidad/grupos.py (comentarios en la incidencia 6)\nPruebas: comunidad/prueba_robot.py · comunidad/prueba_grupos.py"
+}

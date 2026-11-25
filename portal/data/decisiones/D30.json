@@ -1,0 +1,13 @@
+{
+  "id": "D30",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Cómo funciona el ajuste automático del plan?",
+  "opciones": [
+    "La app propone y Mikel acepta",
+    "Se aplica solo"
+  ],
+  "respuesta": "La app propone y Mikel acepta. Una vez por semana, si el gasto real calculado con el peso y lo comido difiere, sale una tarjeta con el cambio; nunca se aplica solo. Detalle provisional (lo decidió Claude el 21/11/2026 sin Mikel, porque estaba fuera; pendiente de revisar): mira los últimos 28 días. Necesita 14 días apuntados (al menos la mitad del plan) y 3 pesadas separadas 10 días o más. Solo propone si la diferencia pasa de 100 kcal, con un tope de ±300 por propuesta y una propuesta por semana. Se guarda como corrección del gasto y no se aplica con kcal a mano.",
+  "porque": "`dominio/Ajuste.kt` cita esta decisión en su comentario."
+}

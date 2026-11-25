@@ -1,0 +1,9 @@
+{
+  "id": "t26",
+  "fase": "v06",
+  "titulo": "Cantidad recordada (0.6.0)",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "La ficha y el + empiezan con la última cantidad de ese alimento.",
+  "tecnico": "Diario.ultimaDe y ultimasCantidades"
+}

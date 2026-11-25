@@ -1,0 +1,10 @@
+{
+  "id": "avisos",
+  "nombre": "Recordatorios y widget",
+  "categoria": "App",
+  "orden": 9,
+  "color": "amber",
+  "explicacion": "Avisos si una comida está sin apuntar y para pesarte, y un widget en la pantalla de inicio con las calorías que te quedan.",
+  "uso": "Perfil → Recordatorios; el widget se coloca desde la pantalla de inicio del móvil.",
+  "tecnico": "avisos/Recordatorios.kt · widget/WidgetHoy.kt"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "b10",
+  "tipo": "idea",
+  "estado": "nuevo",
+  "fecha": "2026-10-16",
+  "titulo": "Mejorar la estimación de gramos de la foto",
+  "detalle": "Ideas del plan inicial: foto desde dos ángulos, un objeto de referencia (tarjeta o mano) y medir la profundidad con ARCore en los móviles que lo tengan.",
+  "tecnico": "PLAN.md, sección 3, «Cómo mejorar la estimación de gramos»"
+}

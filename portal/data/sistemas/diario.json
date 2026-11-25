@@ -1,0 +1,10 @@
+{
+  "id": "diario",
+  "nombre": "Diario y buscador",
+  "categoria": "App",
+  "orden": 2,
+  "color": "pc",
+  "explicacion": "Donde apuntas lo que comes en cada comida: buscar un alimento, escanear su código, dictarlo, repetir una comida habitual o un plato casero.",
+  "uso": "Pantalla Hoy y el botón +.",
+  "tecnico": "datos/Diario.kt (diario.db) · datos/Repositorio.kt · dominio/Voz.kt · dominio/Coccion.kt · dominio/Cocinado.kt · dominio/Plato.kt · ui/diario/ · ui/hoy/"
+}

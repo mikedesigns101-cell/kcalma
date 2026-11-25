@@ -1,0 +1,12 @@
+{
+  "id": "D61",
+  "estado": "decidida",
+  "fecha": "2026-11-24",
+  "fechaRespuesta": "2026-11-24",
+  "pregunta": "¿Qué más hace el entrenador?",
+  "opciones": [
+    "Programa rutinas nuevas y ve peso, kcal y pasos",
+    "Otra"
+  ],
+  "respuesta": "Además de cambios, puede programar rutinas nuevas (del catálogo, validadas por código) y recibe el peso de las últimas semanas, las kcal medias y los pasos."
+}

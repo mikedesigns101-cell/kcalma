@@ -1,0 +1,14 @@
+{
+  "id": "D39",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Qué se hace con el aviso de malware al instalar?",
+  "opciones": [
+    "Apelación a Play Protect",
+    "Enlace a VirusTotal en cada release",
+    "Guía de instalación en el README",
+    "Las tres"
+  ],
+  "respuesta": "Las tres cosas. Mikel manda a Google la apelación de Play Protect con el texto de `docs/apelacion-play-protect.md`. Cada release lleva el enlace a su análisis en VirusTotal. El README tiene una guía de instalación que explica los avisos."
+}

@@ -1,0 +1,13 @@
+{
+  "id": "D13",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿A qué ritmo se pierde peso y cuál es el mínimo de calorías?",
+  "opciones": [
+    "Suave, normal o rápido, con un mínimo de calorías",
+    "Otra"
+  ],
+  "respuesta": "Ritmo: suave −0,25, normal −0,5 y rápido −0,75 kg/semana, nunca más del 1 % del peso por semana. Mínimo de calorías: 1.500 kcal en hombres y 1.200 en mujeres.",
+  "porque": "Aprobado con el onboarding el 20/11/2026."
+}

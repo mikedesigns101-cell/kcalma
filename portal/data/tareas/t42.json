@@ -1,0 +1,9 @@
+{
+  "id": "t42",
+  "fase": "v08",
+  "titulo": "Pantallas de Entreno",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Pestaña Entreno, rutina, ficha con figura animada, sesión (series con descanso, EMOM y AMRAP) y editor.",
+  "tecnico": "ui/entreno/"
+}

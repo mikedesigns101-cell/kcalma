@@ -1,0 +1,9 @@
+{
+  "id": "g4",
+  "orden": 4,
+  "icono": "💡",
+  "titulo": "Propuestas y alimentos de los usuarios",
+  "tipo": "texto",
+  "texto": "Los informes de fallos y las propuestas que mandan los usuarios con las burbujas 🐞 y 💡 se quedan en GitHub, como incidencias. No se copian a este portal: se miran allí cada vez, para que haya una sola lista.\n- «Qué han propuesto» o «mira las propuestas»: Claude te enseña cada propuesta resumida y tú decides cuáles se hacen. Las descartadas y las hechas se cierran (las hechas, citando la versión).\n- «Revisa los alimentos»: repaso de los alimentos compartidos que el robot dejó en revisión.",
+  "tecnico": "gh issue list --label propuesta --state open\ngh issue list --label revisar --state open\ngh issue list --label informe --state open"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "t41",
+  "fase": "v08",
+  "titulo": "Guardado de los entrenos",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Cada serie se guarda al marcarla; una sesión a medias se sigue desde «Continuar».",
+  "tecnico": "datos/Entrenos.kt (entreno.db)"
+}

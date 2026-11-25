@@ -1,0 +1,13 @@
+{
+  "id": "D71",
+  "estado": "decidida",
+  "fecha": "2026-11-25",
+  "fechaRespuesta": "2026-11-25",
+  "pregunta": "¿Cómo se compite con amigos sin servidor, y qué se comparte?",
+  "opciones": [
+    "GitHub cifrado",
+    "Otra"
+  ],
+  "respuesta": "GitHub cifrado (Mikel: «GitHub cifrado»): cada grupo tiene un código. Cada móvil publica sus cifras del mes cifradas con ese código (AES-GCM) como comentario en una incidencia fija del repo; un robot las guarda en `comunidad/grupos/` y borra el comentario. Solo quien tiene el código puede leerlas. Se actualiza en minutos, no al instante. Se comparte el apodo y cuatro cifras del mes; nunca el peso ni lo que se come.",
+  "porque": "Idea 12 de la nota de Obsidian. Maqueta `maquetas/kcalma-amigos.html`."
+}

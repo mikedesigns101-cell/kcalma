@@ -1,0 +1,9 @@
+{
+  "id": "t06",
+  "fase": "v01",
+  "titulo": "Pruebas de la primera versión en el emulador",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "Buscar «yogur griego», abrir la ficha, poner 1,5 raciones y añadirlo a Comida: Hoy se actualiza (1.856 restantes) y se mantiene al reiniciar la app. Permiso de cámara: OK. Un código escrito a mano que no está en el móvil (8400000000024) se encontró en Open Food Facts.\nDespués de reiniciar: escáner (con la cámara emulada y escribiendo el código), Ver y añadir, borrar deslizando, guardar comida habitual, filtro «Mis comidas» y añadir una habitual: todo funciona. Corregido: redondeo de kcal en las habituales y legibilidad de los textos sobre la imagen de la cámara.",
+  "tecnico": "Los 12 tests pasan y la APK de depuración compila."
+}

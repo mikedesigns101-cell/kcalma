@@ -1,0 +1,12 @@
+{
+  "id": "D68",
+  "estado": "decidida",
+  "fecha": "2026-11-24",
+  "fechaRespuesta": "2026-11-24",
+  "pregunta": "¿Cómo se comparten los alimentos nuevos?",
+  "opciones": [
+    "GitHub automático",
+    "Otra"
+  ],
+  "respuesta": "GitHub automático (Mikel: «GitHub automático»): un alimento nuevo que registre un usuario se manda al repo con el token de los informes; una GitHub Action valida los números y lo añade a un archivo que todas las apps descargan una vez al día. Sin servidor. Si alguien cuela alimentos falsos, se borran y se revoca el token."
+}

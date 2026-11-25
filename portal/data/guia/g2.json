@@ -1,0 +1,34 @@
+{
+  "id": "g2",
+  "orden": 2,
+  "icono": "🚀",
+  "titulo": "Cómo se publica una versión",
+  "tipo": "flujo",
+  "pasos": [
+    {
+      "titulo": "Maqueta",
+      "texto": "Si hay pantallas nuevas, primero la maqueta y tu visto bueno."
+    },
+    {
+      "titulo": "Programar y probar",
+      "texto": "Claude la programa y la prueba en el emulador y con los tests."
+    },
+    {
+      "titulo": "Tu repaso",
+      "texto": "Te avisa al terminar para que comentes cambios antes de publicar."
+    },
+    {
+      "titulo": "Release en GitHub",
+      "texto": "Se publica como release con la APK firmada y el número de versión subido."
+    },
+    {
+      "titulo": "VirusTotal",
+      "texto": "Cada release lleva el enlace a su análisis en VirusTotal."
+    },
+    {
+      "titulo": "Se actualiza sola",
+      "texto": "Los móviles que ya tienen Kcalma ven la tarjeta «Nueva versión» y se actualizan desde la app."
+    }
+  ],
+  "tecnico": "Compilar con el JDK 21 (JAVA_HOME) y el SDK de D:\\Android\\Sdk; emulador openGym_API36.\n./gradlew :app:assembleDebug\nRelease: kcalma-X.Y.Z.apk firmada con la clave de C:\\Users\\Mikel\\.kcalma\\ (fuera del repo); subir versionCode.\nNo cambiar nunca applicationId = com.mikel.kcalma."
+}

@@ -1,0 +1,9 @@
+{
+  "id": "b09",
+  "tipo": "falta",
+  "estado": "pendiente",
+  "fecha": "2026-11-24",
+  "titulo": "Algunas animaciones de ejercicios son aproximadas",
+  "detalle": "Los 121 ejercicios nuevos reutilizan los movimientos de la figura que había más 5 nuevos, así que algunas animaciones no son exactas.",
+  "tecnico": "ui/entreno/Figura.kt · decisión D58"
+}

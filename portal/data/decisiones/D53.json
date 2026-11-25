@@ -1,0 +1,13 @@
+{
+  "id": "D53",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "Decisiones de implementación de la 0.8.0",
+  "opciones": [
+    "Las que eligiera Claude",
+    "Otra"
+  ],
+  "respuesta": "«Anterior» es por ejercicio: lo último que hiciste en ese ejercicio, en cualquier rutina. Las rutinas hechas vienen sin días; la tarjeta «Hoy toca» solo sale si pones días o tienes un entreno a medias. Los entrenos van en `entreno.db`, aparte del diario, y entran en la copia de seguridad. Editar una rutina hecha guarda tu copia con el mismo id («Volver a la original» la deshace). Orden de ejercicios en el editor con flechas ↑ ↓, no arrastrando. Catálogo inicial: 31 ejercicios (9 de kettlebell) y 10 rutinas hechas (3 gimnasio, 5 kettlebell con EMOM y AMRAP, 2 casa); faltaban ejercicios hasta los ~150 y el modo intervalos. EMOM apunta solo cada minuto; AMRAP cuenta rondas con + y −.",
+  "porque": "Lo eligió Claude al implementar; está pendiente de que lo revises. Los ejercicios que faltaban y los intervalos llegaron en la 0.9.0."
+}

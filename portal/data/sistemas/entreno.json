@@ -1,0 +1,10 @@
+{
+  "id": "entreno",
+  "nombre": "Entreno y entrenador IA",
+  "categoria": "App",
+  "orden": 6,
+  "color": "red",
+  "explicacion": "Rutinas de gimnasio, kettlebell y casa; sesiones que guardan cada serie; progresión automática; mapa del cuerpo y figura animada. El entrenador con IA propone cambios cada semana, crea rutinas y responde dudas en un chat.",
+  "uso": "Pestaña Entreno.",
+  "tecnico": "dominio/Entreno.kt · Ejercicios.kt · EjerciciosMas.kt · Progresion.kt · Entrenador.kt · datos/Entrenos.kt (entreno.db) · datos/Coach.kt · ui/entreno/"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "t21",
+  "fase": "v04",
+  "titulo": "Atajos en Añadir (0.4.2)",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Repetir la última comida, «Sueles tomar» y «Añadir solo calorías».",
+  "tecnico": "«Sueles tomar» = Diario.frecuentes"
+}

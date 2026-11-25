@@ -1,0 +1,9 @@
+{
+  "id": "t60",
+  "fase": "v09",
+  "titulo": "Envíos directos a GitHub con el token",
+  "estado": "hecho",
+  "fecha": "2026-11-25",
+  "detalle": "Publicar las cifras propias desde la app necesitaba el token de GitHub. El 25/11 lo creaste y se comprobó desde el emulador, con la compilación que lo lleva: un informe (incidencia 7), una propuesta (incidencia 8) y las cifras de un grupo de amigos llegan directas a GitHub; el robot de grupos las guardó. Las pruebas se cerraron y se borraron.",
+  "tecnico": "github-informes.txt en C:\\Users\\Mikel\\.kcalma\\"
+}

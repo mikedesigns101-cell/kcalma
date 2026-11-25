@@ -1,0 +1,9 @@
+{
+  "id": "t25",
+  "fase": "v06",
+  "titulo": "Mover entradas o una comida entera a otra comida (0.6.0)",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Desde el botón ⋯ de la pantalla de la comida.",
+  "tecnico": "Diario.mover"
+}

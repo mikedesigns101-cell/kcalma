@@ -1,0 +1,9 @@
+{
+  "id": "t34",
+  "fase": "v07",
+  "titulo": "Cuatro temas de color",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Kcalma, Hielo, Aurora y Orquídea, translúcidos sobre un cielo oscuro con luces. Se eligen en Perfil → Apariencia, que también apaga las animaciones; si Android las tiene quitadas, Kcalma tampoco las pone.",
+  "tecnico": "ui/theme/Colores.kt · TemaRaideo sigue opaco para el widget · PantallaApariencia.kt · KcalmaTheme.movimiento"
+}

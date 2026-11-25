@@ -1,0 +1,9 @@
+{
+  "id": "t29",
+  "fase": "v06",
+  "titulo": "Guía de avisos al instalar y texto para Play Protect (0.6.0)",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "La guía de avisos está en el README y el texto para la apelación a Play Protect, en los documentos del proyecto.",
+  "tecnico": "README.md · docs/apelacion-play-protect.md"
+}

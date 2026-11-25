@@ -1,0 +1,13 @@
+{
+  "id": "D33",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "Detalles provisionales de recordatorios, widget y platos caseros",
+  "opciones": [
+    "Los que eligiera Claude",
+    "Otra"
+  ],
+  "respuesta": "Recordatorios por defecto: desayuno 10:30, comida 16:00, cena 22:30 y peso los lunes a las 9:00. Media mañana y merienda van apagadas. Solo avisa si esa comida está sin apuntar, y no se programa nada hasta que abres la pantalla. Widget de 4×2: anillo, kcal restantes y botones de foto y añadir. Los platos caseros salen en «Mis comidas» y en la búsqueda; entran en la copia de seguridad, la lista de la compra no.",
+  "porque": "Los decidió Claude el 21/11/2026 sin Mikel, porque estaba fuera. Pendiente de que Mikel los revise."
+}

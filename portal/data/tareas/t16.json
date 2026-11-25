@@ -1,0 +1,9 @@
+{
+  "id": "t16",
+  "fase": "v03",
+  "titulo": "Pantalla Progreso (0.3.0)",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "El peso frente al ritmo del plan, las kcal de la semana, la proteína media y la racha.",
+  "tecnico": "ui/progreso/"
+}

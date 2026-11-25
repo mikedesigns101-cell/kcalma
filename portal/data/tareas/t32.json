@@ -1,0 +1,9 @@
+{
+  "id": "t32",
+  "fase": "v06",
+  "titulo": "Extras de la 0.6.1",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "El dictado entiende «cocidos/cocinados/hervidos»; «Deshacer» al borrar en la pantalla de la comida; etiquetas «1 ración»; tomate frito y conservas van a Despensa. Sin probar en el emulador: el dictado con «cocidos» (lo cubren los tests).",
+  "tecnico": "Voz"
+}

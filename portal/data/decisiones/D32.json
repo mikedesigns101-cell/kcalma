@@ -1,0 +1,12 @@
+{
+  "id": "D32",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Quién lee la foto de la etiqueta?",
+  "opciones": [
+    "Gemini, con la clave del usuario",
+    "Otra"
+  ],
+  "respuesta": "La lee Gemini con la clave del usuario."
+}

@@ -1,0 +1,6 @@
+{
+  "id": "v02",
+  "nombre": "0.2 · Foto con IA",
+  "orden": 2,
+  "detalle": "Hacer una foto del plato y que Gemini diga qué hay; la base de alimentos calcula las calorías (0.2.0 y 0.2.1)."
+}

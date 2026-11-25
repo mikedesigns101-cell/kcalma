@@ -1,0 +1,8 @@
+{
+  "id": "t09",
+  "fase": "v01",
+  "titulo": "Decidir si la APK se divide por tipo de móvil",
+  "estado": "te-toca",
+  "detalle": "La APK release pesa 29 MB porque el lector de códigos lleva dentro el código para todos los tipos de procesador. Hay que decidir contigo si se divide.",
+  "tecnico": "ML Kit con todas las arquitecturas · ESTADO.md, «Pendiente», punto 2 · tablero b01"
+}

@@ -1,0 +1,9 @@
+{
+  "id": "t15",
+  "fase": "v03",
+  "titulo": "Pantalla Perfil (0.3.0)",
+  "estado": "hecho",
+  "fecha": "2026-11-20",
+  "detalle": "Tus datos, el peso con historial, kcal a mano, la clave de Gemini, copia de seguridad (un archivo sin la clave), mandar informe y buscar actualización.",
+  "tecnico": "ui/perfil/ · datos/Copia.kt (JSON sin la clave)"
+}

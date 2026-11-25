@@ -1,0 +1,9 @@
+{
+  "id": "t56",
+  "fase": "v09",
+  "titulo": "Base del diario a la versión 5",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "detalle": "65 tests y las pruebas del robot pasan.",
+  "tecnico": "diario.db pasa a la versión 5 (tablas preferidos y comunidad)"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "D67",
+  "estado": "decidida",
+  "fecha": "2026-11-24",
+  "fechaRespuesta": "2026-11-24",
+  "pregunta": "¿Cómo es el historial?",
+  "opciones": [
+    "Ver y editar",
+    "Otra"
+  ],
+  "respuesta": "Ver y editar (Mikel: «Ver y editar»): lista de días con kcal y peso; al abrir un día se ven sus comidas y se pueden añadir, cambiar o borrar."
+}

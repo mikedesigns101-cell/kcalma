@@ -1,0 +1,23 @@
+{
+  "formato": 1,
+  "nombre": "Kcalma",
+  "frase": "App de Android para contar calorías y macros, pensada para España: buscador de alimentos, escáner, foto del plato con IA y entrenos. Gratis, para ti y tus amigos.",
+  "icono": "🥗",
+  "colores": [
+    "#3AD6F0",
+    "#E05CC0"
+  ],
+  "modo": "individual",
+  "ahora": "La 0.9.0 está publicada en GitHub (25/11/2026): informes y propuestas directos, entrenador con IA, alimentos compartidos, competición con amigos y podómetro. La publicaste sin probarla en tu móvil.",
+  "siguiente": "Que pruebes la 0.9.0 en tu móvil; si salen fallos, se arreglan con una versión de arreglo. Quedan por revisar las cosas que eligió Claude sin ti y decidir si la APK se divide por tipo de móvil.",
+  "etiquetas": [
+    "Android",
+    "Kotlin + Compose",
+    "Sin servidor",
+    "APK en GitHub",
+    "Amigos"
+  ],
+  "fuentes": {
+    "git": true
+  }
+}

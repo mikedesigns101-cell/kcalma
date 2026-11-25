@@ -1,0 +1,9 @@
+{
+  "id": "t55",
+  "fase": "v09",
+  "titulo": "Alimentos compartidos con la comunidad",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "detalle": "Robot probado en GitHub real (publicar, dejar en revisión, retirar) y descarga probada en la app. El 24/11 el envío desde la app necesitaba el token, que aún no existía.",
+  "tecnico": "datos/Comunidad.kt · dominio/Compartidos.kt · comunidad/robot.py · .github/workflows/alimentos.yml"
+}

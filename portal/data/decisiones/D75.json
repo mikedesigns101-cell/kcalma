@@ -1,0 +1,13 @@
+{
+  "id": "D75",
+  "estado": "decidida",
+  "fecha": "2026-11-25",
+  "fechaRespuesta": "2026-11-25",
+  "pregunta": "Lo elegido al implementar amigos y podómetro",
+  "opciones": [
+    "Lo que eligiera Claude",
+    "Otra"
+  ],
+  "respuesta": "«Cerca del límite» es la media de lo cerca que se queda uno de su objetivo los días que apunta, y solo puntúa con 5 días apuntados o más; la racha es la más larga de días seguidos apuntados dentro del mes; el podómetro lee el sensor al abrir la app y con cada recordatorio, sin servicio en segundo plano; máximo 30 personas por grupo.",
+  "porque": "Lo eligió Claude al implementar; está pendiente de que lo revises."
+}

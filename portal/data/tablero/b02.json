@@ -1,0 +1,10 @@
+{
+  "id": "b02",
+  "tipo": "falta",
+  "estado": "pendiente",
+  "fecha": "2026-11-25",
+  "teToca": true,
+  "titulo": "Revisar lo que Claude eligió sin ti",
+  "detalle": "Varias decisiones pequeñas las tomó Claude al implementar y esperan tu repaso: los detalles de la 0.5.0, los de Entreno (0.8.0), los de la 0.9.0, los de la segunda tanda (dictado, cocinado, Complex, historial, entrenador, foto, informes y compartidos) y los de amigos y podómetro.",
+  "tecnico": "Decisiones D30, D31, D33, D53, D58, D60, D70 y D75"
+}

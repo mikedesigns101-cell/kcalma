@@ -1,0 +1,10 @@
+{
+  "id": "base",
+  "nombre": "Base de alimentos",
+  "categoria": "Datos",
+  "orden": 3,
+  "color": "blue",
+  "explicacion": "Casi 80.000 alimentos españoles dentro de la app, para que el buscador funcione sin internet: genéricos de BEDCA y productos de supermercado de Open Food Facts. Si un código no está, se busca en Open Food Facts por internet.",
+  "uso": "La usa todo lo que calcula calorías.",
+  "tecnico": "app/src/main/assets/alimentos.db · datos/scripts/01 a 07 (descarga, filtro, construcción, base del móvil, recetas y correcciones) · datos/Catalogo.kt · datos/OpenFoodFacts.kt"
+}

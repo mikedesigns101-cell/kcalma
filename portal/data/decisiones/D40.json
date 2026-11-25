@@ -1,0 +1,19 @@
+{
+  "id": "D40",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Qué mejoras de comodidad entran en la 0.6.0?",
+  "opciones": [
+    "Mover entradas a otra comida",
+    "Recordar la última cantidad",
+    "Buscar por voz",
+    "Deshacer al borrar",
+    "Ver días anteriores",
+    "Copiar de otro día",
+    "Cantidades rápidas",
+    "Contador de agua"
+  ],
+  "respuesta": "Mover entradas (o una comida entera) a otra comida, recordar la última cantidad de cada alimento y buscar por voz. Descartadas por ahora: deshacer al borrar, ver días anteriores, copiar de otro día, cantidades rápidas y contador de agua.",
+  "porque": "Maqueta en `maquetas/kcalma-0.6.html` (aprobada). Luego «deshacer al borrar» entró en la 0.6.1 (D43) y el historial en la 0.9.0 (D67)."
+}

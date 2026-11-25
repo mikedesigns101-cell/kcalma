@@ -1,0 +1,13 @@
+{
+  "id": "D17",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Cómo es la foto con IA, qué proveedores hay y qué pasa con un alimento que no está en la base?",
+  "opciones": [
+    "Solo Gemini al principio, con la estimación de la IA si no está",
+    "Otra"
+  ],
+  "respuesta": "4 pantallas: clave de Gemini la primera vez (guía de 3 pasos y aviso de que el plan gratuito de Google puede usar las fotos), foto con nota opcional y galería, análisis, y revisión con deslizadores de gramos, «Cambiar» y «Añadir algo que falte». Solo Gemini en la primera versión; OpenAI y Claude, más adelante en «Elegir proveedor». Un alimento que no está en la base usa la estimación de kcal y macros de la IA, marcada como «Estimado» y editable.",
+  "porque": "Aprobada el 20/11/2026. Maqueta en `maquetas/kcalma-foto.html`."
+}

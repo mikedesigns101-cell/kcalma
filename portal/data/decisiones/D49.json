@@ -1,0 +1,12 @@
+{
+  "id": "D49",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Cómo se enseñan los músculos y los ejercicios?",
+  "opciones": [
+    "Mapa del cuerpo y figura animada propios",
+    "Otra"
+  ],
+  "respuesta": "Mapa del cuerpo (frente y espalda) al ver o crear una rutina y en cada ejercicio, con los músculos que trabajan iluminados, dibujado por nosotros con el estilo Kcalma. Ficha de ejercicio con figura animada propia (un maniquí estilizado dibujado en código, en bucle y con los músculos iluminados), pasos, errores típicos, historial y récord. Unos 150 ejercicios bien hechos, no miles."
+}

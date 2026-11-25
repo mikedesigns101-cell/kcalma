@@ -1,0 +1,30 @@
+{
+  "id": "g3",
+  "orden": 3,
+  "icono": "🐞",
+  "titulo": "Cómo se arreglan los fallos",
+  "tipo": "flujo",
+  "pasos": [
+    {
+      "titulo": "Se lo pides",
+      "texto": "«Arregla los errores» o «arregla los bugs»."
+    },
+    {
+      "titulo": "Lista",
+      "texto": "Claude lee los informes abiertos en GitHub y te enseña cada uno con el arreglo que propone."
+    },
+    {
+      "titulo": "Tú eliges",
+      "texto": "Solo se arregla lo que apruebes."
+    },
+    {
+      "titulo": "Capturas",
+      "texto": "Claude te enseña capturas y espera tu visto bueno antes de publicar."
+    },
+    {
+      "titulo": "Cerrar",
+      "texto": "Cada informe arreglado se cierra citando la versión que lo arregla."
+    }
+  ],
+  "tecnico": "gh issue list --label informe --state open"
+}

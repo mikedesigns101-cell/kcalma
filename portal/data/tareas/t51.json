@@ -1,0 +1,8 @@
+{
+  "id": "t51",
+  "fase": "v09",
+  "titulo": "Historial y días pasados editables",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "tecnico": "ui/progreso/Historial.kt · diaPasado en ui/App.kt"
+}

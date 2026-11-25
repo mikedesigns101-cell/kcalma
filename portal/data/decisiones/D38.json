@@ -1,0 +1,12 @@
+{
+  "id": "D38",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Se hace el rediseño por partes o todo junto?",
+  "opciones": [
+    "Todo de golpe",
+    "Por partes"
+  ],
+  "respuesta": "Todo de golpe en una 0.7.0. Antes, maquetas cristal de todas las pantallas para aprobarlas."
+}

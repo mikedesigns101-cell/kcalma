@@ -1,0 +1,13 @@
+{
+  "id": "D44",
+  "estado": "decidida",
+  "fecha": "2026-11-21",
+  "fechaRespuesta": "2026-11-21",
+  "pregunta": "¿Cuándo se mira si hay versión nueva, y cómo se llama esa versión?",
+  "opciones": [
+    "Cada vez que se vuelve a la app, como 0.6.2",
+    "Solo al arrancar"
+  ],
+  "respuesta": "La tarjeta «Nueva versión» de Hoy se comprueba cada vez que se vuelve a la app, no solo al arrancarla (como mucho una consulta a GitHub cada 10 minutos). Se llama 0.6.2 en vez de 0.6.1.1 para seguir el formato de tres números.",
+  "porque": "A petición de Mikel, 21/11/2026."
+}

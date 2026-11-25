@@ -1,0 +1,8 @@
+{
+  "id": "t54",
+  "fase": "v09",
+  "titulo": "Fluidez al cambiar de pestaña",
+  "estado": "hecho",
+  "fecha": "2026-11-24",
+  "detalle": "La clave ya no se descifra ni se llama a Health Connect en el hilo de la pantalla, y las ideas se calculan una vez. En el emulador no se nota diferencia (4-5 % de fotogramas lentos antes y después); hay que verlo en un móvil."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "D19",
+  "estado": "decidida",
+  "fecha": "2026-11-20",
+  "fechaRespuesta": "2026-11-20",
+  "pregunta": "¿Cómo se empareja lo que ve la IA con la base?",
+  "opciones": [
+    "Los ingredientes tienen que estar en el nombre",
+    "Otra"
+  ],
+  "respuesta": "Los ingredientes de la búsqueda tienen que estar en el nombre del alimento (la tortilla de patatas nunca es «tortilla a la francesa»); si nada encaja, se usa la estimación de la IA."
+}

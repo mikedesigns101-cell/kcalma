@@ -1,0 +1,5 @@
+{
+  "id": "version-code",
+  "palabra": "versionCode",
+  "definicion": "El número interno de cada versión; tiene que subir siempre para que el móvil acepte la actualización."
+}

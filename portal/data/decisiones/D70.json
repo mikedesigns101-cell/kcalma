@@ -1,0 +1,13 @@
+{
+  "id": "D70",
+  "estado": "decidida",
+  "fecha": "2026-11-24",
+  "fechaRespuesta": "2026-11-24",
+  "pregunta": "Lo elegido al implementar la segunda tanda",
+  "opciones": [
+    "Lo que eligiera Claude",
+    "Otra"
+  ],
+  "respuesta": "Cocinado: el aceite se apunta como alimento aparte («Aceite de oliva (plancha)»); si el alimento de la base ya dice que está frito, a la plancha o rebozado, o es una estimación de la IA, no se suma aceite. Dictado: sustituye al dictado del menú + y del micrófono de Hoy; el micrófono del buscador sigue buscando un solo alimento. Complex: formato nuevo en el editor (rondas y descanso entre rondas); un solo peso para todo el complex; la rutina hecha «Complejo de una kettlebell» pasa a 5 rondas de 5 reps con 90 s. Historial: se ven 100 días; se abre desde «Historial ›» en Progreso y tocando la fecha en Hoy; el peso de un día pasado se apunta sin cambiar el del perfil. Entrenador: la rutina nueva va en un campo propio de la respuesta de la IA; el código arregla lo arreglable (nombres por ids, números al rango) y descarta lo que no existe. Foto: rápido por defecto y botón «Analizar con más precisión» (modelo grande, hasta un minuto); al usar «Cambiar», la app recuerda esa corrección y la aplica la próxima vez. Informes: además de los últimos 15 minutos se manda el último error anterior, si lo hubo. Compartidos: solo los productos con código de barras creados leyendo la etiqueta; «Actualizar Kcalma» baja también la lista de la comunidad.",
+  "porque": "Segunda tanda implementada y probada en el emulador el 24/11/2026 (código subido a GitHub, release sin publicar en ese momento). Mikel dio el visto bueno con «Hazlo así, me parece bien» tras ver las maquetas. Lo eligió Claude al implementar; está pendiente de que lo revises."
+}

@@ -1,0 +1,12 @@
+{
+  "id": "D56",
+  "estado": "decidida",
+  "fecha": "2026-11-22",
+  "fechaRespuesta": "2026-11-22",
+  "pregunta": "¿Cómo se arreglan los fallos que llegan?",
+  "opciones": [
+    "Claude enseña la lista y arregla solo lo aprobado",
+    "Otra"
+  ],
+  "respuesta": "«Arregla los errores»: Claude lee las incidencias con la etiqueta `informe`, enseña a Mikel la lista y lo que cambiaría en cada una, arregla solo lo aprobado y enseña capturas antes de publicar."
+}

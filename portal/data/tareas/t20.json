@@ -1,0 +1,9 @@
+{
+  "id": "t20",
+  "fase": "v04",
+  "titulo": "Gustos por categorías (0.4.2)",
+  "estado": "hecho",
+  "fecha": "2026-11-21",
+  "detalle": "Cada categoría lleva sus palabras; las usan el recomendador de recetas y la petición a la IA.",
+  "tecnico": "dominio/Gustos.kt (categorías con raíces de palabra) · pantalla en BloqueGustos"
+}

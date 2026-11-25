@@ -1,0 +1,9 @@
+{
+  "id": "b07",
+  "tipo": "fallo",
+  "estado": "pendiente",
+  "fecha": "2026-11-24",
+  "titulo": "La foto se equivoca en gramos, alimento, producto y platos mezclados",
+  "detalle": "Viste fallos en las cuatro cosas. En la 0.9.0 la foto tiene instrucciones nuevas, un modo más preciso y recuerda tus correcciones, pero falta probarlo con fotos reales.",
+  "tecnico": "Decisiones D65 y D70 · tabla preferidos"
+}

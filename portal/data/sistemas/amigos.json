@@ -1,0 +1,10 @@
+{
+  "id": "amigos",
+  "nombre": "Amigos y podómetro",
+  "categoria": "Comunidad",
+  "orden": 13,
+  "color": "green",
+  "explicacion": "Competición mensual entre amigos con un código de grupo: cada móvil comparte cuatro cifras cifradas, nunca el peso ni lo que se come. Los pasos salen del sensor del móvil o de Health Connect.",
+  "uso": "Progreso → «Amigos ›» o Perfil.",
+  "tecnico": "dominio/Competicion.kt · dominio/CifradoGrupo.kt (AES-GCM) · datos/Amigos.kt · datos/Podometro.kt · datos/Salud.kt · ui/progreso/PantallaAmigos.kt · comunidad/grupos/"
+}
