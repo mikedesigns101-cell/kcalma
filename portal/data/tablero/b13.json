@@ -1,0 +1,10 @@
+{
+  "id": "b13",
+  "tipo": "fallo",
+  "estado": "nuevo",
+  "fecha": "2026-11-26",
+  "titulo": "Informe desde la app: «las bananas 7-7, ponle bien las calorías»",
+  "detalle": "Alguien avisó desde la pantalla de una comida de que unas bananas tienen mal las calorías. Falta mirar qué alimento es y qué número está mal; no se arregla nada hasta que Mikel lo vea.",
+  "tecnico": "Incidencia 9 del repositorio (etiqueta informe), Kcalma 0.9.0, móvil realme RMX5078.",
+  "teToca": true
+}

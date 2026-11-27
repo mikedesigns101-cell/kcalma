@@ -1,0 +1,16 @@
+{
+  "id": "D76",
+  "estado": "abierta",
+  "fecha": "2026-11-27T15:43+01:00",
+  "pregunta": "¿Qué icono llevará la app? El actual era provisional y no te gusta",
+  "opciones": [
+    "A · La pompa: la esfera de cristal con líquido de la pantalla Hoy, sin letra",
+    "B · K en el anillo: fondo oscuro, anillo de progreso con el degradado y K blanca gruesa",
+    "C · Gota en calma: una gota con el degradado y una ola blanca dentro",
+    "D · Anillo de macros: los tres macros en sus colores con la K en el centro",
+    "E · K de cristal: el degradado a toda la superficie con una K blanca muy gruesa",
+    "F · Pulso en calma: una línea que pasa de pulso a onda suave dentro del anillo",
+    "Mezclar dos o pedir otra tanda"
+  ],
+  "recomendacion": "E (K de cristal). Es la que mejor se lee en pequeño y la única que destaca igual sobre un fondo de pantalla oscuro que sobre uno claro; las de fondo oscuro se funden con los fondos oscuros. Segunda opción: B. Los bocetos están en la carpeta de maquetas (kcalma-logos)."
+}
