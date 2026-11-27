@@ -1,7 +1,10 @@
 {
   "id": "D76",
-  "estado": "abierta",
+  "estado": "decidida",
   "fecha": "2026-11-27T15:43+01:00",
+  "fechaRespuesta": "2026-11-27T16:23+01:00",
+  "respuesta": "D · Anillo de macros: los tres macros (proteína, hidratos y grasas) como un anillo en sus colores, con la K blanca en el centro, sobre fondo oscuro.",
+  "porque": "Lo eligió Mikel al ver los seis bocetos.",
   "pregunta": "¿Qué icono llevará la app? El actual era provisional y no te gusta",
   "opciones": [
     "A · La pompa: la esfera de cristal con líquido de la pantalla Hoy, sin letra",
