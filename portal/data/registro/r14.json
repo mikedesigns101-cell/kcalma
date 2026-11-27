@@ -1,0 +1,7 @@
+{
+  "id": "r14",
+  "fecha": "2026-11-27T16:54+01:00",
+  "titulo": "Publicada la 0.9.1",
+  "detalle": "Detalle de amigo (kilos perdidos y calorías de hoy), icono nuevo y plátano por piezas. Mikel pidió publicarla con esos tres cambios. Probada en el emulador con un amigo simulado; VirusTotal no la marca. Cerrados el informe de las bananas y la propuesta de ver el progreso de un amigo.",
+  "tecnico": "Release v0.9.1, versionCode 20, SHA-256 c4f7cfc2168f253e91d133005183604c26149739b7a8c9f42d08f97175f77726. Incidencias 9 y 10 cerradas. alimentos.db pasa a la versión 3."
+}
