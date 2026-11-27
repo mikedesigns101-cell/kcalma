@@ -1,10 +1,10 @@
 {
   "id": "b13",
   "tipo": "fallo",
-  "estado": "nuevo",
+  "estado": "hecho",
   "fecha": "2026-11-26",
   "titulo": "Informe desde la app: «las bananas 7-7, ponle bien las calorías»",
-  "detalle": "Alguien avisó desde la pantalla de una comida de que unas bananas tienen mal las calorías. Falta mirar qué alimento es y qué número está mal; no se arregla nada hasta que Mikel lo vea.",
+  "detalle": "Alguien avisó desde una comida de que las bananas tenían mal las calorías. Mikel aclaró que lo que faltaba era poder apuntar el plátano por piezas: en la 0.9.1 el «Plátano» lleva la ración «1 plátano mediano» (120 g sin piel, unas 107 kcal).",
   "tecnico": "Incidencia 9 del repositorio (etiqueta informe), Kcalma 0.9.0, móvil realme RMX5078.",
-  "teToca": true
+  "teToca": false
 }

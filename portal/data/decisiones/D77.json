@@ -1,0 +1,13 @@
+{
+  "id": "D77",
+  "estado": "decidida",
+  "fecha": "2026-11-27T16:50+01:00",
+  "fechaRespuesta": "2026-11-27T16:50+01:00",
+  "pregunta": "¿Qué se ve al tocar a un amigo en la clasificación y cómo se comparte?",
+  "opciones": [
+    "Peso perdido desde que empezó o solo el del mes",
+    "Compartir activado con interruptor para apagarlo, o apagado hasta que cada uno lo active"
+  ],
+  "respuesta": "Al tocar a alguien se ven los kilos que ha perdido desde su primera pesada (solo la diferencia, nunca el peso) y las calorías que lleva hoy de su límite. Se comparte por defecto y cada uno puede apagarlo en Amigos con «Compartir mi detalle».",
+  "porque": "Lo pidió Mikel el 27/11/2026 y eligió las dos opciones recomendadas. Cambia lo decidido antes, que era no compartir nada del peso ni de las calorías."
+}

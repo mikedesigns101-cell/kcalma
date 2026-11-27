@@ -46,8 +46,18 @@ class Amigos(contexto: Context) {
 
     fun salir() { prefs.edit().remove("codigo").remove("publicado").remove("cache").remove("cacheMs").apply() }
 
-    private fun json(m: Marca) = JSONObject().put("v", 1).put("m", m.miembro).put("a", m.apodo).put("mes", m.mes)
-        .put("c", m.cercania).put("d", m.diasApuntados).put("e", m.entrenos).put("r", m.racha).put("p", m.pasos).toString()
+    /** Si se comparte con el grupo el peso perdido y las calorías de hoy. Activo salvo que el usuario lo apague. */
+    var compartirDetalle: Boolean
+        get() = prefs.getBoolean("detalle", true)
+        set(v) { prefs.edit().putBoolean("detalle", v).apply() }
+
+    private fun json(m: Marca, conMomento: Boolean = true) = JSONObject().put("v", 2).put("m", m.miembro).put("a", m.apodo).put("mes", m.mes)
+        .put("c", m.cercania).put("d", m.diasApuntados).put("e", m.entrenos).put("r", m.racha).put("p", m.pasos).apply {
+            m.kgPerdidos?.let { put("k", it) }
+            m.kcalHoy?.let { put("h", it) }
+            m.objetivoHoy?.let { put("o", it) }
+            if (conMomento) m.momento?.let { put("t", it) }
+        }.toString()
 
     private fun marcaDe(texto: String, miembro: String, mes: String): Marca? = runCatching {
         val o = JSONObject(texto)
@@ -57,6 +67,10 @@ class Amigos(contexto: Context) {
             miembro, o.getString("a").trim().take(20).ifBlank { "Sin nombre" }, mes,
             o.getInt("c").coerceIn(0, 100), o.getInt("d").coerceIn(0, 31), o.getInt("e").coerceIn(0, 200),
             o.getInt("r").coerceIn(0, 31), o.getLong("p").coerceIn(0, 3_000_000),
+            kgPerdidos = if (o.has("k")) o.getDouble("k").coerceIn(-150.0, 150.0) else null,
+            kcalHoy = if (o.has("h")) o.getInt("h").coerceIn(0, 20_000) else null,
+            objetivoHoy = if (o.has("o")) o.getInt("o").coerceIn(0, 20_000) else null,
+            momento = if (o.has("t")) o.getLong("t") else null,
         )
     }.getOrNull()
 
@@ -67,13 +81,15 @@ class Amigos(contexto: Context) {
     suspend fun publicar(m: Marca, forzar: Boolean = false): Boolean {
         val normalizado = codigo ?: return true
         val texto = json(m)
+        // Para saber si algo ha cambiado no cuenta la hora del cálculo, que cambia siempre
+        val firma = json(m, conMomento = false)
         val ahora = System.currentTimeMillis()
-        if (texto == prefs.getString("publicado", null)) return true
+        if (firma == prefs.getString("publicado", null)) return true
         if (!forzar && ahora - prefs.getLong("publicadoMs", 0) < CADA_SUBIDA_MS) return true
         val cifrado = withContext(Dispatchers.Default) { CifradoGrupo.cifrar(CifradoGrupo.llave(normalizado), texto) }
         val cuerpo = JSONObject().put("g", CifradoGrupo.id(normalizado)).put("m", m.miembro).put("mes", m.mes).put("d", cifrado).toString()
         val ok = GitHub.comentario(GitHub.INCIDENCIA_GRUPOS, "```json\n$cuerpo\n```")
-        if (ok) prefs.edit().putString("publicado", texto).putLong("publicadoMs", ahora).apply()
+        if (ok) prefs.edit().putString("publicado", firma).putLong("publicadoMs", ahora).apply()
         return ok
     }
 
@@ -108,7 +124,7 @@ class Amigos(contexto: Context) {
     }
 
     companion object {
-        const val CADA_SUBIDA_MS = 30 * 60_000L
+        const val CADA_SUBIDA_MS = 60 * 60_000L
         const val CADA_BAJADA_MS = 5 * 60_000L
         const val MAX_MIEMBROS = 30
     }

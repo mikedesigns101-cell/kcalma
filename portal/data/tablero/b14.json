@@ -1,10 +1,10 @@
 {
   "id": "b14",
   "tipo": "idea",
-  "estado": "nuevo",
+  "estado": "hecho",
   "fecha": "2026-11-26",
   "titulo": "Propuesta desde la app: ver el progreso de un amigo igual que el mío",
-  "detalle": "Enviada desde la pantalla Progreso: «quiero poder ver el tuyo también justo como se ve el mio». Hoy los amigos solo comparten cuatro cifras del mes; esto pediría compartir más (por ejemplo el peso o las calorías de cada semana). Mikel decide si se hace y cómo.",
+  "detalle": "Enviada desde Progreso: «quiero poder ver el tuyo también justo como se ve el mio». Hecha en la 0.9.1 con la idea de Mikel: al tocar a un amigo en la clasificación se ven los kilos que ha perdido y las calorías que lleva hoy.",
   "tecnico": "Incidencia 10 del repositorio (etiqueta propuesta), Kcalma 0.9.0.",
-  "teToca": true
+  "teToca": false
 }

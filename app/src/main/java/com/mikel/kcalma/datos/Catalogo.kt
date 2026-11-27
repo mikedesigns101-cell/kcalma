@@ -17,7 +17,7 @@ class Catalogo(private val contexto: Context) {
     private var bd: SQLiteDatabase? = null
 
     /** Subir a la vez que `PRAGMA user_version` del script cuando se regenere la base. */
-    private val version = 2
+    private val version = 3
 
     @Synchronized
     private fun abrir(): SQLiteDatabase {

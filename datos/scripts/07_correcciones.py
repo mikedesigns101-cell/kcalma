@@ -15,7 +15,12 @@ import sys
 from pathlib import Path
 
 BD = Path(__file__).resolve().parents[2] / "app" / "src" / "main" / "assets" / "alimentos.db"
-VERSION = 2
+VERSION = 3
+
+# Genéricos que se apuntan por piezas: nombre exacto -> (texto de la ración, gramos sin piel)
+RACIONES = {
+    "Plátano": ("1 plátano mediano", 120),
+}
 
 # nombre exacto del genérico: kcal, proteínas, hidratos, grasas, fibra (por 100 g; None = no cambiar)
 CORRECCIONES = {
@@ -45,6 +50,11 @@ def corregir(bd: sqlite3.Connection) -> None:
         n = bd.execute(sql, (*[v for _, v in cambios], nombre)).rowcount
         if n != 1:
             print(f"AVISO: «{nombre}» afecta a {n} filas")
+
+    for nombre, (racion, gramos) in RACIONES.items():
+        n = bd.execute("UPDATE alimentos SET racion = ?, racion_g = ? WHERE tipo = 'generico' AND nombre = ?", (racion, gramos, nombre)).rowcount
+        if n != 1:
+            print(f"AVISO: la ración de «{nombre}» afecta a {n} filas")
 
     filas = bd.execute(
         "SELECT id, kcal_100g, proteinas_100g, hidratos_100g, grasas_100g, IFNULL(fibra_100g, 0) FROM alimentos "

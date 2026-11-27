@@ -31,6 +31,14 @@ class CompeticionTest {
         assertFalse(mia.puntuaCercania)
     }
 
+    @Test fun `kilos perdidos desde la primera pesada, sin dar el peso`() {
+        assertNull(Competicion.kgPerdidos(emptyList()))
+        assertNull(Competicion.kgPerdidos(listOf(Pesada("2026-10-01", 85.0))))
+        // Da igual el orden en que lleguen: cuenta la más antigua contra la más reciente
+        assertEquals(3.2, Competicion.kgPerdidos(listOf(Pesada("2026-11-20", 81.8), Pesada("2026-10-01", 85.0), Pesada("2026-11-01", 83.0)))!!, 0.001)
+        assertEquals(-1.5, Competicion.kgPerdidos(listOf(Pesada("2026-10-01", 70.0), Pesada("2026-11-01", 71.5)))!!, 0.001)
+    }
+
     @Test fun `cercania de un dia`() {
         assertEquals(100.0, Competicion.cercaniaDia(2000.0, 2000), 0.001)
         assertEquals(75.0, Competicion.cercaniaDia(2500.0, 2000), 0.001)

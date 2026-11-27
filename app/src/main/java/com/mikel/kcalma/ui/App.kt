@@ -198,6 +198,7 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
     var miMarca by remember { mutableStateOf<Competicion.Marca?>(null) }
     var marcasGrupo by remember { mutableStateOf<Map<String, List<Competicion.Marca>>>(emptyMap()) }
     var cargandoAmigos by remember { mutableStateOf(false) }
+    var compartirDetalle by remember { mutableStateOf(amigos.compartirDetalle) }
     val pedirSalud = rememberLauncherForActivityResult(PermissionController.createRequestPermissionResultContract()) { concedidos ->
         if (concedidos.containsAll(salud.permisos)) { estadoSalud = Salud.Estado.CONECTADO; aviso("Pasos conectados") }
     }
@@ -354,9 +355,14 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             val deSalud = if (estadoSalud == Salud.Estado.CONECTADO) salud.pasosPorDia(dia.withDayOfMonth(1)) else emptyMap()
             val delMovil = if (podometroOn) podometro.pasosPorDia() else emptyMap()
             val pasos = (deSalud.keys + delMovil.keys).associateWith { maxOf(deSalud[it] ?: 0L, delMovil[it] ?: 0L) }
-            val mia = Competicion.miMarca(
+            val base = Competicion.miMarca(
                 amigos.miembro, amigos.apodo, dia, dias, plan.kcal,
                 sesionesE.filter { it.terminada }.map { Entrenador.fecha(it.inicio) }, pasos,
+            )
+            // El detalle (kilos perdidos y calorías de hoy) solo sale si no se ha apagado en Amigos
+            val mia = if (!amigos.compartirDetalle) base else base.copy(
+                kgPerdidos = Competicion.kgPerdidos(pesos), kcalHoy = (dias[dia.toString()]?.kcal ?: 0.0).toInt(),
+                objetivoHoy = plan.kcal + ejercicio, momento = System.currentTimeMillis(),
             )
             miMarca = mia
             val publicado = amigos.publicar(mia, forzar)
@@ -364,6 +370,12 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             cargandoAmigos = false
             if (!publicado && forzar) aviso("No se han podido publicar tus cifras. Revisa la conexión.")
         }
+    }
+
+    // Al volver a la app se publican mis cifras si han cambiado (como mucho una vez por hora); se espera un poco a que cargue el diario
+    LifecycleResumeEffect(grupo) {
+        val trabajo = alcance.launch { kotlinx.coroutines.delay(4000); refrescarAmigos() }
+        onPauseOrDispose { trabajo.cancel() }
     }
 
     // ---- Ideas: recetas propias + las que pida a la IA ----
@@ -706,6 +718,8 @@ fun App(perfil: Perfil, repo: Repositorio, almacen: AlmacenPerfil, tema: Tema, a
             com.mikel.kcalma.ui.progreso.PantallaAmigos(
                 codigo = grupo, apodoInicial = amigos.apodo, mia = miMarca, marcas = marcasGrupo, cargando = cargandoAmigos,
                 puedePublicar = com.mikel.kcalma.datos.GitHub.hayToken,
+                compartirDetalle = compartirDetalle,
+                onCompartirDetalle = { amigos.compartirDetalle = it; compartirDetalle = it; refrescarAmigos(forzar = true) },
                 onCrear = { apodo -> grupo = amigos.crear(apodo); miMarca = null; marcasGrupo = emptyMap() },
                 onUnirse = { codigo, apodo -> amigos.unirse(codigo, apodo).also { if (it) { grupo = amigos.codigo; miMarca = null; marcasGrupo = emptyMap() } } },
                 onActualizar = { refrescarAmigos(forzar = true) },

@@ -17,6 +17,10 @@ object Competicion {
     data class Marca(
         val miembro: String, val apodo: String, val mes: String,
         val cercania: Int, val diasApuntados: Int, val entrenos: Int, val racha: Int, val pasos: Long,
+        /** Detalle que se enseña al tocar a alguien; null si esa persona no lo comparte o aún no ha actualizado. */
+        val kgPerdidos: Double? = null, val kcalHoy: Int? = null, val objetivoHoy: Int? = null,
+        /** Cuándo se calcularon las cifras del detalle (milisegundos). */
+        val momento: Long? = null,
     ) {
         /** Con pocos días apuntados la media no dice nada: no puntúa en esa lista. */
         val puntuaCercania get() = diasApuntados >= DIAS_MINIMOS
@@ -25,6 +29,16 @@ object Competicion {
     enum class Lista(val titulo: String) { CERCANIA("Cerca del límite"), ENTRENOS("Entrenos"), RACHA("Racha de días"), PASOS("Pasos") }
 
     data class Puesto(val marca: Marca, val posicion: Int, val valor: String)
+
+    /**
+     * Kilos perdidos desde la primera pesada hasta la última (negativo si se ha subido). Solo sale la diferencia,
+     * nunca el peso. null con menos de dos pesadas.
+     */
+    fun kgPerdidos(pesos: List<Pesada>): Double? {
+        val orden = pesos.sortedBy { it.fecha }
+        if (orden.size < 2) return null
+        return Math.round((orden.first().kg - orden.last().kg) * 10) / 10.0
+    }
 
     fun mes(hoy: LocalDate = LocalDate.now()): String = YearMonth.from(hoy).toString()
 
