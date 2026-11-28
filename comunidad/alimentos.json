@@ -1,1 +1,16 @@
-[]
+[
+ {
+  "nombre": "Jamón Cocido",
+  "marca": "Hacendado",
+  "codigo": "8402001061844",
+  "kcal": 105.0,
+  "proteinas": 18.5,
+  "hidratos": 1.5,
+  "grasas": 3.0,
+  "azucares": 1.0,
+  "saturadas": 1.0,
+  "sal": 1.8,
+  "fecha": "2026-11-28",
+  "incidencia": 11
+ }
+]
